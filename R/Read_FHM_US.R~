@@ -1,0 +1,38 @@
+#' Read IFN data for each year
+#'
+#' @description This is the base function to process the different types of FHM
+#' data. The FHM data must already be downloaded and can be zipped or unzipped.
+#' @export
+#' @param variable Which variable to read
+#' @param path Path to data folder
+#' @param states Vector with states for which data are to be read
+#' @param zipped boolean if the files are zipped
+#' @param ... Further arguments to @seealso [data.table::fread()].
+#' @details The variable must be either: "placettes_foret", "arbres_foret"
+#'"couverts_foret", "arbres_morts_foret", "ecologie", "documentation"
+#' @return a data.table object
+read_FHM_data <- function(variable, path, state,
+                          zipped = TRUE, ...) {
+  if (zipped) {
+    zipfiles <- list.files(path, pattern = "\\.zip$")
+    zipfiles <- file.path(path, zipfiles[sapply(states, grep, x = zipfiles)])
+    files <- file.path(years, paste0(states, "_", variable, ".csv"))
+    MI_TREE_1994.CSV
+    connections <- mapply(unz, zipfiles, files, SIMPLIFY = FALSE)
+  } else {
+    connections <- file.path(path, years,
+                             paste0(variable, "_", years, ".csv"))
+  }
+  data_list <- lapply(connections, utils::read.table,
+                      header = TRUE, sep = ";", dec = ".",
+                      quote = "", encoding = "UTF-8",
+                      stringsAsFactors = FALSE)
+
+  if (addyear) {
+    for (i in seq_along(data_list)) {
+        data_list[[i]]$year = years[[i]]
+    }
+  }
+  data.table::rbindlist(data_list, use.names = TRUE, fill = TRUE)
+}
+
