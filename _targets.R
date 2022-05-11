@@ -18,16 +18,17 @@ library(targets)
 lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("R", x)))
 
 # Installing if needed and loading packages
-packages.in <- c("baad.data", "stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements", 
-                 "laselva", "sf", "readxl", "stringi", "stringr", "lubridate", "tidyr", "parzer", 
-                 "TNRS", "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata", "R6", "coda", 
-                 "igraph", "nimble")
-
-for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.packages()))) install.packages(packages.in[i])
+# packages.in <- c("baad.data", "stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements", 
+#                  "laselva", "sf", "readxl", "stringi", "stringr", "lubridate", "tidyr", "parzer", 
+#                  "TNRS", "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata", "R6", "coda", 
+#                  "igraph", "nimble")
+# 
+# for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.packages()))) install.packages(packages.in[i])
 
 # Specifying target options
 options(tidyverse.quiet = TRUE, clustermq.scheduler = "multiprocess")
-tar_option_set(packages = packages.in)
+# tar_option_set(packages = packages.in)
+tar_option_set(packages = c("dplyr", "nlme", "lme4", "clustermq", "tidyr"))
 
 list(
   
