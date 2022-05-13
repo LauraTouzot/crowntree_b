@@ -71,7 +71,7 @@ depth_height_models_nlme <- function () {
   
   # compiling selected data and variables
   df <- data_ok[data_ok$checked_name %in% species_list[i],]
-  df <- df %>% filter(!is.na(C_HT_m) & !is.na(C_depth_m))
+  df <- df %>% filter(!is.na(HT_m) & !is.na(C_depth_m))
   
   data <- as.data.frame(cbind(df$HT_m, df$C_depth_m, df$location_ID, df$data))
   colnames(data) <- c("x", "y", "location", "protocol")
@@ -198,19 +198,32 @@ depth_height_models_nlme <- function () {
     # creating classes of dbh
     class_dbh <- max(data$x)/4
     
-    size <- floor(dim(data[data$x >= (class_dbh * 4),])[1] * 0.9)
+    size_a <- floor(dim(data[data$x < class_dbh,])[1] * 0.9)
+    size_b <- floor(dim(data[data$x >= class_dbh & data$x < (class_dbh * 2),])[1] * 0.9)
+    size_c <- floor(dim(data[data$x >= (class_dbh * 2) & data$x < (class_dbh * 3),])[1] * 0.9)
+    size_d <- floor(dim(data[data$x >= (class_dbh * 3),])[1] * 0.9)
+    
+    size <- min(size_a, size_b, size_c, size_d)
     
     if (size >=  50) { 
-      sample_size <- floor(dim(data[(data$x >= class_dbh * 3) & data$x < (class_dbh * 4),])[1] * 0.9) 
+      sample_size <- size
     } else {
       data <- data[data$x <= quantile(data$x, 0.99),] # removing extreme values of dbh if no data in the last dbh class defined
       class_dbh <- max(data$x)/4
-      sample_size <- floor(dim(data[data$x >= (class_dbh * 3) & data$x < (class_dbh * 4),])[1] * 0.9) 
+      
+      size_a <- floor(dim(data[data$x < class_dbh,])[1] * 0.9)
+      size_b <- floor(dim(data[data$x >= class_dbh & data$x < (class_dbh * 2),])[1] * 0.9)
+      size_c <- floor(dim(data[data$x >= (class_dbh * 2) & data$x < (class_dbh * 3),])[1] * 0.9)
+      size_d <- floor(dim(data[data$x >= (class_dbh * 3),])[1] * 0.9)
+      
+      sample_size <- min(size_a, size_b, size_c, size_d)
     }
     
-    
+ 
     j <- 1
-    repeat {
+    while (j < nrep) {
+      
+      print(j)
       
       # tested models
       mod_power <- y ~ a1 * (x ^ a2)
@@ -218,7 +231,7 @@ depth_height_models_nlme <- function () {
       class_1 <- data[data$x < class_dbh,] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
       class_2 <- data[data$x >= class_dbh & data$x < (class_dbh * 2),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
       class_3 <- data[data$x >= (class_dbh * 2) & data$x < (class_dbh * 3),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
-      class_4 <- data[data$x >= (class_dbh * 3) & data$x < (class_dbh * 4),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
+      class_4 <- data[data$x >= (class_dbh * 3),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
       
       new_data <- bind_rows(class_1, class_2, class_3, class_4)
       nb_datasets_sample <- length(unique(new_data$protocol))
@@ -296,27 +309,19 @@ depth_height_models_nlme <- function () {
           parameters_power_2[(((nrep * i) - nrep) + j),k+1] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[k]
         }
         
-        j <- j + 1
-        
-        
       },
       
       error = function(e) {
         
         print(paste("error model", species_list[i], " sampling", j, sep = " "))
-        j <- j + 1
         
       }) 
       
-      
-      if (j > nrep) {
-        break
-        }
+      j <- j+ 1
       
       }
-    
     }   
-  }
+  }  
 
   dev.off()  
   
