@@ -63,7 +63,7 @@ depth_height_models_nlme <- function () {
 
   ## 2. Testing different models
 
-  pdf(file = "figures/alldata_depthheightmodels_1", width = 7, hgieht = 5.5)
+  pdf(file = "figures/alldata_depthheightmodels_1", width = 7, height = 5.5)
 
   for (i in 1:length(species_list)) {
   
