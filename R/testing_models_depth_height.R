@@ -1,6 +1,6 @@
 depth_height_models_nlme <- function (sp) {
-  
-  allometry_complete_database <- read.csv("data/allometry_complete_database.csv", sep = ",")
+
+  allometry_complete_database <- data.table::fread("data/allometry_complete_database.csv", sep = ",")
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
 
   # extracting species list from NFI data (191 species)

@@ -1,7 +1,7 @@
 get_species_list <- function () {
   
   ### Loading data
-  allometry_complete_database <- read.csv("data/allometry_complete_database.csv", sep = ",")
+  allometry_complete_database <- data.table::fread("data/allometry_complete_database.csv", sep = ",")
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
   
   # extracting species list from NFI data (191 species)
@@ -48,7 +48,7 @@ get_species_list <- function () {
 height_models_nlme <- function (sp) {
 
   ### Loading data
-  allometry_complete_database <- read.csv("data/allometry_complete_database.csv", sep = ",")
+  allometry_complete_database <- data.table::fread("data/allometry_complete_database.csv", sep = ",")
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
 
   # extracting species list from NFI data (191 species)
