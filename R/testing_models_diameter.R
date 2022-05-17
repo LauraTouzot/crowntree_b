@@ -3,6 +3,7 @@ diameter_models_nlme <- function (sp) {
   allometry_complete_database <- data.table::fread("data/allometry_complete_database.csv", sep = ",")
   
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
+  allometry_complete_database <- as.data.frame(allometry_complete_database) 
   
   # extracting species list from NFI data (191 species)
   sampling <- NFI_data %>% 
@@ -12,22 +13,13 @@ diameter_models_nlme <- function (sp) {
   data <- allometry_complete_database
   data <- data %>% ungroup()
   species <- unique(data$checked_name)
-  data_summary <- as.data.frame(matrix(nrow = length(species), ncol = 7))
-  colnames(data_summary) <- c("checked_name", "nplot_crown", "ntree_crown", "nobs_HT", "nobs_Cdiam", "nobs_Cdepth", "nobs_CR")
-  data_summary$checked_name <- species
-
-  for (i in 1:length(species)) {
+  data_summary <- data %>% group_by(checked_name) %>% summarise(nplot_crown = length(unique(location_ID)),
+                                                                ntree_crown = length(location_ID),
+                                                                nobs_HT = sum(!is.na(HT_m)),
+                                                                nobs_Cdiam = sum(!is.na(C_diam_m)),
+                                                                nobs_Cdepth = sum(!is.na(C_depth_m)),
+                                                                nobs_CR = sum(!is.na(CR))) %>% ungroup()
   
-    sample <- data[data$checked_name == species[i],]
-    data_summary[i,2] <- length(unique(sample$location_ID))
-    data_summary[i,3] <- dim(sample)[1]
-    data_summary[i,4] <- dim(sample[!is.na(sample$HT_m),])[1]
-    data_summary[i,5] <- dim(sample[!is.na(sample$C_diam_m),])[1]
-    data_summary[i,6] <- dim(sample[!is.na(sample$C_depth_m),])[1]
-    data_summary[i,7] <- dim(sample[!is.na(sample$CR),])[1]
-  
-  }
-
 
   sampling <- left_join(sampling, data_summary, by = "checked_name")
 

@@ -3,7 +3,7 @@ get_species_list <- function () {
   ### Loading data
   allometry_complete_database <- data.table::fread("data/allometry_complete_database.csv", sep = ",")
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
-  
+  allometry_complete_database <- as.data.frame(allometry_complete_database) 
   # extracting species list from NFI data (191 species)
   sampling <- NFI_data %>% 
     filter(continent == "E_U" & nplot >= 100 & ntree >= 1000 | continent == "N_A" & nplot >= 150 & ntree >= 3000)
@@ -12,29 +12,33 @@ get_species_list <- function () {
   data <- allometry_complete_database
   data <- data %>% ungroup()
   species <- unique(data$checked_name)
-  data_summary <- as.data.frame(matrix(nrow = length(species), ncol = 7))
-  colnames(data_summary) <- c("checked_name", "nplot_crown", "ntree_crown", "nobs_HT", "nobs_Cdiam", "nobs_Cdepth", "nobs_CR")
-  data_summary$checked_name <- species
-  
-  for (i in 1:length(species)) {
-    
-    sample <- data[data$checked_name == species[i],]
-    data_summary[i,2] <- length(unique(sample$location_ID))
-    data_summary[i,3] <- dim(sample)[1]
-    data_summary[i,4] <- dim(sample[!is.na(sample$HT_m),])[1]
-    data_summary[i,5] <- dim(sample[!is.na(sample$C_diam_m),])[1]
-    data_summary[i,6] <- dim(sample[!is.na(sample$C_depth_m),])[1]
-    data_summary[i,7] <- dim(sample[!is.na(sample$CR),])[1]
-    
-  }
+  data_summary <- data %>% group_by(checked_name) %>% summarise(nplot_crown = length(unique(location_ID)),
+                                                                ntree_crown = length(location_ID),
+                                                                nobs_HT = sum(!is.na(HT_m)),
+                                                                nobs_Cdiam = sum(!is.na(C_diam_m)),
+                                                                nobs_Cdepth = sum(!is.na(C_depth_m)),
+                                                                nobs_CR = sum(!is.na(CR))) %>% ungroup()
+  # data_summary <- as.data.frame(matrix(nrow = length(species), ncol = 7))
+  # colnames(data_summary) <- c("checked_name", "nplot_crown", "ntree_crown", "nobs_HT", "nobs_Cdiam", "nobs_Cdepth", "nobs_CR")
+  # data_summary$checked_name <- species
+  # 
+  # for (i in 1:length(species)) {
+  #   
+  #   sample <- data[data$checked_name == species[i],]
+  #   data_summary[i,2] <- length(unique(sample$location_ID))
+  #   data_summary[i,3] <- dim(sample)[1]
+  #   data_summary[i,4] <- dim(sample[!is.na(sample$HT_m),])[1]
+  #   data_summary[i,5] <- dim(sample[!is.na(sample$C_diam_m),])[1]
+  #   data_summary[i,6] <- dim(sample[!is.na(sample$C_depth_m),])[1]
+  #   data_summary[i,7] <- dim(sample[!is.na(sample$CR),])[1]
+  #   
+  # } # Need to do that in dplyr super slow
   
   
   sampling <- left_join(sampling, data_summary, by = "checked_name")
   
   selected_sp <- sampling %>% 
     filter(continent == "E_U" & nplot_crown >= 100 & ntree_crown >= 1000 | continent == "N_A" & nplot_crown >= 150 & ntree_crown >= 3000)
-  
-  
   
 
   species_list <- unique(selected_sp$checked_name)
@@ -50,7 +54,8 @@ height_models_nlme <- function (sp) {
   ### Loading data
   allometry_complete_database <- data.table::fread("data/allometry_complete_database.csv", sep = ",")
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
-
+  allometry_complete_database <- as.data.frame(allometry_complete_database) 
+  
   # extracting species list from NFI data (191 species)
   sampling <- NFI_data %>% 
   filter(continent == "E_U" & nplot >= 100 & ntree >= 1000 | continent == "N_A" & nplot >= 150 & ntree >= 3000)
@@ -59,21 +64,12 @@ height_models_nlme <- function (sp) {
   data <- allometry_complete_database
   data <- data %>% ungroup()
   species <- unique(data$checked_name)
-  data_summary <- as.data.frame(matrix(nrow = length(species), ncol = 7))
-  colnames(data_summary) <- c("checked_name", "nplot_crown", "ntree_crown", "nobs_HT", "nobs_Cdiam", "nobs_Cdepth", "nobs_CR")
-  data_summary$checked_name <- species
-
-  for (i in 1:length(species)) {
-  
-    sample <- data[data$checked_name == species[i],]
-    data_summary[i,2] <- length(unique(sample$location_ID))
-    data_summary[i,3] <- dim(sample)[1]
-    data_summary[i,4] <- dim(sample[!is.na(sample$HT_m),])[1]
-    data_summary[i,5] <- dim(sample[!is.na(sample$C_diam_m),])[1]
-    data_summary[i,6] <- dim(sample[!is.na(sample$C_depth_m),])[1]
-    data_summary[i,7] <- dim(sample[!is.na(sample$CR),])[1]
-  
-  }
+  data_summary <- data %>% group_by(checked_name) %>% summarise(nplot_crown = length(unique(location_ID)),
+                                                                ntree_crown = length(location_ID),
+                                                                nobs_HT = sum(!is.na(HT_m)),
+                                                                nobs_Cdiam = sum(!is.na(C_diam_m)),
+                                                                nobs_Cdepth = sum(!is.na(C_depth_m)),
+                                                                nobs_CR = sum(!is.na(CR))) %>% ungroup()
   
 
   sampling <- left_join(sampling, data_summary, by = "checked_name")
