@@ -1,4 +1,4 @@
-depth_models_nlme <- function () {
+depth_models_nlme <- function (sp) {
   
   allometry_complete_database <- read.csv("data/allometry_complete_database.csv", sep = ",")
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
@@ -62,10 +62,12 @@ depth_models_nlme <- function () {
 
 
   ## 2. Testing different models
+  pdf(file = paste0("figures/alldata_depthmodels_1", sp, ".pdf"), width = 7, height = 5.5)
+  
+  
+  i <- (1:length(species_list))[species_list == sp]
+  
 
-  pdf("figures/alldata_depthmodels_1", width = 7, height = 5.5)
-
-  for (i in 1:length(species_list)) {
   
   par(mfrow = c(1,1))
   
@@ -322,14 +324,14 @@ depth_models_nlme <- function () {
       
       }
     }   
-  }
+  
 
   dev.off()  
   
-  write.csv(file = "output/depth_linear_alldata__nlme.csv", parameters_linear_1)
-  write.csv(file = "output/depth_linear_resampling__nlme.csv", parameters_linear_2)
-  write.csv(file = "output/depth_power_alldata__nlme.csv", parameters_power_1)
-  write.csv(file = "output/depth_power_resampling__nlme.csv", parameters_power_2)
+  write.csv(file = paste0("output/depth_linear_alldata__nlme.", sp,".csv"), parameters_linear_1)
+  write.csv(file =  paste0("output/depth_linear_resampling__nlme.", sp,".csv"), parameters_linear_2)
+  write.csv(file =  paste0("output/depth_power_alldata__nlme.", sp,".csv"), parameters_power_1)
+  write.csv(file = paste0( "output/depth_power_resampling__nlme.", sp,".csv"), parameters_power_2)
   
   return(parameters_linear_1, parameters_linear_2, parameters_power_1, parameters_power_2)
   

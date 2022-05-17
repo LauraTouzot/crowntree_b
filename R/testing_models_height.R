@@ -1,4 +1,51 @@
-height_models_nlme <- function () {
+get_species_list <- function () {
+  
+  ### Loading data
+  allometry_complete_database <- read.csv("data/allometry_complete_database.csv", sep = ",")
+  NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
+  
+  # extracting species list from NFI data (191 species)
+  sampling <- NFI_data %>% 
+    filter(continent == "E_U" & nplot >= 100 & ntree >= 1000 | continent == "N_A" & nplot >= 150 & ntree >= 3000)
+  
+  # extracting species list in the allometry database (180 species)
+  data <- allometry_complete_database
+  data <- data %>% ungroup()
+  species <- unique(data$checked_name)
+  data_summary <- as.data.frame(matrix(nrow = length(species), ncol = 7))
+  colnames(data_summary) <- c("checked_name", "nplot_crown", "ntree_crown", "nobs_HT", "nobs_Cdiam", "nobs_Cdepth", "nobs_CR")
+  data_summary$checked_name <- species
+  
+  for (i in 1:length(species)) {
+    
+    sample <- data[data$checked_name == species[i],]
+    data_summary[i,2] <- length(unique(sample$location_ID))
+    data_summary[i,3] <- dim(sample)[1]
+    data_summary[i,4] <- dim(sample[!is.na(sample$HT_m),])[1]
+    data_summary[i,5] <- dim(sample[!is.na(sample$C_diam_m),])[1]
+    data_summary[i,6] <- dim(sample[!is.na(sample$C_depth_m),])[1]
+    data_summary[i,7] <- dim(sample[!is.na(sample$CR),])[1]
+    
+  }
+  
+  
+  sampling <- left_join(sampling, data_summary, by = "checked_name")
+  
+  selected_sp <- sampling %>% 
+    filter(continent == "E_U" & nplot_crown >= 100 & ntree_crown >= 1000 | continent == "N_A" & nplot_crown >= 150 & ntree_crown >= 3000)
+  
+  
+  
+
+  species_list <- unique(selected_sp$checked_name)
+  species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
+  species_list <- species_list[-1]
+  return(species_list)
+  
+}
+
+
+height_models_nlme <- function (sp) {
 
   ### Loading data
   allometry_complete_database <- read.csv("data/allometry_complete_database.csv", sep = ",")
@@ -63,9 +110,10 @@ height_models_nlme <- function () {
 
   ## 2. Testing different models
 
-  pdf(file = "figures/alldata_heightmodels_1", width = 7, height = 5.5)
+  pdf(file = paste0("figures/alldata_heightmodels_1", sp, ".pdf"), width = 7, height = 5.5)
 
-  for (i in 1:length(species_list)) {
+  
+  i <- (1:length(species_list))[species_list == sp]
   
     par(mfrow = c(1,1))
   
@@ -104,13 +152,7 @@ height_models_nlme <- function () {
       # fitting power relationships
       init <- fixef(lmer(log(y) ~ log(x) + (1|location), data)) # initializing values for power models
       
-      # m1 <- nlme(mod_power,
-      #            data = data,
-      #            fixed = list(a1 ~ 1, a2 ~ 1),
-      #            random = a1 ~ 1|location,
-      #            start = c(a1 = exp(init[1]), a2 = init[2]),
-      #            method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-      
+   
       m2 <- nlme(mod_power,
                  data = data,
                  fixed = list(a1 ~ 1, a2 ~ 1),
@@ -281,13 +323,7 @@ height_models_nlme <- function () {
       # fitting power relationships
       init_s <- fixef(lmer(log(y) ~ log(x) + (1|location), new_data)) # initializing values for power models
       
-      # m1 <- nlme(mod_power,
-      #            data = data,
-      #            fixed = list(a1 ~ 1, a2 ~ 1),
-      #            random = a1 ~ 1|location,
-      #            start = c(a1 = exp(init[1]), a2 = init[2]),
-      #            method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-      
+   
       m2_s <- nlme(mod_power,
                    data = new_data,
                    fixed = list(a1 ~ 1, a2 ~ 1),
@@ -370,14 +406,14 @@ height_models_nlme <- function () {
     
         }
       }
-    }
+    
 
   dev.off()  
   
-  write.csv(file = "output/height_power_alldata__nlme.csv", parameters_power_1)
-  write.csv(file = "output/height_power_resampling__nlme.csv", parameters_power_2)
-  write.csv(file = "output/height_asympt_alldata__nlme.csv", parameters_asympt_1)
-  write.csv(file = "output/height_asympt_resampling__nlme.csv", parameters_asympt_2)
+  write.csv(parameters_power_1, file = paste0("output/height_power_alldata__nlme.",sp, ".csv") )
+  write.csv(parameters_power_2, file =  paste0("output/height_power_resampling__nlme.",sp, ".csv"))
+  write.csv(parameters_asympt_1, file =  paste0("output/height_asympt_alldata__nlme.",sp, ".csv"))
+  write.csv( parameters_asympt_2, file =  paste0("output/height_asympt_resampling__nlme.",sp, ".csv"))
 
   return(parameters_power_1, parameters_power_2, parameters_asympt_1, parameters_asympt_2)
   

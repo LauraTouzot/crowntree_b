@@ -1,4 +1,4 @@
-diameter_models_nlme <- function () {
+diameter_models_nlme <- function (sp) {
   
   allometry_complete_database <- read.csv("data/allometry_complete_database.csv", sep = ",")
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
@@ -62,10 +62,12 @@ diameter_models_nlme <- function () {
 
 
   ## 2. Testing different models
-
-  pdf("figures/alldata_diametermodels_1")
-
-  for (i in 1:length(species_list)) {
+  pdf(file = paste0("figures/alldata_diametermodels_1", sp, ".pdf"), width = 7, height = 5.5)
+  
+  
+  i <- (1:length(species_list))[species_list == sp]
+  
+  
   
   par(mfrow = c(1,1))
   
@@ -325,14 +327,14 @@ diameter_models_nlme <- function () {
       }
  
     }   
-  }
+  
 
   dev.off()  
 
-  write.csv(file = "output/diameter_linear_alldata__nlme.csv", parameters_linear_1)
-  write.csv(file = "output/diameter_linear_resampling__nlme.csv", parameters_linear_2)
-  write.csv(file = "output/diameter_power_alldata__nlme.csv", parameters_power_1)
-  write.csv(file = "output/diameter_power_resampling__nlme.csv", parameters_power_2)
+  write.csv(file = paste0("output/diameter_linear_alldata__nlme.",sp,".csv"), parameters_linear_1)
+  write.csv(file = paste0("output/diameter_linear_resampling__nlme.",sp,".csv"), parameters_linear_2)
+  write.csv(file = paste0("output/diameter_power_alldata__nlme.",sp,".csv"), parameters_power_1)
+  write.csv(file = paste0("output/diameter_power_resampling__nlme.",sp,".csv"), parameters_power_2)
 
   return(parameters_linear_1, parameters_linear_2, parameters_power_1, parameters_power_2)
 
