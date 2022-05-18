@@ -75,10 +75,8 @@ depth_height_models_nlme <- function (sp) {
   data <- data[data$location %in% sel_loc, ]
   data$location <- factor(data$location)  
   
-  if (dim(data)[1] < 1000) { # running the models only if more than 1000 observations are left in the sampled data
-    next 
-  } else {    
-    
+  if (dim(data)[1] >= 1000) { # running the models only if more than 1000 observations are left in the sampled data
+
     print(i)
     
     ### STEP 1: FITTING MODELS ON ALL DATA  
@@ -326,6 +324,6 @@ depth_height_models_nlme <- function (sp) {
   write.csv( parameters_power_2, file =  paste0("output/depthheight_power_resampling__nlme.",sp, ".csv"))
   
 
-  return(parameters_linear_1, parameters_linear_2, parameters_power_1, parameters_power_2)
+  return(list(parameters_linear_1, parameters_linear_2, parameters_power_1, parameters_power_2))
   
 }

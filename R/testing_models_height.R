@@ -124,10 +124,8 @@ height_models_nlme <- function (sp) {
     data <- data[data$location %in% sel_loc, ]
     data$location <- factor(data$location)  
 
-    if (dim(data)[1] < 1000) { # running the models only if more than 1000 observations are left in the sampled data
-      next 
-      } else {    
-    
+    if (dim(data)[1] >= 1000) { # running the models only if more than 1000 observations are left in the sampled data
+
     print(i)
   
     ### STEP 1: FITTING MODELS ON ALL DATA  
@@ -411,7 +409,7 @@ height_models_nlme <- function (sp) {
   write.csv(parameters_asympt_1, file =  paste0("output/height_asympt_alldata__nlme.",sp, ".csv"))
   write.csv( parameters_asympt_2, file =  paste0("output/height_asympt_resampling__nlme.",sp, ".csv"))
 
-  return(parameters_power_1, parameters_power_2, parameters_asympt_1, parameters_asympt_2)
+  return(list(parameters_power_1, parameters_power_2, parameters_asympt_1, parameters_asympt_2))
   
 }
   
