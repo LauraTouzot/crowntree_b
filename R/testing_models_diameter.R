@@ -79,11 +79,8 @@ diameter_models_nlme <- function (sp) {
   data <- data[data$location %in% sel_loc, ]
   data$location <- factor(data$location)  
   
-  if (dim(data)[1] < 1000) { # running the models only if more than 1000 observations are left in the sampled data
-    next 
-  } else 
-    {    
-    
+  if (dim(data)[1] >= 1000) { # running the models only if more than 1000 observations are left in the sampled data
+
     print(i)
     
     ### STEP 1: FITTING MODELS ON ALL DATA  
@@ -135,22 +132,22 @@ diameter_models_nlme <- function (sp) {
 #    }) 
     
       
-      try({  
-        
+      try({
+
       # plotting data
       plot(data$x, data$y, xlab = "diameter at breast height (cm)", ylab = "crown diameter (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data$x, data$y))
       fun.boxplot.breaks(data$x, data$y)
-        
+
       # fitting power relationships
       init <- fixef(lmer(log(y+1) ~ log(x) + (1|location), data)) # initializing values for power models
-      
+
       # m1 <- nlme(mod_power,
       #            data = data,
       #            fixed = list(a1 ~ 1, a2 ~ 1),
       #            random = a1 ~ 1|location,
       #            start = c(a1 = exp(init[1]), a2 = init[2]),
       #            method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-      
+
       m2 <- nlme(mod_power,
                  data = data,
                  fixed = list(a1 ~ 1, a2 ~ 1),
@@ -158,7 +155,7 @@ diameter_models_nlme <- function (sp) {
                  start = c(a1 = exp(init[1]), a2 = init[2]),
                  weights = varPower(form = ~fitted(.)),
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
-      
+
       m3 <- nlme(mod_power,
                  data = data,
                  fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -166,24 +163,24 @@ diameter_models_nlme <- function (sp) {
                  start = c(a1 = c(rep(exp(init[1]), length(unique(data$protocol)))), a2 = init[2]),
                  weights = varPower(form = ~fitted(.)),
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
-      
+
       lines(dbh, fixed.effects(m3)[1]*dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1) # predict of power model with protocol effect
-      
+
       parameters_power_1[i,2] <- fixed.effects(m3)[1]
       parameters_power_1[i,22] <- fixed.effects(m3)[length(unique(data$protocol))+1]
       parameters_power_1[i,23] <- AIC(m3)
-      
-      
+
+
       for (k in 2:length(unique(data$protocol))) {
         lines(dbh, (fixed.effects(m3)[1]+fixed.effects(m3)[k]) * dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1)
         parameters_power_1[i,k+1] <- fixed.effects(m3)[1]+fixed.effects(m3)[k]
       }
-      
+
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
-      
-      
+
+
     },TRUE)
-    
+
 #    error = function(e) {
       
 #      print(paste("error power model", species_list[i], sep = " "))
@@ -249,70 +246,70 @@ diameter_models_nlme <- function (sp) {
 
       
       
-      # try({  
-      #   
-      #   # fitting linear relationshios
-      #   
-      #   m1_ls <- lme(y ~ x,
-      #                data = new_data,
-      #                random = ~ 1|location,
-      #                weights = varPower(form = ~fitted(.)),
-      #                method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
-      #   
-      #   m2_ls <- lme(y ~ x + protocol,
-      #                data = new_data,
-      #                random = ~ 1|location,
-      #                weights = varPower(form = ~fitted(.)),
-      #                method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
-      #   
-      #   parameters_linear_2[(((nrep * i) - nrep) + j),2] <- fixed.effects(m2_ls)[1]
-      #   parameters_linear_2[(((nrep * i) - nrep) + j),22] <- fixed.effects(m2_ls)[2]
-      #   parameters_linear_2[(((nrep * i) - nrep) + j),23] <- AIC(m2_ls)
-      #   
-      #   
-      #   for (k in 3:length(unique(new_data$protocol))) {
-      #     parameters_linear_2[(((nrep * i) - nrep) + j),k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
-      #   }
-      #   
-      # 
-      #   # fitting power relationships
-      #   init_s <- fixef(lmer(log(y + 1) ~ log(x) + (1|location), new_data)) # initializing values for power models
-      #   
-      #   # m1 <- nlme(mod_power,
-      #   #            data = data,
-      #   #            fixed = list(a1 ~ 1, a2 ~ 1),
-      #   #            random = a1 ~ 1|location,
-      #   #            start = c(a1 = exp(init[1]), a2 = init[2]),
-      #   #            method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-      #   
-      #   m2_s <- nlme(mod_power,
-      #                data = new_data,
-      #                fixed = list(a1 ~ 1, a2 ~ 1),
-      #                random = a1 ~ 1|location,
-      #                start = c(a1 = exp(init_s[1]), a2 = init_s[2]),
-      #                weights = varPower(form = ~fitted(.)),
-      #                method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
-      #   
-      #   m3_s <- nlme(mod_power,
-      #                data = new_data,
-      #                fixed = list(a1 ~ protocol, a2 ~ 1),
-      #                random = a1 ~ 1|location,
-      #                start = c(a1 = c(rep(exp(init_s[1]), length(unique(new_data$protocol)))), a2 = init_s[2]),
-      #                weights = varPower(form = ~fitted(.)),
-      #                method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
-      #   
-      #   parameters_power_2[(((nrep * i) - nrep) + j),2] <- fixed.effects(m3_s)[1]
-      #   parameters_power_2[(((nrep * i) - nrep) + j),22] <- fixed.effects(m3_s)[length(unique(new_data$protocol))+1]
-      #   parameters_power_2[(((nrep * i) - nrep) + j),23] <-AIC(m3_s)
-      #   
-      #   
-      #   for (k in 2:length(unique(new_data$protocol))) {
-      #     parameters_power_2[(((nrep * i) - nrep) + j),k+1] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[k]
-      #   }
-      #   
-      #   
-      # }, TRUE)#,
-      # 
+      try({
+
+        # fitting linear relationshios
+
+        m1_ls <- lme(y ~ x,
+                     data = new_data,
+                     random = ~ 1|location,
+                     weights = varPower(form = ~fitted(.)),
+                     method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
+
+        m2_ls <- lme(y ~ x + protocol,
+                     data = new_data,
+                     random = ~ 1|location,
+                     weights = varPower(form = ~fitted(.)),
+                     method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
+
+        parameters_linear_2[(((nrep * i) - nrep) + j),2] <- fixed.effects(m2_ls)[1]
+        parameters_linear_2[(((nrep * i) - nrep) + j),22] <- fixed.effects(m2_ls)[2]
+        parameters_linear_2[(((nrep * i) - nrep) + j),23] <- AIC(m2_ls)
+
+
+        for (k in 3:length(unique(new_data$protocol))) {
+          parameters_linear_2[(((nrep * i) - nrep) + j),k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
+        }
+
+
+        # fitting power relationships
+        init_s <- fixef(lmer(log(y + 1) ~ log(x) + (1|location), new_data)) # initializing values for power models
+
+        # m1 <- nlme(mod_power,
+        #            data = data,
+        #            fixed = list(a1 ~ 1, a2 ~ 1),
+        #            random = a1 ~ 1|location,
+        #            start = c(a1 = exp(init[1]), a2 = init[2]),
+        #            method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
+
+        m2_s <- nlme(mod_power,
+                     data = new_data,
+                     fixed = list(a1 ~ 1, a2 ~ 1),
+                     random = a1 ~ 1|location,
+                     start = c(a1 = exp(init_s[1]), a2 = init_s[2]),
+                     weights = varPower(form = ~fitted(.)),
+                     method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
+
+        m3_s <- nlme(mod_power,
+                     data = new_data,
+                     fixed = list(a1 ~ protocol, a2 ~ 1),
+                     random = a1 ~ 1|location,
+                     start = c(a1 = c(rep(exp(init_s[1]), length(unique(new_data$protocol)))), a2 = init_s[2]),
+                     weights = varPower(form = ~fitted(.)),
+                     method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
+
+        parameters_power_2[(((nrep * i) - nrep) + j),2] <- fixed.effects(m3_s)[1]
+        parameters_power_2[(((nrep * i) - nrep) + j),22] <- fixed.effects(m3_s)[length(unique(new_data$protocol))+1]
+        parameters_power_2[(((nrep * i) - nrep) + j),23] <-AIC(m3_s)
+
+
+        for (k in 2:length(unique(new_data$protocol))) {
+          parameters_power_2[(((nrep * i) - nrep) + j),k+1] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[k]
+        }
+
+
+      }, TRUE)#,
+
 #      error = function(e) {
         
 #        print(paste("error model", species_list[i], " sampling", j, sep = " "))
