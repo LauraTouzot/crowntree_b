@@ -29,7 +29,7 @@ get_species_list <- function () {
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
-  return(species_list)
+  return(species_list[1:2])
   
 }
 
@@ -70,7 +70,7 @@ height_models_nlme <- function (sp) {
   data_ok <- allometry_complete_database
   data_ok <- data_ok[data_ok$checked_name %in% selected_sp$checked_name,]
 
-  nrep = 200
+  nrep = 2
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
@@ -250,17 +250,26 @@ height_models_nlme <- function (sp) {
   
   
     ### STEP 2: FITTING MODELS ON SUBSAMPLES  
-    # computing nb of datasets in which the species was surveyed
-    nb_datasets_all <- length(unique(data$protocol))
   
     # creating classes of dbh
     range_dbh <- max(data$x) - 10
     class_dbh <- range_dbh/4
+    s1 <- class_dbh + 10
+    s2 <- class_dbh * 2 + 10
+    s3 <- class_dbh * 3 + 10
+    d1 <- data[data$x < s1,]
+    d1 <- d1[d1$location %in% names(table(d1$location))[table(d1$location)>2], ]
+    d2 <- data[data$x >= s1 & data$x < s2,]
+    d2 <- d2[d2$location %in% names(table(d2$location))[table(d2$location)>2], ]
+    d3 <- data[data$x >= s2 & data$x < s3,]
+    d3 <- d3[d3$location %in% names(table(d3$location))[table(d3$location)>2], ]
+    d4 <- data[data$x >= s3,]
+    d4 <- d4[d4$location %in% names(table(d4$location))[table(d4$location)>2], ]
     
-    size_a <- floor(dim(data[data$x < (class_dbh + 10),])[1] * 0.9)
-    size_b <- floor(dim(data[data$x >= (class_dbh + 10) & data$x < (class_dbh * 2 + 10),])[1] * 0.9)
-    size_c <- floor(dim(data[data$x >= (class_dbh * 2 + 10) & data$x < (class_dbh * 3 + 10),])[1] * 0.9)
-    size_d <- floor(dim(data[data$x >= (class_dbh * 3 + 10),])[1] * 0.9)
+    size_a <- floor(length(unique(d1$location))* 0.9)*3
+    size_b <- floor(length(unique(d2$location))* 0.9)*3
+    size_c <- floor(length(unique(d3$location))* 0.9)*3
+    size_d <- floor(length(unique(d4$location))* 0.9)*3
     
     size <- min(size_a, size_b, size_c, size_d)
     
@@ -271,13 +280,28 @@ height_models_nlme <- function (sp) {
       range_dbh <- max(data$x) - 10
       class_dbh <- range_dbh/4
       
-      size_a <- floor(dim(data[data$x < (class_dbh + 10),])[1] * 0.9)
-      size_b <- floor(dim(data[data$x >= (class_dbh + 10) & data$x < (class_dbh * 2 + 10),])[1] * 0.9)
-      size_c <- floor(dim(data[data$x >= (class_dbh * 2 + 10) & data$x < (class_dbh * 3 + 10),])[1] * 0.9)
-      size_d <- floor(dim(data[data$x >= (class_dbh * 3 + 10),])[1] * 0.9)
+      s1 <- class_dbh + 10
+      s2 <- class_dbh * 2 + 10
+      s3 <- class_dbh * 3 + 10
+      d1 <- data[data$x < s1,]
+      d1 <- d1[d1$location %in% names(table(d1$location))[table(d1$location)>2], ]
+      d2 <- data[data$x >= s1 & data$x < s2,]
+      d2 <- d2[d2$location %in% names(table(d2$location))[table(d2$location)>2], ]
+      d3 <- data[data$x >= s2 & data$x < s3,]
+      d3 <- d3[d3$location %in% names(table(d3$location))[table(d3$location)>2], ]
+      d4 <- data[data$x >= s3,]
+      d4 <- d4[d4$location %in% names(table(d4$location))[table(d4$location)>2], ]
+      
+      size_a <- floor(length(unique(d1$location))* 0.9)*3
+      size_b <- floor(length(unique(d2$location))* 0.9)*3
+      size_c <- floor(length(unique(d3$location))* 0.9)*3
+      size_d <- floor(length(unique(d4$location))* 0.9)*3
       
       sample_size <- min(size_a, size_b, size_c, size_d)
     }
+    
+    # computing nb of datasets in which the species was surveyed
+    nb_datasets_all <- length(unique(c(d1$protocol, d2$protocol, d3$protocol,d4$protocol)))
     
     
     for(j in 1:nrep) {
@@ -286,20 +310,28 @@ height_models_nlme <- function (sp) {
     mod_power <- y ~ a1 * (x ^ a2)
     mod_asympt <- y ~ 1.3 + b1 * (1-exp(-b2 * x)) ^ b3
     
-    class_1 <- data[data$x < (class_dbh + 10),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
-    class_2 <- data[data$x >= (class_dbh + 10) & data$x < (class_dbh * 2 + 10),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
-    class_3 <- data[data$x >= (class_dbh * 2 + 10) & data$x < (class_dbh * 3 + 10),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
-    class_4 <- data[data$x >= (class_dbh * 3 + 10),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
+    loc1 <- sample(unique(d1$location), floor(sample_size/3))
+    class_1 <- d1 %>% filter(location %in% loc1) %>% group_by(location) %>% slice_sample(n = 3) %>% ungroup()
+    loc2 <- sample(unique(d2$location), floor(sample_size/3))
+    class_2 <- d2 %>% filter(location %in% loc2) %>% group_by(location) %>% slice_sample(n = 3) %>% ungroup()
+    loc3 <- sample(unique(d3$location), floor(sample_size/3))
+    class_3 <- d3 %>% filter(location %in% loc3) %>% group_by(location) %>% slice_sample(n = 3) %>% ungroup()
+    loc4 <- sample(unique(d4$location), floor(sample_size/3))
+    class_4 <- d4 %>% filter(location %in% loc4) %>% group_by(location) %>% slice_sample(n = 3) %>% ungroup()
     
     new_data <- bind_rows(class_1, class_2, class_3, class_4)
     nb_datasets_sample <- length(unique(new_data$protocol))
     
     while (nb_datasets_sample < (floor(nb_datasets_all * 0.33))) {
       
-      class_1 <- data[data$x < (class_dbh + 10),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
-      class_2 <- data[data$x >= (class_dbh + 10) & data$x < (class_dbh * 2 + 10),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
-      class_3 <- data[data$x >= (class_dbh * 2 + 10) & data$x < (class_dbh * 3 + 10),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
-      class_4 <- data[data$x >= (class_dbh * 3 + 10),] %>% sample_n(sample_size, replace = FALSE, prob = NULL)
+      loc1 <- sample(unique(d1$location), floor(sample_size/3))
+      class_1 <- d1 %>% filter(location %in% loc1) %>% group_by(location) %>% slice_sample(n = 3) %>% ungroup()
+      loc2 <- sample(unique(d2$location), floor(sample_size/3))
+      class_2 <- d2 %>% filter(location %in% loc2) %>% group_by(location) %>% slice_sample(n = 3) %>% ungroup()
+      loc3 <- sample(unique(d3$location), floor(sample_size/3))
+      class_3 <- d3 %>% filter(location %in% loc3) %>% group_by(location) %>% slice_sample(n = 3) %>% ungroup()
+      loc4 <- sample(unique(d4$location), floor(sample_size/3))
+      class_4 <- d4 %>% filter(location %in% loc4) %>% group_by(location) %>% slice_sample(n = 3) %>% ungroup()
       
       new_data <- bind_rows(class_1, class_2, class_3, class_4)
       
@@ -316,22 +348,22 @@ height_models_nlme <- function (sp) {
       m2_sb <- nlme(mod_power,
                    data = new_data,
                    fixed = list(a1 ~ 1, a2 ~ 1),
-#                   random = a1 ~ 1|location,
+                   random = a1 ~ 1|location,
                    start = c(a1 = exp(init_s[1]), a2 = init_s[2]),
                    method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
 
       m2_s <- nlme(mod_power,
                     data = new_data,
                     fixed = list(a1 ~ 1, a2 ~ 1),
-#                    random = a1 ~ 1|location,
+                    random = a1 ~ 1|location,
                     start = c(a1 = fixed.effects(m2_sb)["a1"], a2 = fixed.effects(m2_sb)["a2"]),
                     weights = varPower(form = ~fitted(.)),
                     method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
       
       m3_s <- nlme(mod_power,
-                   data = data,
+                   data = new_data,
                    fixed = list(a1 ~ protocol, a2 ~ 1),
-#                   random = a1 ~ 1|location,
+                   random = a1 ~ 1|location,
                    start = c(a1 = c(rep(fixed.effects(m2_s)["a1"], length(unique(new_data$protocol)))), a2 = fixed.effects(m2_s)["a2"]),
                    weights = varPower(form = ~fitted(.)),
                    method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
@@ -360,7 +392,7 @@ height_models_nlme <- function (sp) {
       m6_s <- nlme(mod_asympt,
                    data = new_data,
                    fixed = b1 + b2 + b3 ~ 1,
-#                   random = b1 ~ 1|location,
+                   random = b1 ~ 1|location,
                    start = c(b1 = coefficients(m5_s)["b1"], b2 = coefficients(m5_s)["b2"], b3 = coefficients(m5_s)["b3"]),
                    method = "ML",
                    control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
@@ -368,7 +400,7 @@ height_models_nlme <- function (sp) {
       m7_s <- nlme(mod_asympt,
                    data = new_data,
                    fixed = list(b1 ~ 1, b2 ~ 1, b3 ~ 1),
-#                   random = b1 ~ 1|location,
+                   random = b1 ~ 1|location,
                    start = c(b1 = fixef(m6_s)["b1"], b2 = fixef(m6_s)["b2"], b3 = fixef(m6_s)["b3"]),
                    method = "ML", 
                    weights = varPower(form = ~fitted(.)),
@@ -377,7 +409,7 @@ height_models_nlme <- function (sp) {
       m8_s <- nlme(mod_asympt,
                    data = new_data,
                    fixed = list(b1 ~ protocol, b2 ~ 1, b3 ~ 1),
- #                  random = b1 ~ 1|location,
+                   random = b1 ~ 1|location,
                    start = c(b1 = c(rep(fixef(m7_s)["b1"], length(unique(new_data$protocol))), b2 = fixef(m7_s)["b2"], b3 = fixef(m7_s)["b3"])),
                    method = "ML", 
                    weights = varPower(form = ~fitted(.)),
