@@ -85,14 +85,14 @@ depth_height_models_nlme <- function (sp) {
     ### STEP 1: FITTING MODELS ON ALL DATA  
     # tested models
     mod_power <- y ~ a1 * (x ^ a2)
-    
+    ht <- 0:max(data$x)
     tryCatch({  
       
       # plotting data
       plot(data$x, data$y, xlab = "total tree height (m)", ylab = "crown depth (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data$x, data$y))
       fun.boxplot.breaks(data$x, data$y)
       
-      ht <- 0:max(data$x)
+     
       
       # fitting linear relationships
       m1_l <- lme(y ~ x,
@@ -284,20 +284,31 @@ depth_height_models_nlme <- function (sp) {
                      weights = varPower(form = ~fitted(.)),
                      method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
         
-        m2_ls <- lme(y ~ x + protocol,
-                     data = new_data,
-                    random = ~ 1|location,
-                     weights = varPower(form = ~fitted(.)),
-                     method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
         
-        parameters_linear_2[ j,"inter"] <- fixed.effects(m2_ls)[1]
-        parameters_linear_2[j,"slope"] <- fixed.effects(m2_ls)[2]
-        parameters_linear_2[j,"AIC"] <- AIC(m2_ls)
-
-            for (k in paste0("protocol", levels(data$protocol)[-1])) {
-          parameters_linear_2[j,k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
+        if(length(new_data$protocol)>1){
+          
+          m2_ls <- lme(y ~ x + protocol,
+                       data = new_data,
+                       random = ~ 1|location,
+                       weights = varPower(form = ~fitted(.)),
+                       method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
+          
+          parameters_linear_2[ j,"inter"] <- fixed.effects(m2_ls)[1]
+          parameters_linear_2[j,"slope"] <- fixed.effects(m2_ls)[2]
+          parameters_linear_2[j,"AIC"] <- AIC(m2_ls)
+          
+          for (k in paste0("protocol", levels(data$protocol)[-1])) {
+            parameters_linear_2[j,k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
+          }
+          parameters_linear_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_ls)[1]
+          
+        }else{
+          
+          parameters_linear_2[ j,"inter"] <- fixed.effects(m1_ls)[1]
+          parameters_linear_2[j,"slope"] <- fixed.effects(m1_ls)[2]
+          parameters_linear_2[j,"AIC"] <- AIC(m1_ls)
+          
         }
-        parameters_linear_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_ls)[1]
         
         
         # fitting power relationships
@@ -311,7 +322,9 @@ depth_height_models_nlme <- function (sp) {
                      start = c(a1 = exp(init_s[1]), a2 = init_s[2]),
                      weights = varPower(form = ~fitted(.)),
                      method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
-        
+
+        if(length(new_data$protocol)>1){
+          
         m3_s <- nlme(mod_power,
                      data = new_data,
                      fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -329,7 +342,12 @@ depth_height_models_nlme <- function (sp) {
           parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
         }
         parameters_power_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3_s)[1]
-        
+        }else{
+          parameters_power_2[j,"inter"] <- fixed.effects(m2_s)[1]
+          parameters_power_2[j,"slope"] <- fixed.effects(m2_s)[2]
+          parameters_power_2[j,"AIC"] <-AIC(m2_s)
+          
+        }
         
       },
       

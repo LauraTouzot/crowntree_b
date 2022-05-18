@@ -29,7 +29,7 @@ get_species_list <- function () {
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
-  return(species_list[1:4])
+  return(species_list)
   
 }
 
@@ -70,7 +70,7 @@ height_models_nlme <- function (sp) {
   data_ok <- allometry_complete_database
   data_ok <- data_ok[data_ok$checked_name %in% selected_sp$checked_name,]
 
-  nrep = 2
+  nrep = 200
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
@@ -145,6 +145,8 @@ height_models_nlme <- function (sp) {
                  weights = varPower(form = ~fitted(.)),
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
       
+      if(length(data$protocol)>1){
+        
       m3 <- nlme(mod_power,
                  data = data,
                  fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -156,12 +158,10 @@ height_models_nlme <- function (sp) {
       
       lines(dbh, fixed.effects(m3)[1]*dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1) # predict of power model with protocol effect
       
-      parameters_power_1[1,"inter"] <- fixed.effects(m3)["a1"]
+      parameters_power_1[1,"inter"] <- fixed.effects(m3)[1]
       parameters_power_1[1,"slope"] <- fixed.effects(m3)["a2"]
       parameters_power_1[1,"AIC"] <- AIC(m3)
    
-      
-        
       
       for (k in paste0("protocol", levels(data$protocol)[-1])) {
         lines(dbh, (fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]) * dbh^(fixed.effects(m3)["a2"]), type = "l", col = "firebrick4", lwd = 1)
@@ -169,7 +169,13 @@ height_models_nlme <- function (sp) {
       }
       parameters_power_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3)[1]
       
-      
+      }else{
+        parameters_power_1[1,"inter"] <- fixed.effects(m2)[1]
+        parameters_power_1[1,"slope"] <- fixed.effects(m2)["a2"]
+        parameters_power_1[1,"AIC"] <- AIC(m2)
+        
+        
+      }
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
       },
@@ -213,7 +219,9 @@ height_models_nlme <- function (sp) {
                method = "ML", 
                weights = varPower(form = ~fitted(.)),
                control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-    
+  
+          if(length(data$protocol)>1){
+        
       m8 <- nlme(mod_asympt,
                data = data,
                fixed = list(b1 ~ protocol, b2 ~ 1, b3 ~ 1),
@@ -236,7 +244,14 @@ height_models_nlme <- function (sp) {
         parameters_asympt_1[1,k] <- fixed.effects(m8)[1]+fixed.effects(m8)[paste0("b1.", k)]
       }
       parameters_asympt_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m8)[1]
-      
+          }else{
+            
+            parameters_asympt_1[1,"b1"] <- fixed.effects(m7)[1]
+            parameters_asympt_1[1,"b2"] <- fixed.effects(m7)["b2"]
+            parameters_asympt_1[1,"b3"] <- fixed.effects(m7)["b3"]
+            parameters_asympt_1[1,"AIC"] <- AIC(m7)
+            
+          }
       lines(dbh, 1.3+ fixef(m7)["b1"]*(1-exp(-fixef(m7)["b2"]*dbh))^fixef(m7)["b3"], type = "l", col ="forestgreen", lwd = 3.5) # predict of asymptot model without protocol effect
       
       
@@ -360,6 +375,8 @@ height_models_nlme <- function (sp) {
                     weights = varPower(form = ~fitted(.)),
                     method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
       
+      if(length(new_data$protocol)>1){
+        
       m3_s <- nlme(mod_power,
                    data = new_data,
                    fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -379,6 +396,13 @@ height_models_nlme <- function (sp) {
          parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
       }
       parameters_power_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3_s)[1]
+      }else{
+        parameters_power_2[ j,"a1"] <- fixed.effects(m2_s)[1]
+        parameters_power_2[ j,"a2"] <- fixed.effects(m2_s)["a2"]
+        parameters_power_2[j,"AIC"] <- AIC(m2_s)
+        
+        
+      }
 
       # fitting asymptotic relationships  
       vars_s <- data.frame(var = c("b1", "b2", "b3"), start = c(quantile(new_data$y, probs = 0.97)*0.8, 0.07, 0.9))
@@ -406,6 +430,8 @@ height_models_nlme <- function (sp) {
                    weights = varPower(form = ~fitted(.)),
                    control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
       
+      if(length(new_data$protocol)>1){
+        
       m8_s <- nlme(mod_asympt,
                    data = new_data,
                    fixed = list(b1 ~ protocol, b2 ~ 1, b3 ~ 1),
@@ -414,7 +440,7 @@ height_models_nlme <- function (sp) {
                    method = "ML", 
                    weights = varPower(form = ~fitted(.)),
                    control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
-      
+     
       
       parameters_asympt_2[j,"b1"] <- fixed.effects(m8_s)[1]
       parameters_asympt_2[j,"b2"] <- fixed.effects(m8_s)["b2"]
@@ -426,7 +452,14 @@ height_models_nlme <- function (sp) {
         parameters_asympt_2[j,k] <- fixed.effects(m8_s)[1] + fixed.effects(m8_s)[paste0("b1.", k)]
       }
       parameters_asympt_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m8_s)[1]
-      
+      }else{
+        parameters_asympt_2[j,"b1"] <- fixed.effects(m7_s)[1]
+        parameters_asympt_2[j,"b2"] <- fixed.effects(m7_s)["b2"]
+        parameters_asympt_2[ j,"b3"] <- fixed.effects(m7_s)["b3"]
+        parameters_asympt_2[ j,"AIC"] <- AIC(m7_s)
+        
+        
+      }
     },
     
     error = function(e) {
