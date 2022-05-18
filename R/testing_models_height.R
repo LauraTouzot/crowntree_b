@@ -225,7 +225,7 @@ height_models_nlme <- function (sp) {
     
       lines(dbh, 1.3+ fixed.effects(m8)[1]*(1-exp(-(fixed.effects(m8)[length(unique(data$protocol))+1])*dbh))^(fixed.effects(m8)[length(unique(data$protocol))+2]), type = "l", col ="firebrick4", lwd = 1) # predict of asymptot model with protocol effect
       
-      parameters_asympt_1[1,"b1"] <- fixed.effects(m8)["b1"]
+      parameters_asympt_1[1,"b1"] <- fixed.effects(m8)[1]
       parameters_asympt_1[1,"b2"] <- fixed.effects(m8)["b2"]
       parameters_asympt_1[1,"b3"] <- fixed.effects(m8)["b3"]
       parameters_asympt_1[1,"AIC"] <- AIC(m8)
@@ -416,7 +416,7 @@ height_models_nlme <- function (sp) {
                    control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
       
       
-      parameters_asympt_2[j,"b1"] <- fixed.effects(m8_s)["b1"]
+      parameters_asympt_2[j,"b1"] <- fixed.effects(m8_s)[1]
       parameters_asympt_2[j,"b2"] <- fixed.effects(m8_s)["b2"]
       parameters_asympt_2[ j,"b3"] <- fixed.effects(m8_s)["b3"]
       parameters_asympt_2[ j,"AIC"] <- AIC(m8_s)
