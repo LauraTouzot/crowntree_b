@@ -55,7 +55,7 @@ depth_models_nlme <- function (sp) {
 
 
   ## 2. Testing different models
-  pdf(file = paste0("figures/alldata_depthmodels_1", sp, ".pdf"), width = 7, height = 5.5)
+  pdf(file = paste0("figures/alldata_depthmodels_1.", gsub(" ", "_", sp), ".pdf"), width = 7, height = 5.5)
   
   
   i <- (1:length(species_list))[species_list == sp]
@@ -77,7 +77,8 @@ depth_models_nlme <- function (sp) {
   
   if (dim(data)[1] < 1000) { # running the models only if more than 1000 observations are left in the sampled data
     next 
-  } else {    
+  } else
+    {    
     
     print(i)
     

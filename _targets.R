@@ -13,12 +13,14 @@
 
 # Loading targets
 library(targets)
-
+library(future)
+library(future.callr)
+plan(callr)
 # Loading functions
 lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("R", x)))
 
 # Specifying target options
-options(tidyverse.quiet = TRUE, clustermq.scheduler = "multiprocess")
+options(tidyverse.quiet = TRUE)#, clustermq.scheduler = "multiprocess")
 # tar_option_set(packages = packages.in)
 tar_option_set(packages = c("dplyr", "nlme", "lme4", "clustermq", "tidyr"))
 
