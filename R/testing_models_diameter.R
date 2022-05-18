@@ -73,8 +73,8 @@ diameter_models_nlme <- function (sp) {
   df <- data_ok[data_ok$checked_name %in% species_list[i],]
   df <- df %>% filter(!is.na(DBH_cm) & !is.na(C_diam_m))
   
-  data <- as.data.frame(cbind(df$DBH_cm, df$C_diam_m, df$location_ID, df$data))
-  colnames(data) <- c("x", "y", "location", "protocol")
+  data <- data.frame(df$DBH_cm, df$C_diam_m, df$location_ID, df$data)
+  names(data) <- c("x", "y", "location", "protocol")
   data <- data %>% mutate(x = as.numeric(x), y = as.numeric(y), protocol = as.factor(protocol))
   sel_loc <- names(table(data$location))[table(data$location) > 2]
   data <- data[data$location %in% sel_loc, ]
