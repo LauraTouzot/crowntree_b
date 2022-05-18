@@ -20,7 +20,6 @@ tar_option_set(packages = c("dplyr", "nlme", "lme4", "clustermq", "tidyr"))
 # Loading functions
 lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("R", x)))
 
-
 list(
   tar_target(species_list, get_species_list()),
   tar_target(outputs_height_nlme, height_models_nlme(species_list), pattern = map(species_list)),
