@@ -1,5 +1,9 @@
 diameter_models_nlme <- function (sp) {
   
+  require(dplyr)
+  require(nlme)
+  require(lme4)
+  require(tidyr)
   allometry_complete_database <- data.table::fread("data/allometry_complete_database.csv", sep = ",")
   
   NFI_data = readRDS(file = "data/NFI_TNRS_check.rds")
