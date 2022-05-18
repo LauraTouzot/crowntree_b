@@ -53,7 +53,7 @@ depth_models_nlme <- function (sp) {
   parameters_power_2 <- as.data.frame(matrix(nrow = nrep, ncol = length(unique(data_ok$data)) + 4))
   parameters_power_2[,1] <- rep(sp, nrep)
 
-  names(parameters_linear_1) <- names(parameters_power_2) <-
+  names(parameters_linear_1) <- names(parameters_power_1) <-
     names(parameters_linear_2) <- names(parameters_power_2) <-
     c("species", "inter",paste0("protocol", unique(data_ok$data)), "slope", "AIC")
   
@@ -167,7 +167,7 @@ depth_models_nlme <- function (sp) {
       
       
       for (k in paste0("protocol", levels(data$protocol)[-1])) {
-        lines(dbh , (fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]) * dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1)
+        lines(dbh , (fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]) * dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 2)
         parameters_power_1[1,k] <- fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]
       }
       parameters_power_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3)[1]
