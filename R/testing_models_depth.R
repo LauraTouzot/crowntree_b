@@ -215,7 +215,7 @@ depth_models_nlme <- function (sp) {
     }
     
     
-    for (i in  1:nrep) {
+    for (j in  1:nrep) {
       
       # tested models
       mod_power <- y ~ a1 * (x ^ a2)
