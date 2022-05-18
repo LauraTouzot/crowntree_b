@@ -88,7 +88,7 @@ height_models_nlme <- function (sp) {
   parameters_asympt_2 <- as.data.frame(matrix(nrow = nrep, ncol = length(unique(data_ok$data)) + 5))
   parameters_asympt_2[,1] <- rep(sp, nrep)
 
-  names(parameters_power_1) <- names(parameters_power_1) <-
+  names(parameters_power_1) <- names(parameters_power_2) <-
     c("species", "inter",paste0("protocol", unique(data_ok$data)), "slope", "AIC")
   
   names(parameters_asympt_1) <- names(parameters_asympt_2) <-
@@ -156,9 +156,9 @@ height_models_nlme <- function (sp) {
       
       lines(dbh, fixed.effects(m3)[1]*dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1) # predict of power model with protocol effect
       
-      parameters_power_1[i,"inter"] <- fixed.effects(m3)["a1"]
-      parameters_power_1[i,"slope"] <- fixed.effects(m3)["a2"]
-      parameters_power_1[i,"AIC"] <- AIC(m3)
+      parameters_power_1[1,"inter"] <- fixed.effects(m3)["a1"]
+      parameters_power_1[1,"slope"] <- fixed.effects(m3)["a2"]
+      parameters_power_1[1,"AIC"] <- AIC(m3)
    
       
         
@@ -225,10 +225,10 @@ height_models_nlme <- function (sp) {
     
       lines(dbh, 1.3+ fixed.effects(m8)[1]*(1-exp(-(fixed.effects(m8)[length(unique(data$protocol))+1])*dbh))^(fixed.effects(m8)[length(unique(data$protocol))+2]), type = "l", col ="firebrick4", lwd = 1) # predict of asymptot model with protocol effect
       
-      parameters_asympt_1[i,"b1"] <- fixed.effects(m8)["b1"]
-      parameters_asympt_1[i,"b2"] <- fixed.effects(m8)["b2"]
-      parameters_asympt_1[i,"b3"] <- fixed.effects(m8)["b3"]
-      parameters_asympt_1[i,"AIC"] <- AIC(m8)
+      parameters_asympt_1[1,"b1"] <- fixed.effects(m8)["b1"]
+      parameters_asympt_1[1,"b2"] <- fixed.effects(m8)["b2"]
+      parameters_asympt_1[1,"b3"] <- fixed.effects(m8)["b3"]
+      parameters_asympt_1[1,"AIC"] <- AIC(m8)
       
 
       for (k in paste0("protocol", levels(data$protocol)[-1])) {

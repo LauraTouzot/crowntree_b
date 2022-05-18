@@ -53,7 +53,7 @@ depth_models_nlme <- function (sp) {
   parameters_power_2 <- as.data.frame(matrix(nrow = nrep, ncol = length(unique(data_ok$data)) + 4))
   parameters_power_2[,1] <- rep(sp, nrep)
 
-  names(parameters_linear_1) <- names(parameters_power_1) <-
+  names(parameters_linear_1) <- names(parameters_power_2) <-
     names(parameters_linear_2) <- names(parameters_power_2) <-
     c("species", "inter",paste0("protocol", unique(data_ok$data)), "slope", "AIC")
   
