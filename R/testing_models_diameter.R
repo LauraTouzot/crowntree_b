@@ -81,7 +81,8 @@ diameter_models_nlme <- function (sp) {
   
   if (dim(data)[1] < 1000) { # running the models only if more than 1000 observations are left in the sampled data
     next 
-  } else {    
+  } else 
+    {    
     
     print(i)
     
@@ -89,7 +90,7 @@ diameter_models_nlme <- function (sp) {
     # tested models
     mod_power <- y ~ a1 * (x ^ a2)
     
-    tryCatch({  
+    try({  
       
       # plotting data
       plot(data$x, data$y, xlab = "diameter at breast height (cm)", ylab = "crown diameter (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data$x, data$y))
@@ -125,16 +126,16 @@ diameter_models_nlme <- function (sp) {
       lines(dbh, fixef(m1_l)[1] +  fixef(m1_l)[2]*dbh, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
       
-    },
+    }, TRUE)
     
-    error = function(e) {
+#    error = function(e) {
       
-      print(paste("error linear model", species_list[i], sep = " "))
+#      print(paste("error linear model", species_list[i], sep = " "))
       
-    }) 
+#    }) 
     
       
-      tryCatch({  
+      try({  
         
       # plotting data
       plot(data$x, data$y, xlab = "diameter at breast height (cm)", ylab = "crown diameter (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data$x, data$y))
@@ -181,13 +182,13 @@ diameter_models_nlme <- function (sp) {
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
       
-    },
+    },TRUE)
     
-    error = function(e) {
+#    error = function(e) {
       
-      print(paste("error power model", species_list[i], sep = " "))
+#      print(paste("error power model", species_list[i], sep = " "))
       
-    }) 
+#    }) 
     
     
     ### STEP 2: FITTING MODELS ON SUBSAMPLES  
@@ -222,8 +223,7 @@ diameter_models_nlme <- function (sp) {
     
     
     
-    j <- 1
-    while(j < nrep) {
+    for (j in 1:nrep) {
       
       # tested models
       mod_power <- y ~ a1 * (x ^ a2)
@@ -249,7 +249,7 @@ diameter_models_nlme <- function (sp) {
 
       
       
-      tryCatch({  
+      try({  
         
         # fitting linear relationshios
         
@@ -311,15 +311,15 @@ diameter_models_nlme <- function (sp) {
         }
         
         
-      },
+      }, TRUE)#,
       
-      error = function(e) {
+#      error = function(e) {
         
-        print(paste("error model", species_list[i], " sampling", j, sep = " "))
+#        print(paste("error model", species_list[i], " sampling", j, sep = " "))
         
-      }) 
+#      }) 
       
-      j <- j + 1
+
     
       }
  
