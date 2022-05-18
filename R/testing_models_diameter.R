@@ -87,7 +87,7 @@ diameter_models_nlme <- function (sp) {
     # tested models
     mod_power <- y ~ a1 * (x ^ a2)
     
-    try({  
+    tryCatch({  
       
       # plotting data
       plot(data$x, data$y, xlab = "diameter at breast height (cm)", ylab = "crown diameter (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data$x, data$y))
@@ -123,16 +123,16 @@ diameter_models_nlme <- function (sp) {
       lines(dbh, fixef(m1_l)[1] +  fixef(m1_l)[2]*dbh, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
       
-    }, TRUE)
+    }, 
     
-#    error = function(e) {
+    error = function(e) {
       
-#      print(paste("error linear model", species_list[i], sep = " "))
+      print(paste("error linear model", species_list[i], sep = " "))
       
-#    }) 
+    }) 
     
       
-      try({
+    tryCatch({
 
       # plotting data
       plot(data$x, data$y, xlab = "diameter at breast height (cm)", ylab = "crown diameter (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data$x, data$y))
@@ -179,13 +179,13 @@ diameter_models_nlme <- function (sp) {
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
 
 
-    },TRUE)
+    },
 
-#    error = function(e) {
+   error = function(e) {
       
-#      print(paste("error power model", species_list[i], sep = " "))
+      print(paste("error power model", species_list[i], sep = " "))
       
-#    }) 
+    }) 
     
     
     ### STEP 2: FITTING MODELS ON SUBSAMPLES  
@@ -246,7 +246,7 @@ diameter_models_nlme <- function (sp) {
 
       
       
-      try({
+      tryCatch({
 
         # fitting linear relationshios
 
@@ -308,13 +308,13 @@ diameter_models_nlme <- function (sp) {
         }
 
 
-      }, TRUE)#,
+      },
 
-#      error = function(e) {
+     error = function(e) {
         
-#        print(paste("error model", species_list[i], " sampling", j, sep = " "))
+        print(paste("error model", species_list[i], " sampling", j, sep = " "))
         
-#      }) 
+     }) 
       
 
     
@@ -330,6 +330,6 @@ diameter_models_nlme <- function (sp) {
   write.csv(file = paste0("output/diameter_power_alldata__nlme.",sp,".csv"), parameters_power_1)
   write.csv(file = paste0("output/diameter_power_resampling__nlme.",sp,".csv"), parameters_power_2)
 
-  return(parameters_linear_1, parameters_linear_2, parameters_power_1, parameters_power_2)
+  return(list(parameters_linear_1, parameters_linear_2, parameters_power_1, parameters_power_2))
 
 }
