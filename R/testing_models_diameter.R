@@ -38,25 +38,26 @@ diameter_models_nlme <- function (sp) {
   data_ok <- allometry_complete_database
   data_ok <- data_ok[data_ok$checked_name %in% selected_sp$checked_name,]
 
-  nrep = 500
+  nrep = 2
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
 
 
-  parameters_linear_1 <- as.data.frame(matrix(nrow = length(species_list), ncol = length(unique(data_ok$data)) + 3))
-  parameters_linear_1[,1] <- species_list
+  parameters_linear_1 <- as.data.frame(matrix(nrow = 1, ncol = length(unique(data_ok$data)) + 4))
+  parameters_linear_1[,1] <- sp
 
-  parameters_power_1 <- as.data.frame(matrix(nrow = length(species_list), ncol = length(unique(data_ok$data)) + 3))
-  parameters_power_1[,1] <- species_list
+  parameters_power_1 <- as.data.frame(matrix(nrow = 1, ncol = length(unique(data_ok$data)) + 4))
+  parameters_power_1[,1] <- sp
 
 
-  parameters_linear_2 <- as.data.frame(matrix(nrow = (length(species_list) * nrep), ncol = length(unique(data_ok$data)) + 3))
-  parameters_linear_2[,1] <- species_list
+  parameters_linear_2 <- as.data.frame(matrix(nrow =  nrep, ncol = length(unique(data_ok$data)) + 4))
+  parameters_linear_2[,1] <- rep(sp, nrep)
 
-  parameters_power_2 <- as.data.frame(matrix(nrow = (length(species_list) * nrep), ncol = length(unique(data_ok$data)) + 3))
-  parameters_power_2[,1] <- species_list
-
+  parameters_power_2 <- as.data.frame(matrix(nrow =  nrep, ncol = length(unique(data_ok$data)) + 4))
+  parameters_power_2[,1] <- rep(sp, nrep)
+  names(parameters_linear_1) <- names(parameters_power_1) <- names(parameters_linear_2) <- names(parameters_power_2) <-
+    c("species", "inter",paste0("protocol", unique(data_ok$data)), "slope", "AIC")
 
   ## 2. Testing different models
   pdf(file = paste0("figures/alldata_diametermodels_1", sp, ".pdf"), width = 7, height = 5.5)
@@ -110,16 +111,16 @@ diameter_models_nlme <- function (sp) {
       
       lines(dbh, fixed.effects(m2_l)[1] + fixed.effects(m2_l)[2] * dbh, type = "l", col = "firebrick4", lwd = 1)
       
-      parameters_linear_1[i,2] <- fixed.effects(m2_l)[1]
-      parameters_linear_1[i,22] <- fixed.effects(m2_l)[2]
-      parameters_linear_1[i,23] <- AIC(m2_l)
+      parameters_linear_1[1,"inter"] <- fixed.effects(m2_l)[1]
+      parameters_linear_1[1, "slope"] <- fixed.effects(m2_l)[2]
+      parameters_linear_1[1, "AIC"] <- AIC(m2_l)
       
       
-      for (k in 3:(length(unique(data$protocol)) + 1)) {
+      for (k in paste0("protocol", levels(data$protocol)[-1])) {
         lines(dbh, (fixed.effects(m2_l)[1] + fixed.effects(m2_l)[k]) + fixed.effects(m2_l)[2] * dbh, type = "l", col = "firebrick4", lwd = 1)
-        parameters_linear_1[i,k] <- fixed.effects(m2_l)[1]+fixed.effects(m2_l)[k]
+        parameters_linear_1[1,k] <- fixed.effects(m2_l)[1]+fixed.effects(m2_l)[k]
       }
-      
+      parameters_linear_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_l)[1]
       lines(dbh, fixef(m1_l)[1] +  fixef(m1_l)[2]*dbh, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
       
@@ -141,13 +142,6 @@ diameter_models_nlme <- function (sp) {
       # fitting power relationships
       init <- fixef(lmer(log(y+1) ~ log(x) + (1|location), data)) # initializing values for power models
 
-      # m1 <- nlme(mod_power,
-      #            data = data,
-      #            fixed = list(a1 ~ 1, a2 ~ 1),
-      #            random = a1 ~ 1|location,
-      #            start = c(a1 = exp(init[1]), a2 = init[2]),
-      #            method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-
       m2 <- nlme(mod_power,
                  data = data,
                  fixed = list(a1 ~ 1, a2 ~ 1),
@@ -166,15 +160,17 @@ diameter_models_nlme <- function (sp) {
 
       lines(dbh, fixed.effects(m3)[1]*dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1) # predict of power model with protocol effect
 
-      parameters_power_1[i,2] <- fixed.effects(m3)[1]
-      parameters_power_1[i,22] <- fixed.effects(m3)[length(unique(data$protocol))+1]
-      parameters_power_1[i,23] <- AIC(m3)
+      parameters_power_1[1,2] <- fixed.effects(m3)[1]
+      parameters_power_1[1,22] <- fixed.effects(m3)[length(unique(data$protocol))+1]
+      parameters_power_1[1,23] <- AIC(m3)
 
 
-      for (k in 2:length(unique(data$protocol))) {
-        lines(dbh, (fixed.effects(m3)[1]+fixed.effects(m3)[k]) * dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1)
-        parameters_power_1[i,k+1] <- fixed.effects(m3)[1]+fixed.effects(m3)[k]
+      for (k in paste0("protocol", levels(data$protocol)[-1])) {
+        lines(dbh, (fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]) * dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1)
+        parameters_power_1[1,k] <- fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]
       }
+      parameters_power_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3)[1]
+
 
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
 
@@ -262,26 +258,20 @@ diameter_models_nlme <- function (sp) {
                      weights = varPower(form = ~fitted(.)),
                      method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
 
-        parameters_linear_2[(((nrep * i) - nrep) + j),2] <- fixed.effects(m2_ls)[1]
-        parameters_linear_2[(((nrep * i) - nrep) + j),22] <- fixed.effects(m2_ls)[2]
-        parameters_linear_2[(((nrep * i) - nrep) + j),23] <- AIC(m2_ls)
+        parameters_linear_2[ j,"inter"] <- fixed.effects(m2_ls)[1]
+        parameters_linear_2[j,"slope"] <- fixed.effects(m2_ls)[2]
+        parameters_linear_2[j,"AIC"] <- AIC(m2_ls)
 
-
-        for (k in 3:length(unique(new_data$protocol))) {
-          parameters_linear_2[(((nrep * i) - nrep) + j),k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
+        for (k in paste0("protocol", levels(data$protocol)[-1])) {
+          parameters_linear_2[j,k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
         }
+        parameters_linear_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_ls)[1]
 
 
         # fitting power relationships
         init_s <- fixef(lmer(log(y + 1) ~ log(x) + (1|location), new_data)) # initializing values for power models
 
-        # m1 <- nlme(mod_power,
-        #            data = data,
-        #            fixed = list(a1 ~ 1, a2 ~ 1),
-        #            random = a1 ~ 1|location,
-        #            start = c(a1 = exp(init[1]), a2 = init[2]),
-        #            method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-
+ 
         m2_s <- nlme(mod_power,
                      data = new_data,
                      fixed = list(a1 ~ 1, a2 ~ 1),
@@ -298,15 +288,16 @@ diameter_models_nlme <- function (sp) {
                      weights = varPower(form = ~fitted(.)),
                      method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
 
-        parameters_power_2[(((nrep * i) - nrep) + j),2] <- fixed.effects(m3_s)[1]
-        parameters_power_2[(((nrep * i) - nrep) + j),22] <- fixed.effects(m3_s)[length(unique(new_data$protocol))+1]
-        parameters_power_2[(((nrep * i) - nrep) + j),23] <-AIC(m3_s)
+        parameters_power_2[j,"inter"] <- fixed.effects(m3_s)[1]
+        parameters_power_2[j,"slope"] <- fixed.effects(m3_s)[length(unique(new_data$protocol))+1]
+        parameters_power_2[j,"AIC"] <-AIC(m3_s)
 
-
-        for (k in 2:length(unique(new_data$protocol))) {
-          parameters_power_2[(((nrep * i) - nrep) + j),k+1] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[k]
+        for (k in paste0("protocol", levels(data$protocol)[-1])) {
+   
+          parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
         }
-
+        parameters_power_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3_s)[1]
+        
 
       },
 
