@@ -29,7 +29,7 @@ get_species_list <- function () {
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
-  return(species_list[1:2])
+  return(species_list[1:4])
   
 }
 
@@ -416,10 +416,10 @@ height_models_nlme <- function (sp) {
                    control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
       
       
-      parameters_asympt_2[(((nrep * i) - nrep) + j),"b1"] <- fixed.effects(m8_s)["b1"]
-      parameters_asympt_2[(((nrep * i) - nrep) + j),"b2"] <- fixed.effects(m8_s)["b2"]
-      parameters_asympt_2[(((nrep * i) - nrep) + j),"b3"] <- fixed.effects(m8_s)["b3"]
-      parameters_asympt_2[(((nrep * i) - nrep) + j),"AIC"] <- AIC(m8_s)
+      parameters_asympt_2[j,"b1"] <- fixed.effects(m8_s)["b1"]
+      parameters_asympt_2[j,"b2"] <- fixed.effects(m8_s)["b2"]
+      parameters_asympt_2[ j,"b3"] <- fixed.effects(m8_s)["b3"]
+      parameters_asympt_2[ j,"AIC"] <- AIC(m8_s)
       
 
       for (k in paste0("protocol", levels(data$protocol)[-1])) {

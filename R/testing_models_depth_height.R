@@ -349,7 +349,7 @@ depth_height_models_nlme <- function (sp) {
   
   write.csv(parameters_linear_1, file = paste0("output/depthheight_linear_alldata__nlme.",sp, ".csv") )
   write.csv(parameters_linear_2, file =  paste0("output/depthheight_linear_resampling__nlme.",sp, ".csv"))
-  write.csv(parameters_power_1, file =  paste0("outputdepthheight_power__alldata__nlme.",sp, ".csv"))
+  write.csv(parameters_power_1, file =  paste0("output/depthheight_power__alldata__nlme.",sp, ".csv"))
   write.csv( parameters_power_2, file =  paste0("output/depthheight_power_resampling__nlme.",sp, ".csv"))
   
 
