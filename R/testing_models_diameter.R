@@ -38,7 +38,7 @@ diameter_models_nlme <- function (sp) {
   data_ok <- allometry_complete_database
   data_ok <- data_ok[data_ok$checked_name %in% selected_sp$checked_name,]
 
-  nrep = 2
+  nrep = 500
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
@@ -160,9 +160,9 @@ diameter_models_nlme <- function (sp) {
 
       lines(dbh, fixed.effects(m3)[1]*dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1) # predict of power model with protocol effect
 
-      parameters_power_1[1,2] <- fixed.effects(m3)[1]
-      parameters_power_1[1,22] <- fixed.effects(m3)[length(unique(data$protocol))+1]
-      parameters_power_1[1,23] <- AIC(m3)
+      parameters_power_1[1,"inter"] <- fixed.effects(m3)[1]
+      parameters_power_1[1,"slope"] <- fixed.effects(m3)[length(unique(data$protocol))+1]
+      parameters_power_1[1,"AIC"] <- AIC(m3)
 
 
       for (k in paste0("protocol", levels(data$protocol)[-1])) {
