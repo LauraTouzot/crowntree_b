@@ -38,7 +38,7 @@ diameter_models_nlme <- function (sp) {
   data_ok <- allometry_complete_database
   data_ok <- data_ok[data_ok$checked_name %in% selected_sp$checked_name,]
 
-  nrep = 2
+  nrep = 200
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
@@ -248,13 +248,13 @@ diameter_models_nlme <- function (sp) {
 
         m1_ls <- lme(y ~ x,
                      data = new_data,
-                     random = ~ 1|location,
+             #        random = ~ 1|location,
                      weights = varPower(form = ~fitted(.)),
                      method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
 
         m2_ls <- lme(y ~ x + protocol,
                      data = new_data,
-                     random = ~ 1|location,
+              #       random = ~ 1|location,
                      weights = varPower(form = ~fitted(.)),
                      method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
 
@@ -275,7 +275,7 @@ diameter_models_nlme <- function (sp) {
         m2_s <- nlme(mod_power,
                      data = new_data,
                      fixed = list(a1 ~ 1, a2 ~ 1),
-                     random = a1 ~ 1|location,
+             #        random = a1 ~ 1|location,
                      start = c(a1 = exp(init_s[1]), a2 = init_s[2]),
                      weights = varPower(form = ~fitted(.)),
                      method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
@@ -283,7 +283,7 @@ diameter_models_nlme <- function (sp) {
         m3_s <- nlme(mod_power,
                      data = new_data,
                      fixed = list(a1 ~ protocol, a2 ~ 1),
-                     random = a1 ~ 1|location,
+            #         random = a1 ~ 1|location,
                      start = c(a1 = c(rep(exp(init_s[1]), length(unique(new_data$protocol)))), a2 = init_s[2]),
                      weights = varPower(form = ~fitted(.)),
                      method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))

@@ -29,7 +29,7 @@ get_species_list <- function () {
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
-  return(species_list[1:2])
+  return(species_list)
   
 }
 
@@ -70,7 +70,7 @@ height_models_nlme <- function (sp) {
   data_ok <- allometry_complete_database
   data_ok <- data_ok[data_ok$checked_name %in% selected_sp$checked_name,]
 
-  nrep = 2
+  nrep = 200
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
@@ -316,15 +316,14 @@ height_models_nlme <- function (sp) {
       m2_sb <- nlme(mod_power,
                    data = new_data,
                    fixed = list(a1 ~ 1, a2 ~ 1),
-                   random = a1 ~ 1|location,
+#                   random = a1 ~ 1|location,
                    start = c(a1 = exp(init_s[1]), a2 = init_s[2]),
-     #             weights = varPower(form = ~fitted(.)),
                    method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
 
       m2_s <- nlme(mod_power,
                     data = new_data,
                     fixed = list(a1 ~ 1, a2 ~ 1),
-                    random = a1 ~ 1|location,
+#                    random = a1 ~ 1|location,
                     start = c(a1 = fixed.effects(m2_sb)["a1"], a2 = fixed.effects(m2_sb)["a2"]),
                     weights = varPower(form = ~fitted(.)),
                     method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
@@ -332,7 +331,7 @@ height_models_nlme <- function (sp) {
       m3_s <- nlme(mod_power,
                    data = data,
                    fixed = list(a1 ~ protocol, a2 ~ 1),
-                   random = a1 ~ 1|location,
+#                   random = a1 ~ 1|location,
                    start = c(a1 = c(rep(fixed.effects(m2_s)["a1"], length(unique(new_data$protocol)))), a2 = fixed.effects(m2_s)["a2"]),
                    weights = varPower(form = ~fitted(.)),
                    method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
@@ -361,7 +360,7 @@ height_models_nlme <- function (sp) {
       m6_s <- nlme(mod_asympt,
                    data = new_data,
                    fixed = b1 + b2 + b3 ~ 1,
-                   random = b1 ~ 1|location,
+#                   random = b1 ~ 1|location,
                    start = c(b1 = coefficients(m5_s)["b1"], b2 = coefficients(m5_s)["b2"], b3 = coefficients(m5_s)["b3"]),
                    method = "ML",
                    control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
@@ -369,7 +368,7 @@ height_models_nlme <- function (sp) {
       m7_s <- nlme(mod_asympt,
                    data = new_data,
                    fixed = list(b1 ~ 1, b2 ~ 1, b3 ~ 1),
-                   random = b1 ~ 1|location,
+#                   random = b1 ~ 1|location,
                    start = c(b1 = fixef(m6_s)["b1"], b2 = fixef(m6_s)["b2"], b3 = fixef(m6_s)["b3"]),
                    method = "ML", 
                    weights = varPower(form = ~fitted(.)),
@@ -378,7 +377,7 @@ height_models_nlme <- function (sp) {
       m8_s <- nlme(mod_asympt,
                    data = new_data,
                    fixed = list(b1 ~ protocol, b2 ~ 1, b3 ~ 1),
-                   random = b1 ~ 1|location,
+ #                  random = b1 ~ 1|location,
                    start = c(b1 = c(rep(fixef(m7_s)["b1"], length(unique(new_data$protocol))), b2 = fixef(m7_s)["b2"], b3 = fixef(m7_s)["b3"])),
                    method = "ML", 
                    weights = varPower(form = ~fitted(.)),
