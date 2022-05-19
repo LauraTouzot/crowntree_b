@@ -124,9 +124,9 @@ diameter_models_nlme <- function (sp) {
         parameters_linear_1[1,"inter"] <- fixed.effects(m1_l)[1]
         parameters_linear_1[1, "slope"] <- fixed.effects(m1_l)[2]
         parameters_linear_1[1, "AIC"] <- AIC(m1_l)
-        lines(dbh, fixef(m1_l)[1] +  fixef(m1_l)[2]*dbh, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
-        
+        parameters_linear_1[1,paste0("protocol", unique(data$protocol))] <- fixed.effects(m1_l)[1]
       }
+      lines(dbh, fixef(m1_l)[1] +  fixef(m1_l)[2]*dbh, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
     }, 
     
@@ -181,6 +181,7 @@ diameter_models_nlme <- function (sp) {
         parameters_power_1[1,"inter"] <- fixed.effects(m2)[1]
         parameters_power_1[1,"slope"] <- fixed.effects(m2)[length(unique(data$protocol))+1]
         parameters_power_1[1,"AIC"] <- AIC(m2)
+        parameters_power_1[1,paste0("protocol", unique(data$protocol))] <- fixed.effects(m2)[1]
         
       }
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
@@ -312,6 +313,7 @@ diameter_models_nlme <- function (sp) {
           parameters_linear_2[ j,"inter"] <- fixed.effects(m1_ls)[1]
           parameters_linear_2[j,"slope"] <- fixed.effects(m1_ls)[2]
           parameters_linear_2[j,"AIC"] <- AIC(m1_ls)
+          parameters_linear_2[j,paste0("protocol", unique(data$protocol))] <- fixed.effects(m1_ls)[1]
           
         }
 
@@ -351,6 +353,7 @@ diameter_models_nlme <- function (sp) {
           parameters_power_2[j,"inter"] <- fixed.effects(m2_s)[1]
           parameters_power_2[j,"slope"] <- fixed.effects(m2_s)[length(unique(new_data$protocol))+1]
           parameters_power_2[j,"AIC"] <-AIC(m2_s)
+          parameters_power_2[j,paste0("protocol", unique(data$protocol))] <- fixed.effects(m2_s)[1]
           
         }
 
