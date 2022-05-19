@@ -312,17 +312,17 @@ depth_height_models_nlme <- function (sp) {
           parameters_linear_2[j,"slope"] <- fixed.effects(m2_ls)[2]
           parameters_linear_2[j,"AIC"] <- AIC(m2_ls)
           
-          for (k in paste0("protocol", levels(data$protocol)[-1])) {
+          for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
             parameters_linear_2[j,k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
           }
-          parameters_linear_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_ls)[1]
+          parameters_linear_2[j,paste0("protocol", levels(factor(new_data$protocol))[1])] <- fixed.effects(m2_ls)[1]
           
         }else{
           
           parameters_linear_2[ j,"inter"] <- fixed.effects(m1_ls)[1]
           parameters_linear_2[j,"slope"] <- fixed.effects(m1_ls)[2]
           parameters_linear_2[j,"AIC"] <- AIC(m1_ls)
-          parameters_linear_2[j,paste0("protocol", unique(data$protocol))] <- fixed.effects(m_ls)[1]
+          parameters_linear_2[j,paste0("protocol", unique(new_data$protocol))] <- fixed.effects(m_ls)[1]
           
         }
         
@@ -353,16 +353,16 @@ depth_height_models_nlme <- function (sp) {
         parameters_power_2[j,"slope"] <- fixed.effects(m3_s)[length(unique(new_data$protocol))+1]
         parameters_power_2[j,"AIC"] <-AIC(m3_s)
         
-        for (k in paste0("protocol", levels(data$protocol)[-1])) {
+        for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
           
           parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
         }
-        parameters_power_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3_s)[1]
+        parameters_power_2[j,paste0("protocol", levelsfactor((new_data$protocol))[1])] <- fixed.effects(m3_s)[1]
         }else{
           parameters_power_2[j,"inter"] <- fixed.effects(m2_s)[1]
           parameters_power_2[j,"slope"] <- fixed.effects(m2_s)[2]
           parameters_power_2[j,"AIC"] <-AIC(m2_s)
-          parameters_power_2[j,paste0("protocol", unique(data$protocol))] <- fixed.effects(m2_s)[1]
+          parameters_power_2[j,paste0("protocol", unique(new_data$protocol))] <- fixed.effects(m2_s)[1]
           
         }
         

@@ -390,15 +390,15 @@ height_models_nlme <- function (sp) {
       parameters_power_2[ j,"a2"] <- fixed.effects(m3_s)["a2"]
       parameters_power_2[j,"AIC"] <- AIC(m3_s)
       
-      for (k in paste0("protocol", levels(data$protocol)[-1])) {
+      for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
          parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
       }
-      parameters_power_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3_s)[1]
+      parameters_power_2[j,paste0("protocol", levels(factor(new_data$protocol))[1])] <- fixed.effects(m3_s)[1]
       }else{
         parameters_power_2[ j,"a1"] <- fixed.effects(m2_s)[1]
         parameters_power_2[ j,"a2"] <- fixed.effects(m2_s)["a2"]
         parameters_power_2[j,"AIC"] <- AIC(m2_s)
-        parameters_power_2[j,paste0("protocol", unique(data$protocol))] <- fixed.effects(m2_s)[1]
+        parameters_power_2[j,paste0("protocol", unique(new_data$protocol))] <- fixed.effects(m2_s)[1]
         
       }
 
@@ -446,16 +446,16 @@ height_models_nlme <- function (sp) {
       parameters_asympt_2[ j,"AIC"] <- AIC(m8_s)
       
 
-      for (k in paste0("protocol", levels(data$protocol)[-1])) {
+      for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
         parameters_asympt_2[j,k] <- fixed.effects(m8_s)[1] + fixed.effects(m8_s)[paste0("b1.", k)]
       }
-      parameters_asympt_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m8_s)[1]
+      parameters_asympt_2[j,paste0("protocol", levels(factor(new_data$protocol))[1])] <- fixed.effects(m8_s)[1]
       }else{
         parameters_asympt_2[j,"b1"] <- fixed.effects(m7_s)[1]
         parameters_asympt_2[j,"b2"] <- fixed.effects(m7_s)["b2"]
         parameters_asympt_2[ j,"b3"] <- fixed.effects(m7_s)["b3"]
         parameters_asympt_2[ j,"AIC"] <- AIC(m7_s)
-        parameters_asympt_2[j,paste0("protocol", unique(data$protocol))] <- fixed.effects(m7_s)[1]
+        parameters_asympt_2[j,paste0("protocol", unique(new_data$protocol))] <- fixed.effects(m7_s)[1]
         
       }
     },
