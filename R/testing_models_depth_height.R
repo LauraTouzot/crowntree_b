@@ -33,7 +33,7 @@ depth_height_models_nlme <- function (sp) {
   data_ok <- allometry_complete_database
   data_ok <- data_ok[data_ok$checked_name %in% selected_sp$checked_name,]
 
-  nrep = 2
+  nrep = 200
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
@@ -357,7 +357,7 @@ depth_height_models_nlme <- function (sp) {
           
           parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
         }
-        parameters_power_2[j,paste0("protocol", levelsfactor((new_data$protocol))[1])] <- fixed.effects(m3_s)[1]
+        parameters_power_2[j,paste0("protocol", levels(factor((new_data$protocol))[1])] <- fixed.effects(m3_s)[1]
         }else{
           parameters_power_2[j,"inter"] <- fixed.effects(m2_s)[1]
           parameters_power_2[j,"slope"] <- fixed.effects(m2_s)[2]
