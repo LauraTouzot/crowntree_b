@@ -173,7 +173,7 @@ height_models_nlme <- function (sp) {
         parameters_power_1[1,"a1"] <- fixed.effects(m2)[1]
         parameters_power_1[1,"a2"] <- fixed.effects(m2)["a2"]
         parameters_power_1[1,"AIC"] <- AIC(m2)
-        
+        parameters_power_1[1,paste0("protocol", unique(data$protocol))] <- fixed.effects(m2)[1]
         
       }
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
@@ -250,6 +250,7 @@ height_models_nlme <- function (sp) {
             parameters_asympt_1[1,"b2"] <- fixed.effects(m7)["b2"]
             parameters_asympt_1[1,"b3"] <- fixed.effects(m7)["b3"]
             parameters_asympt_1[1,"AIC"] <- AIC(m7)
+            parameters_asympt_1[1,paste0("protocol", unique(data$protocol))] <- fixed.effects(m7)[1]
             
           }
       lines(dbh, 1.3+ fixef(m7)["b1"]*(1-exp(-fixef(m7)["b2"]*dbh))^fixef(m7)["b3"], type = "l", col ="forestgreen", lwd = 3.5) # predict of asymptot model without protocol effect
@@ -397,6 +398,7 @@ height_models_nlme <- function (sp) {
         parameters_power_2[ j,"a1"] <- fixed.effects(m2_s)[1]
         parameters_power_2[ j,"a2"] <- fixed.effects(m2_s)["a2"]
         parameters_power_2[j,"AIC"] <- AIC(m2_s)
+        parameters_power_2[j,paste0("protocol", unique(data$protocol))] <- fixed.effects(m2_s)[1]
         
       }
 
@@ -453,6 +455,7 @@ height_models_nlme <- function (sp) {
         parameters_asympt_2[j,"b2"] <- fixed.effects(m7_s)["b2"]
         parameters_asympt_2[ j,"b3"] <- fixed.effects(m7_s)["b3"]
         parameters_asympt_2[ j,"AIC"] <- AIC(m7_s)
+        parameters_asympt_2[j,paste0("protocol", unique(data$protocol))] <- fixed.effects(m7_s)[1]
         
       }
     },

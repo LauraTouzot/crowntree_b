@@ -17,7 +17,8 @@ library(clustermq)
 # Specifying target options
 options(tidyverse.quiet = TRUE, clustermq.scheduler = "multiprocess")
 tar_option_set(packages = c("dplyr", "nlme", "lme4", "clustermq", "tidyr"))
-#tar_make_clustermq(outputs_height_nlme, workers = 4)
+#tar_make_clustermq(outputs_diameter_nlme, workers = 4)
+#tar_make_clustermq( workers = 16)
 # Loading functions
 lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("R", x)))
 
