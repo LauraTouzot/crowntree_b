@@ -29,7 +29,7 @@ get_species_list <- function () {
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
-  return(species_list)
+  return(species_list[1:4])
   
 }
 
@@ -70,7 +70,7 @@ height_models_nlme <- function (sp) {
   data_ok <- allometry_complete_database
   data_ok <- data_ok[data_ok$checked_name %in% selected_sp$checked_name,]
 
-  nrep = 200
+  nrep = 2
   species_list <- unique(selected_sp$checked_name)
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
@@ -89,7 +89,7 @@ height_models_nlme <- function (sp) {
   parameters_asympt_2[,1] <- rep(sp, nrep)
 
   names(parameters_power_1) <- names(parameters_power_2) <-
-    c("species", "inter",paste0("protocol", unique(data_ok$data)), "slope", "AIC")
+    c("species", "a1",paste0("protocol", unique(data_ok$data)), "a2", "AIC")
   
   names(parameters_asympt_1) <- names(parameters_asympt_2) <-
     c("species", "b1",paste0("protocol", unique(data_ok$data)), "b2", "b3", "AIC")
@@ -158,8 +158,8 @@ height_models_nlme <- function (sp) {
       
       lines(dbh, fixed.effects(m3)[1]*dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1) # predict of power model with protocol effect
       
-      parameters_power_1[1,"inter"] <- fixed.effects(m3)[1]
-      parameters_power_1[1,"slope"] <- fixed.effects(m3)["a2"]
+      parameters_power_1[1,"a1"] <- fixed.effects(m3)[1]
+      parameters_power_1[1,"a2"] <- fixed.effects(m3)["a2"]
       parameters_power_1[1,"AIC"] <- AIC(m3)
    
       
@@ -170,8 +170,8 @@ height_models_nlme <- function (sp) {
       parameters_power_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3)[1]
       
       }else{
-        parameters_power_1[1,"inter"] <- fixed.effects(m2)[1]
-        parameters_power_1[1,"slope"] <- fixed.effects(m2)["a2"]
+        parameters_power_1[1,"a1"] <- fixed.effects(m2)[1]
+        parameters_power_1[1,"a2"] <- fixed.effects(m2)["a2"]
         parameters_power_1[1,"AIC"] <- AIC(m2)
         
         
@@ -389,9 +389,6 @@ height_models_nlme <- function (sp) {
       parameters_power_2[ j,"a2"] <- fixed.effects(m3_s)["a2"]
       parameters_power_2[j,"AIC"] <- AIC(m3_s)
       
-      
-      
-      
       for (k in paste0("protocol", levels(data$protocol)[-1])) {
          parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
       }
@@ -400,7 +397,6 @@ height_models_nlme <- function (sp) {
         parameters_power_2[ j,"a1"] <- fixed.effects(m2_s)[1]
         parameters_power_2[ j,"a2"] <- fixed.effects(m2_s)["a2"]
         parameters_power_2[j,"AIC"] <- AIC(m2_s)
-        
         
       }
 
@@ -457,7 +453,6 @@ height_models_nlme <- function (sp) {
         parameters_asympt_2[j,"b2"] <- fixed.effects(m7_s)["b2"]
         parameters_asympt_2[ j,"b3"] <- fixed.effects(m7_s)["b3"]
         parameters_asympt_2[ j,"AIC"] <- AIC(m7_s)
-        
         
       }
     },

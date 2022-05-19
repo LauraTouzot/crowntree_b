@@ -23,14 +23,11 @@ diameter_models_nlme <- function (sp) {
                                                                 nobs_Cdiam = sum(!is.na(C_diam_m)),
                                                                 nobs_Cdepth = sum(!is.na(C_depth_m)),
                                                                 nobs_CR = sum(!is.na(CR))) %>% ungroup()
-  
 
   sampling <- left_join(sampling, data_summary, by = "checked_name")
 
   selected_sp <- sampling %>% 
     filter(continent == "E_U" & nplot_crown >= 100 & ntree_crown >= 1000 | continent == "N_A" & nplot_crown >= 150 & ntree_crown >= 3000)
-
-
 
   ## 1. Running models with 
   # random effect location_ID on a1 and b1
@@ -104,6 +101,8 @@ diameter_models_nlme <- function (sp) {
                   weights = varPower(form = ~fitted(.)),
                   method = "ML",  control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
       
+      if(length(data$protocol)>1){
+        
       m2_l <- lme(y ~ x + protocol,
                   data = data,
                   random = ~ 1|location,
@@ -116,14 +115,18 @@ diameter_models_nlme <- function (sp) {
       parameters_linear_1[1, "slope"] <- fixed.effects(m2_l)[2]
       parameters_linear_1[1, "AIC"] <- AIC(m2_l)
       
-      
       for (k in paste0("protocol", levels(data$protocol)[-1])) {
         lines(dbh, (fixed.effects(m2_l)[1] + fixed.effects(m2_l)[k]) + fixed.effects(m2_l)[2] * dbh, type = "l", col = "firebrick4", lwd = 1)
         parameters_linear_1[1,k] <- fixed.effects(m2_l)[1]+fixed.effects(m2_l)[k]
       }
       parameters_linear_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_l)[1]
-      lines(dbh, fixef(m1_l)[1] +  fixef(m1_l)[2]*dbh, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
-      
+       }else{
+        parameters_linear_1[1,"inter"] <- fixed.effects(m1_l)[1]
+        parameters_linear_1[1, "slope"] <- fixed.effects(m1_l)[2]
+        parameters_linear_1[1, "AIC"] <- AIC(m1_l)
+        lines(dbh, fixef(m1_l)[1] +  fixef(m1_l)[2]*dbh, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
+        
+      }
       
     }, 
     
@@ -151,6 +154,8 @@ diameter_models_nlme <- function (sp) {
                  weights = varPower(form = ~fitted(.)),
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
 
+      if(length(data$protocol)>1){
+        
       m3 <- nlme(mod_power,
                  data = data,
                  fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -171,10 +176,14 @@ diameter_models_nlme <- function (sp) {
         parameters_power_1[1,k] <- fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]
       }
       parameters_power_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3)[1]
-
-
+       
+      }else{
+        parameters_power_1[1,"inter"] <- fixed.effects(m2)[1]
+        parameters_power_1[1,"slope"] <- fixed.effects(m2)[length(unique(data$protocol))+1]
+        parameters_power_1[1,"AIC"] <- AIC(m2)
+        
+      }
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
-
 
     },
 
@@ -283,6 +292,8 @@ diameter_models_nlme <- function (sp) {
                      weights = varPower(form = ~fitted(.)),
                      method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
 
+        if(length(new_data$protocol)>1){
+          
         m2_ls <- lme(y ~ x + protocol,
                      data = new_data,
                      random = ~ 1|location,
@@ -297,6 +308,12 @@ diameter_models_nlme <- function (sp) {
           parameters_linear_2[j,k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
         }
         parameters_linear_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_ls)[1]
+        }else{
+          parameters_linear_2[ j,"inter"] <- fixed.effects(m1_ls)[1]
+          parameters_linear_2[j,"slope"] <- fixed.effects(m1_ls)[2]
+          parameters_linear_2[j,"AIC"] <- AIC(m1_ls)
+          
+        }
 
 
         # fitting power relationships
@@ -311,6 +328,8 @@ diameter_models_nlme <- function (sp) {
                      weights = varPower(form = ~fitted(.)),
                      method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
 
+        if(length(new_data$protocol)>1){
+          
         m3_s <- nlme(mod_power,
                      data = new_data,
                      fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -328,7 +347,12 @@ diameter_models_nlme <- function (sp) {
           parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
         }
         parameters_power_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3_s)[1]
-        
+        }else{
+          parameters_power_2[j,"inter"] <- fixed.effects(m2_s)[1]
+          parameters_power_2[j,"slope"] <- fixed.effects(m2_s)[length(unique(new_data$protocol))+1]
+          parameters_power_2[j,"AIC"] <-AIC(m2_s)
+          
+        }
 
       },
 

@@ -101,6 +101,8 @@ depth_models_nlme <- function (sp) {
                   weights = varPower(form = ~fitted(.)),
                   method = "ML",  control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
       
+      if(length(data$protocol)>1){
+        
       m2_l <- lme(y ~ x + protocol,
                   data = data,
                   random = ~ 1|location,
@@ -109,7 +111,6 @@ depth_models_nlme <- function (sp) {
       
       lines(dbh, fixed.effects(m2_l)[1] + fixed.effects(m2_l)[2] * dbh, type = "l", col = "firebrick4", lwd = 1)
       
- 
       parameters_linear_1[1,"inter"] <- fixed.effects(m2_l)[1]
       parameters_linear_1[1, "slope"] <- fixed.effects(m2_l)[2]
       parameters_linear_1[1, "AIC"] <- AIC(m2_l)
@@ -119,7 +120,12 @@ depth_models_nlme <- function (sp) {
         parameters_linear_1[1,k] <- fixed.effects(m2_l)[1]+fixed.effects(m2_l)[k]
       }
       parameters_linear_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_l)[1]
-      
+      }else{
+        parameters_linear_1[1,"inter"] <- fixed.effects(m1_l)[1]
+        parameters_linear_1[1, "slope"] <- fixed.effects(m1_l)[2]
+        parameters_linear_1[1, "AIC"] <- AIC(m1_l)
+        
+      }
        
       lines(dbh, fixef(m1_l)[1] +  fixef(m1_l)[2]*dbh, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
@@ -149,7 +155,9 @@ depth_models_nlme <- function (sp) {
                  start = c(a1 = exp(init[1]), a2 = init[2]),
                  weights = varPower(form = ~fitted(.)),
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-      
+
+      if(length(data$protocol)>1){
+        
       m3 <- nlme(mod_power,
                  data = data,
                  fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -160,20 +168,22 @@ depth_models_nlme <- function (sp) {
       
       lines(dbh, fixed.effects(m3)[1]*dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1) # predict of power model with protocol effect
       
-
       parameters_power_1[1,"inter"] <- fixed.effects(m3)[1]
       parameters_power_1[1,"slope"] <- fixed.effects(m3)[length(unique(data$protocol))+1]
       parameters_power_1[1,"AIC"] <- AIC(m3)
-      
       
       for (k in paste0("protocol", levels(data$protocol)[-1])) {
         lines(dbh , (fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]) * dbh^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 2)
         parameters_power_1[1,k] <- fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]
       }
       parameters_power_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3)[1]
-      
+      }else{
+        parameters_power_1[1,"inter"] <- fixed.effects(m2)[1]
+        parameters_power_1[1,"slope"] <- fixed.effects(m2)[length(unique(data$protocol))+1]
+        parameters_power_1[1,"AIC"] <- AIC(m2)
+        
+      }
       lines(dbh, fixef(m2)["a1"]*dbh^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
-      
       
     },
     
@@ -238,8 +248,6 @@ depth_models_nlme <- function (sp) {
     # computing nb of datasets in which the species was surveyed
     nb_datasets_all <- length(unique(c(d1$protocol, d2$protocol, d3$protocol,d4$protocol)))
     
-    
-    
     for (j in  1:nrep) {
       
       # tested models
@@ -282,13 +290,14 @@ depth_models_nlme <- function (sp) {
                      random = ~ 1|location,
                      weights = varPower(form = ~fitted(.)),
                      method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-3, msTol = 1e-2))
-        
+
+        if(length(new_data$protocol)>1){
+          
         m2_ls <- lme(y ~ x + protocol,
                      data = new_data,
                      random = ~ 1|location,
                      weights = varPower(form = ~fitted(.)),
                      method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-3, msTol = 1e-2))
-        
 
         parameters_linear_2[ j,"inter"] <- fixed.effects(m2_ls)[1]
         parameters_linear_2[j,"slope"] <- fixed.effects(m2_ls)[2]
@@ -298,7 +307,13 @@ depth_models_nlme <- function (sp) {
           parameters_linear_2[j,k] <- fixed.effects(m2_ls)[1] + fixed.effects(m2_ls)[k]
         }
         parameters_linear_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_ls)[1]
-        
+        }else{
+          parameters_linear_2[ j,"inter"] <- fixed.effects(m1_ls)[1]
+          parameters_linear_2[j,"slope"] <- fixed.effects(m1_ls)[2]
+          parameters_linear_2[j,"AIC"] <- AIC(m1_ls)
+          
+          
+        }
 
         
         # fitting power relationships
@@ -312,6 +327,8 @@ depth_models_nlme <- function (sp) {
                      weights = varPower(form = ~fitted(.)),
                      method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
         
+        if(length(new_data$protocol)>1){
+          
         m3_s <- nlme(mod_power,
                      data = new_data,
                      fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -329,7 +346,13 @@ depth_models_nlme <- function (sp) {
           parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
         }
         parameters_power_2[j,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3_s)[1]
-        
+        }else{
+          
+          parameters_power_2[j,"inter"] <- fixed.effects(m2_s)[1]
+          parameters_power_2[j,"slope"] <- fixed.effects(m2_s)[length(unique(new_data$protocol))+1]
+          parameters_power_2[j,"AIC"] <-AIC(m2_s)
+          
+        }
         
       },
       

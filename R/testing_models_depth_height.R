@@ -100,7 +100,9 @@ depth_height_models_nlme <- function (sp) {
                   random = ~ 1|location,
                   weights = varPower(form = ~fitted(.)),
                   method = "ML",  control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
-      
+
+      if(length(data$protocol)>1){
+        
       m2_l <- lme(y ~ x + protocol,
                   data = data,
                   random = ~ 1|location,
@@ -118,7 +120,13 @@ depth_height_models_nlme <- function (sp) {
         parameters_linear_1[1,k] <- fixed.effects(m2_l)[1]+fixed.effects(m2_l)[k]
       }
       parameters_linear_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_l)[1]
-       
+      }else{
+        parameters_linear_1[1,"inter"] <- fixed.effects(m1_l)[1]
+        parameters_linear_1[1, "slope"] <- fixed.effects(m1_l)[2]
+        parameters_linear_1[1, "AIC"] <- AIC(m1_l)
+        
+      } 
+      
       lines(ht, fixef(m1_l)[1] +  fixef(m1_l)[2]*ht, type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
       
@@ -147,7 +155,9 @@ depth_height_models_nlme <- function (sp) {
                  start = c(a1 = exp(init[1]), a2 = init[2]),
                  weights = varPower(form = ~fitted(.)),
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
-      
+
+      if(length(data$protocol)>1){
+        
       m3 <- nlme(mod_power,
                  data = data,
                  fixed = list(a1 ~ protocol, a2 ~ 1),
@@ -157,19 +167,22 @@ depth_height_models_nlme <- function (sp) {
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
       
       lines(ht, fixed.effects(m3)[1]*ht^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1) # predict of power model with protocol effect
-      
 
       parameters_power_1[1,"inter"] <- fixed.effects(m3)[1]
       parameters_power_1[1,"slope"] <- fixed.effects(m3)[length(unique(data$protocol))+1]
       parameters_power_1[1,"AIC"] <- AIC(m3)
-      
       
       for (k in paste0("protocol", levels(data$protocol)[-1])) {
         lines(ht, (fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]) * ht^(fixed.effects(m3)[length(unique(data$protocol))+1]), type = "l", col = "firebrick4", lwd = 1)
         parameters_power_1[1,k] <- fixed.effects(m3)[1]+fixed.effects(m3)[paste0("a1.", k)]
       }
       parameters_power_1[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m3)[1]
-      
+      }else{
+        parameters_power_1[1,"inter"] <- fixed.effects(m2)[1]
+        parameters_power_1[1,"slope"] <- fixed.effects(m2)[length(unique(data$protocol))+1]
+        parameters_power_1[1,"AIC"] <- AIC(m2)
+        
+      }
         
       lines(ht, fixef(m2)["a1"]*ht^fixef(m2)["a2"], type = "l", col ="forestgreen", lwd = 3.5) # predict of power model without protocol effect
       
