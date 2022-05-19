@@ -78,7 +78,7 @@ depth_height_models_nlme <- function (sp) {
   data <- data[data$location %in% sel_loc, ]
   data$location <- factor(data$location)  
   
-  if (dim(data)[1] >= 1000) { # running the models only if more than 1000 observations are left in the sampled data
+  if (dim(data)[1] >= 200) { # running the models only if more than 1000 observations are left in the sampled data
 
     print(i)
     
