@@ -101,7 +101,7 @@ diameter_models_nlme <- function (sp) {
                   weights = varPower(form = ~fitted(.)),
                   method = "ML",  control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
       
-      if(length(data$protocol)>1){
+      if(length(unique(data$protocol))>1){
         
       m2_l <- lme(y ~ x + protocol,
                   data = data,
@@ -154,7 +154,7 @@ diameter_models_nlme <- function (sp) {
                  weights = varPower(form = ~fitted(.)),
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
 
-      if(length(data$protocol)>1){
+      if(length(unique(data$protocol))>1){
         
       m3 <- nlme(mod_power,
                  data = data,
@@ -292,7 +292,7 @@ diameter_models_nlme <- function (sp) {
                      weights = varPower(form = ~fitted(.)),
                      method = "ML", control = lmeControl(maxIter = 1500, tolerance = 1e-2, msTol = 1e-1))
 
-        if(length(new_data$protocol)>1){
+        if(length(unique(new_data$protocol))>1){
           
         m2_ls <- lme(y ~ x + protocol,
                      data = new_data,
@@ -328,7 +328,7 @@ diameter_models_nlme <- function (sp) {
                      weights = varPower(form = ~fitted(.)),
                      method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
 
-        if(length(new_data$protocol)>1){
+        if(length(unique(new_data$protocol))>1){
           
         m3_s <- nlme(mod_power,
                      data = new_data,
