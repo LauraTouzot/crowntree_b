@@ -357,7 +357,7 @@ depth_height_models_nlme <- function (sp) {
           
           parameters_power_2[j,k] <- fixed.effects(m3_s)[1]+fixed.effects(m3_s)[paste0("a1.", k)]
         }
-        parameters_power_2[j,paste0("protocol", levels(factor((new_data$protocol))[1])] <- fixed.effects(m3_s)[1]
+        parameters_power_2[j,paste0("protocol", levels(factor(new_data$protocol))[1])] <- fixed.effects(m3_s)[1]
         }else{
           parameters_power_2[j,"inter"] <- fixed.effects(m2_s)[1]
           parameters_power_2[j,"slope"] <- fixed.effects(m2_s)[2]
