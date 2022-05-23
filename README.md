@@ -1,4 +1,4 @@
-# Code to fit Allometric data to Europe and North America data
+# Code to fit allometric relationships to Europe and North America data
 
 Need to run with 
 
