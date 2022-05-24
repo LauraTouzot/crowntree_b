@@ -30,7 +30,7 @@ get_species_list <- function() {
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
   
-  return(species_list)
+  return(species_list[1:10])
   
 }
 
@@ -340,8 +340,8 @@ height_models_nlme <- function(sp) {
     
     new_data <- bind_rows(class_1, class_2, class_3, class_4)
     nb_datasets_sample <- length(unique(new_data$protocol))
-    
-    while (nb_datasets_sample < (ceiling(nb_datasets_all * 0.33))) { # ceiling
+    maxit <- 0
+    while (nb_datasets_sample < ceiling(nb_datasets_all * 0.33) & maxit < 6) { # ceiling
       
       loc1 <- sample(unique(d1$location), sample_size)
       class_1 <- d1 %>% filter(location %in% loc1) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
@@ -354,7 +354,9 @@ height_models_nlme <- function(sp) {
       
       new_data <- bind_rows(class_1, class_2, class_3, class_4)
       
-      nb_datasets_sample <- length(unique(new_data$protocol)) }
+      nb_datasets_sample <- length(unique(new_data$protocol)) 
+      maxit <- maxit +1
+      }
     
     
     tryCatch({  

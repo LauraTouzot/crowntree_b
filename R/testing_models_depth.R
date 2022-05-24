@@ -233,7 +233,8 @@ depth_models_nlme <- function (sp) {
       new_data <- bind_rows(class_1, class_2, class_3, class_4)
       nb_datasets_sample <- length(unique(new_data$protocol))
       
-      while (nb_datasets_sample < (ceiling(nb_datasets_all * 0.33))) {
+      maxit <- 0
+      while (nb_datasets_sample < ceiling(nb_datasets_all * 0.33) & maxit < 6) { # ceiling
         
         loc1 <- sample(unique(d1$location), sample_size)
         class_1 <- d1 %>% filter(location %in% loc1) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
@@ -246,7 +247,10 @@ depth_models_nlme <- function (sp) {
         
         new_data <- bind_rows(class_1, class_2, class_3, class_4)
         
-        nb_datasets_sample <- length(unique(new_data$protocol)) }
+        nb_datasets_sample <- length(unique(new_data$protocol)) 
+        maxit <- maxit + 1
+        
+        }
       
       
       
