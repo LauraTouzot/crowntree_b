@@ -111,7 +111,7 @@ height_models_nlme <- function(sp) {
     # compiling selected data and variables
     data <- allometry_complete_database %>% filter(checked_name == species_list[i],
                                                    !is.na(DBH_cm) & !is.na(HT_m) & HT_m >0) %>%
-      select(DBH_cm, C_diam_m, location_ID, data) %>%
+      select(DBH_cm, HT_m, location_ID, data) %>%
       rename(x = DBH_cm, y = HT_m, location = location_ID, protocol = data) %>% 
       mutate(x = as.numeric(x), y = as.numeric(y), location = as.character(location), 
              protocol = as.character(protocol))

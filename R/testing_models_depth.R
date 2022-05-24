@@ -61,7 +61,7 @@ depth_models_nlme <- function (sp) {
   # compiling selected data and variables
   data <- allometry_complete_database %>% filter(checked_name == species_list[i],
                                                  !is.na(DBH_cm) & !is.na(C_depth_m) & C_depth_m >0) %>%
-    select(DBH_cm, C_diam_m, location_ID, data) %>%
+    select(DBH_cm, C_depth_m, location_ID, data) %>%
     rename(x = DBH_cm, y = C_depth_m, location = location_ID, protocol = data) %>% 
     mutate(x = as.numeric(x), y = as.numeric(y), location = as.character(location), 
            protocol = as.character(protocol))
