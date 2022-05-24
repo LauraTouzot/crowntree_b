@@ -47,21 +47,20 @@ height_models_nlme <- function(sp) {
   # extracting species list from NFI data (191 species)
   sampling <- NFI_data %>% 
     filter(continent == "E_U" & nplot >= 100 & ntree >= 1000 | continent == "N_A" & nplot >= 150 & ntree >= 3000)
-  
+  rm(NFI_data)
   # extracting species list in the allometry database (180 species)
-  data <- allometry_complete_database
-  data <- data %>% ungroup()
-  species <- unique(data$checked_name)
-  data_summary <- data %>% group_by(checked_name) %>% summarise(nplot_crown = length(unique(location_ID)),
-                                                                ntree_crown = length(location_ID),
-                                                                nobs_HT = sum(!is.na(HT_m)),
-                                                                nobs_Cdiam = sum(!is.na(C_diam_m)),
-                                                                nobs_Cdepth = sum(!is.na(C_depth_m)),
-                                                                nobs_CR = sum(!is.na(CR))) %>% ungroup()
+  allometry_complete_database <- allometry_complete_database %>% ungroup()
+  species <- unique(allometry_complete_database$checked_name)
+  data_summary <- allometry_complete_database %>% group_by(checked_name) %>% summarise(nplot_crown = length(unique(location_ID)),
+                                                                                       ntree_crown = length(location_ID),
+                                                                                       nobs_HT = sum(!is.na(HT_m)),
+                                                                                       nobs_Cdiam = sum(!is.na(C_diam_m)),
+                                                                                       nobs_Cdepth = sum(!is.na(C_depth_m)),
+                                                                                       nobs_CR = sum(!is.na(CR))) %>% ungroup()
   
   
   sampling <- left_join(sampling, data_summary, by = "checked_name")
-  
+  rm(data_summary)
   selected_sp <- sampling %>% 
     filter(continent == "E_U" & nplot_crown >= 100 & ntree_crown >= 1000 | continent == "N_A" & nplot_crown >= 150 & ntree_crown >= 3000)
   
@@ -69,7 +68,8 @@ height_models_nlme <- function(sp) {
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
   
-  data_ok <- allometry_complete_database[allometry_complete_database$checked_name %in% species_list,]
+  data_ok <- allometry_complete_database %>% filter(checked_name %in% species_list) %>% 
+    filter(!duplicated(data))
   nrep = 20
   
   
@@ -103,19 +103,25 @@ height_models_nlme <- function(sp) {
   i <- (1:length(species_list))[species_list == sp]
   
     par(mfrow = c(1,1))
-  
+ 
+    
+    ## 2. Running different models on all data 
+    
+     
     # compiling selected data and variables
-    df <- data_ok[data_ok$checked_name %in% species_list[i],]
-    df <- df %>% filter(!is.na(DBH_cm) & !is.na(HT_m))
-  
-    data <- data.frame(df$DBH_cm, df$HT_m, df$location_ID, df$data)
-    names(data) <- c("x", "y", "location", "protocol")
-    data <- data %>% mutate(x = as.numeric(x), y = as.numeric(y), location = as.factor(location), protocol = as.factor(protocol))
+    data <- allometry_complete_database %>% filter(checked_name == species_list[i],
+                                                   !is.na(DBH_cm) & !is.na(HT_m) & HT_m >0) %>%
+      select(DBH_cm, C_diam_m, location_ID, data) %>%
+      rename(x = DBH_cm, y = HT_m, location = location_ID, protocol = data) %>% 
+      mutate(x = as.numeric(x), y = as.numeric(y), location = as.character(location), 
+             protocol = as.character(protocol))
     
     sel_loc <- names(table(data$location))[table(data$location) > 2]
     data_2 <- data[data$location %in% sel_loc, ]
     data_2$location <- factor(data_2$location)  
-
+    rm(allometry_complete_database, data_ok, sampling,selected_sp, sel_loc, species)
+    
+ 
     if (dim(data_2)[1] >= 500) { # running the models only if more than 500 observations are left in the sampled data
 
     print(i)
@@ -482,6 +488,8 @@ height_models_nlme <- function(sp) {
   write.csv( parameters_asympt_2, file =  paste0("output/height_asympt_resampling__nlme.",sp, ".csv"))
 
   return(list(parameters_power_1, parameters_power_2, parameters_asympt_1, parameters_asympt_2))
+  rm(list = ls())
+  gc()
   
 }
   
