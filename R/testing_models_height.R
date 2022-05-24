@@ -30,7 +30,7 @@ get_species_list <- function() {
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
   
-  return(species_list[1:10])
+  return(species_list)
   
 }
 
