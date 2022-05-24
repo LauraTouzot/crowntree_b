@@ -32,7 +32,7 @@ depth_height_models_nlme <- function (sp) {
   
   data_ok <- allometry_complete_database %>% filter(checked_name %in% species_list) %>% 
     filter(!duplicated(data))
-  nrep = 20
+  nrep = 200
   
   ## 1. Preparing storage before running the models
   parameters_linear_1 <- as.data.frame(matrix(nrow = 1, ncol = length(unique(data_ok$data)) + 4))
@@ -340,7 +340,7 @@ depth_height_models_nlme <- function (sp) {
   write.csv(file = paste0("output/depthheight_power_alldata__nlme.",sp,".csv"), parameters_power_1)
   write.csv(file = paste0("output/depthheight_power_resampling__nlme.",sp,".csv"), parameters_power_2)
   
-  return(list(parameters_linear_1, parameters_linear_2, parameters_power_1, parameters_power_2))
+  return(list(parameters_linear_1, parameters_power_1))
   rm(list = ls())
   gc()
   

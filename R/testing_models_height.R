@@ -30,7 +30,7 @@ get_species_list <- function() {
   species_list <- sort(species_list) # do not forget to order species list so that the rest of the code makes sense
   species_list <- species_list[-1]
   
-  return(species_list[1:20])
+  return(species_list)
   
 }
 
@@ -70,7 +70,7 @@ height_models_nlme <- function(sp) {
   
   data_ok <- allometry_complete_database %>% filter(checked_name %in% species_list) %>% 
     filter(!duplicated(data))
-  nrep = 20
+  nrep = 200
   
   
   ## 1. Preparing storage before running the models
@@ -487,7 +487,7 @@ height_models_nlme <- function(sp) {
   write.csv(parameters_asympt_1, file =  paste0("output/height_asympt_alldata__nlme.",sp, ".csv"))
   write.csv( parameters_asympt_2, file =  paste0("output/height_asympt_resampling__nlme.",sp, ".csv"))
 
-  return(list(parameters_power_1, parameters_power_2, parameters_asympt_1, parameters_asympt_2))
+  return(list(parameters_power_1, parameters_asympt_1))
   rm(list = ls())
   gc()
   
