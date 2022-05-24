@@ -14,6 +14,7 @@
 # Loading targets
 library(targets)
 library(clustermq)
+library(dplyr)
 # Specifying target options
 options(tidyverse.quiet = TRUE, clustermq.scheduler = "multiprocess")
 tar_option_set(packages = c("dplyr", "nlme", "lme4", "clustermq", "tidyr"))
