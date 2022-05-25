@@ -135,7 +135,7 @@ height_models_nlme <- function(sp) {
     tryCatch({  
     
       # plotting data
-      plot(data_2$x, data_2$y, xlab = "diameter at breast height (cm)", ylab = "tree height (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data$x, data$y))
+      plot(data_2$x, data_2$y, xlab = "diameter at breast height (cm)", ylab = "tree height (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data_2$x, data_2$y))
       fun.boxplot.breaks(data_2$x, data_2$y)
     
       dbh <- 10:max(data_2$x)

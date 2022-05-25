@@ -16,7 +16,8 @@ library(targets)
 library(clustermq)
 library(dplyr)
 # Specifying target options
-options(tidyverse.quiet = TRUE, clustermq.scheduler = "multiprocess")
+options(tidyverse.quiet = TRUE, clustermq.scheduler = "multiprocess", 
+        memory = "transient", garbage_collection = TRUE, error = "continue")
 tar_option_set(packages = c("dplyr", "nlme", "lme4", "clustermq", "tidyr"))
 #tar_make_clustermq(outputs_diameter_nlme, workers = 4)
 
@@ -25,7 +26,7 @@ lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("
 
 #library(tictoc)
 #tic()
-#tar_make_clustermq( workers = 10)
+#tar_make_clustermq( workers = 15)
 #toc()
 
 list(

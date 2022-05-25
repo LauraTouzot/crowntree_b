@@ -313,10 +313,10 @@ depth_height_models_nlme <- function (sp) {
         } else {
           
           parameters_power_2[j,"inter"] <- coefficients(m2_s)[1]
-          parameters_power_2[j,"slope"] <- coefficients(m2_s)(m2_s)[length(unique(new_data$protocol))+1]
+          parameters_power_2[j,"slope"] <- coefficients(m2_s)[length(unique(new_data$protocol))+1]
           parameters_power_2[j,"AIC"] <-AIC(m2_s)
           parameters_power_2[j, "std_residuals"] <- sigma(m2_s)
-          parameters_power_2[j,paste0("protocol", unique(new_data$protocol))] <- coefficients(m2_s)(m2_s)[1]
+          parameters_power_2[j,paste0("protocol", unique(new_data$protocol))] <- coefficients(m2_s)[1]
           
         }
         
