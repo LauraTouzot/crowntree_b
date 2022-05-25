@@ -63,8 +63,8 @@ depth_models_nlme <- function (sp) {
                                                  !is.na(DBH_cm) & !is.na(C_depth_m) & C_depth_m >0) %>%
     select(DBH_cm, C_depth_m, location_ID, data) %>%
     rename(x = DBH_cm, y = C_depth_m, location = location_ID, protocol = data) %>% 
-    mutate(x = as.numeric(x), y = as.numeric(y), location = as.character(location), 
-           protocol = as.character(protocol))
+    mutate(x = as.numeric(x), y = as.numeric(y), location = as.factor(location), 
+           protocol = as.factor(protocol))
   
   sel_loc <- names(table(data$location))[table(data$location) > 2]
   data_2 <- data[data$location %in% sel_loc, ]
@@ -344,7 +344,5 @@ depth_models_nlme <- function (sp) {
   write.csv(file = paste0("output/depth_power_resampling__nlme.",sp,".csv"), parameters_power_2)
   
   return(list(parameters_linear_1, parameters_power_1))
-  rm(list = ls())
-  gc()
-  
+
 }

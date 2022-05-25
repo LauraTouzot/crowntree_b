@@ -63,14 +63,14 @@ depth_height_models_nlme <- function (sp) {
                                                  !is.na(HT_m) & !is.na(C_depth_m) & C_depth_m >0) %>%
     select(HT_m, C_depth_m, location_ID, data) %>%
     rename(x = HT_m, y = C_depth_m, location = location_ID, protocol = data) %>% 
-    mutate(x = as.numeric(x), y = as.numeric(y), location = as.character(location), 
-           protocol = as.character(protocol))
+    mutate(x = as.numeric(x), y = as.numeric(y), location = as.factor(location), 
+           protocol = as.factor(protocol))
   
   sel_loc <- names(table(data$location))[table(data$location) > 2]
   data_2 <- data[data$location %in% sel_loc, ]
   data_2$location <- factor(data_2$location)  
   rm(allometry_complete_database, data_ok, sampling,selected_sp, sel_loc, species)
-  
+  gc()
     
   if (dim(data_2)[1] >= 200) { # running the models only if more than 200 observations are left in the sampled data
     
@@ -341,7 +341,5 @@ depth_height_models_nlme <- function (sp) {
   write.csv(file = paste0("output/depthheight_power_resampling__nlme.",sp,".csv"), parameters_power_2)
   
   return(list(parameters_linear_1, parameters_power_1))
-  rm(list = ls())
-  gc()
   
 }
