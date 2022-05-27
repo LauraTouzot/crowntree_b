@@ -26,7 +26,7 @@ lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("
 
 #library(tictoc)
 #tic()
-#tar_make_clustermq( workers = 15)
+#tar_make_clustermq( workers = 40)
 #toc()
 
 list(

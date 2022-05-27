@@ -118,6 +118,8 @@ height_models_nlme <- function(sp) {
     
     sel_loc <- names(table(data$location))[table(data$location) > 2]
     data_2 <- data[data$location %in% sel_loc, ]
+    sel_proc <- names(table(data_2$protocol))[table(data_2$protocol)>9]
+    data_2 <- data_2[as.character(data_2$protocol) %in% sel_proc, ]
     data_2$location <- factor(data_2$location)  
     rm(allometry_complete_database, data_ok, sampling,selected_sp, sel_loc, species)
     gc()
@@ -135,7 +137,8 @@ height_models_nlme <- function(sp) {
     tryCatch({  
     
       # plotting data
-      plot(data_2$x, data_2$y, xlab = "diameter at breast height (cm)", ylab = "tree height (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data_2$x, data_2$y))
+      plot(data_2$x, data_2$y, xlab = "diameter at breast height (cm)", ylab = "tree height (m)", main = species_list[i], las = 1,
+           pch = 16, cex = 0.5, col = densCols(data_2$x, data_2$y))
       fun.boxplot.breaks(data_2$x, data_2$y)
     
       dbh <- 10:max(data_2$x)
@@ -159,7 +162,7 @@ height_models_nlme <- function(sp) {
                  data = data_2,
                  fixed = list(a1 ~ protocol, a2 ~ 1),
                  random = a1 ~ 1|location,
-                 start = c(a1 = c(rep(exp(init[1]), length(unique(data$protocol)))), a2 = init[2]),
+                 start = c(a1 = c(rep(exp(init[1]), length(unique(data_2$protocol)))), a2 = init[2]),
                  weights = varPower(form = ~fitted(.)),
                  method = "ML",  control = nlmeControl(maxIter = 1500, tolerance = 1e-2, pnlsTol = 1e-1))
       
@@ -202,7 +205,8 @@ height_models_nlme <- function(sp) {
     tryCatch({  
     
       # plotting data
-      plot(data_2$x, data_2$y, xlab = "diameter at breast height (cm)", ylab = "tree height (m)", main = species_list[i], las = 1, pch = 16, cex = 0.5, col = densCols(data$x, data$y))
+      plot(data_2$x, data_2$y, xlab = "diameter at breast height (cm)", ylab = "tree height (m)", main = species_list[i], las = 1,
+           pch = 16, cex = 0.5, col = densCols(data_2$x, data_2$y))
       fun.boxplot.breaks(data_2$x, data_2$y)
     
     
@@ -364,18 +368,20 @@ height_models_nlme <- function(sp) {
       maxit <- maxit +1
       }
     
-    
+    sel_pro <- names(table(new_data$protocol))[table(new_data$protocol)>9]
+    new_data <- new_data[as.character(new_data$protocol) %in% sel_pro,]
+    new_data$protocol <- as.factor(new_data$protocol)
     tryCatch({  
       
       
       # fitting power relationships
       init_s <- fixef(lmer(log(y) ~ log(x) + (1|location), new_data)) # initializing values for power models
-      
+      cor_lognorm <- exp(sigma(lmer(log(y) ~ log(x) + (1|location), new_data))^2/2)
    
       m2_sb <- gnls(mod_power,
                    data = new_data,
                    params = list(a1 ~ 1, a2 ~ 1),
-                   start = c(a1 = exp(init_s[1]), a2 = init_s[2]),
+                   start = c(a1 = exp(init_s[1])*cor_lognorm, a2 = init_s[2]),
                    control = gnlsControl(maxIter = 1500, tolerance = 1e-2, nlsTol = 1e-1))
 
       m2_s <- gnls(mod_power,
@@ -412,7 +418,16 @@ height_models_nlme <- function(sp) {
         parameters_power_2[j,paste0("protocol", unique(new_data$protocol))] <- coefficients(m2_s)[1]
         
       }
-
+      }
+      ,
+      
+      error = function(e) {
+        
+        print(paste("error power model", species_list[i], " sampling", j, sep = " "))
+        
+      }) 
+    
+    tryCatch({ 
       # fitting asymptotic relationships  
       vars_s <- data.frame(var = c("b1", "b2", "b3"), start = c(quantile(new_data$y, probs = 0.97)*0.8, 0.07, 0.9))
       

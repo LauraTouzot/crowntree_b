@@ -71,6 +71,8 @@ diameter_models_nlme <- function (sp) {
 
   sel_loc <- names(table(data$location))[table(data$location) > 2]
   data_2 <- data[data$location %in% sel_loc, ]
+  sel_proc <- names(table(data_2$protocol))[table(data_2$protocol)>9]
+  data_2 <- data_2[as.character(data_2$protocol) %in% sel_proc, ]
   data_2$location <- factor(data_2$location)  
   rm(allometry_complete_database, data_ok, sampling,selected_sp, sel_loc, species)
   gc()
@@ -249,7 +251,10 @@ diameter_models_nlme <- function (sp) {
         nb_datasets_sample <- length(unique(new_data$protocol)) 
         maxit <- maxit +1
         }
-
+      sel_pro <- names(table(new_data$protocol))[table(new_data$protocol)>9]
+      new_data <- new_data[as.character(new_data$protocol) %in% sel_pro,]
+      new_data$protocol <- as.factor(new_data$protocol)
+      
       tryCatch({
 
         # fitting linear relationshios
@@ -284,8 +289,17 @@ diameter_models_nlme <- function (sp) {
           parameters_linear_2[j,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_ls)[1]
           
         }
-
-
+      }
+        ,
+        
+        error = function(e) {
+          
+          print(paste("error model linear", species_list[i], " sampling", j, sep = " "))
+          
+        }) 
+      
+      tryCatch({
+        
         # fitting power relationships
         m2_s <- gls(log(y) ~ log(x),
                      data = new_data,
