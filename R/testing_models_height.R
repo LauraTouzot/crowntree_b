@@ -110,7 +110,7 @@ height_models_nlme <- function(sp) {
      
     # compiling selected data and variables
     data <- allometry_complete_database %>% filter(checked_name == species_list[i],
-                                                   !is.na(DBH_cm) & !is.na(HT_m) & HT_m >0) %>%
+                                                   !is.na(DBH_cm) & !is.na(HT_m) & HT_m > 0) %>%
       select(DBH_cm, HT_m, location_ID, data) %>%
       rename(x = DBH_cm, y = HT_m, location = location_ID, protocol = data) %>% 
       mutate(x = as.numeric(x), y = as.numeric(y), location = as.factor(location), 
@@ -118,7 +118,7 @@ height_models_nlme <- function(sp) {
     
     sel_loc <- names(table(data$location))[table(data$location) > 2]
     data_2 <- data[data$location %in% sel_loc, ]
-    sel_proc <- names(table(data_2$protocol))[table(data_2$protocol)>9]
+    sel_proc <- names(table(data_2$protocol))[table(data_2$protocol) > 9]
     data_2 <- data_2[as.character(data_2$protocol) %in% sel_proc, ]
     data_2$location <- factor(data_2$location)  
     rm(allometry_complete_database, data_ok, sampling,selected_sp, sel_loc, species)
@@ -405,7 +405,7 @@ height_models_nlme <- function(sp) {
       parameters_power_2[j,"AIC"] <- AIC(m3_s)
       
       for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
-         parameters_power_2[j,k] <- coefficients(m3_s)[1]- + coefficients(m3_s)[paste0("a1.", k)]
+         parameters_power_2[j,k] <- coefficients(m3_s)[1]- + coefficients(m3_s)[paste0("a1.", k)] # to fix !!!
       }
       
       parameters_power_2[j,paste0("protocol", levels(factor(new_data$protocol))[1])] <- coefficients(m3_s)[1]

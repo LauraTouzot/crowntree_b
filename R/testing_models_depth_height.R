@@ -319,7 +319,7 @@ depth_height_models_nlme <- function (sp) {
           
           for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
             
-            parameters_power_2[j,k] <- coefficients(m2_ls)[k]
+            parameters_power_2[j,k] <- coefficients(m3_s)[k]
           }
           
           parameters_power_2[j,paste0("protocol", levels(factor(new_data$protocol))[1])] <- coef(m3_s)[1]

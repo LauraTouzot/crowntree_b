@@ -74,8 +74,10 @@ diameter_models_nlme <- function (sp) {
   sel_proc <- names(table(data_2$protocol))[table(data_2$protocol)>9]
   data_2 <- data_2[as.character(data_2$protocol) %in% sel_proc, ]
   data_2$location <- factor(data_2$location)  
+  
   rm(allometry_complete_database, data_ok, sampling,selected_sp, sel_loc, species)
   gc()
+  
   if (dim(data_2)[1] >= 200) { # running the models only if more than 200 observations are left in the sampled data
 
     print(i)
@@ -106,7 +108,7 @@ diameter_models_nlme <- function (sp) {
       
       for (k in paste0("protocol", levels(data_2$protocol)[-1])) {
         
-        parameters_linear_1[1,k] <- fixed.effects(m2_l)[1]+fixed.effects(m2_l)[k]
+        parameters_linear_1[1,k] <- fixed.effects(m2_l)[1] + fixed.effects(m2_l)[k]
       }
       
       parameters_linear_1[1,paste0("protocol", levels(data_2$protocol)[1])] <- fixed.effects(m2_l)[1]
@@ -145,7 +147,7 @@ diameter_models_nlme <- function (sp) {
 
 
       for (k in paste0("protocol", levels(data_2$protocol)[-1])) {
-        parameters_power_1[1,k] <- fixed.effects(m3)[1]+fixed.effects(m3)[k]
+        parameters_power_1[1,k] <- fixed.effects(m3)[1] + fixed.effects(m3)[k]
       }
       
       parameters_power_1[1,paste0("protocol", levels(data_2$protocol)[1])] <- fixed.effects(m3)[1]
@@ -250,8 +252,9 @@ diameter_models_nlme <- function (sp) {
         
         nb_datasets_sample <- length(unique(new_data$protocol)) 
         maxit <- maxit +1
-        }
-      sel_pro <- names(table(new_data$protocol))[table(new_data$protocol)>9]
+      }
+      
+      sel_pro <- names(table(new_data$protocol))[table(new_data$protocol) > 9]
       new_data <- new_data[as.character(new_data$protocol) %in% sel_pro,]
       new_data$protocol <- as.factor(new_data$protocol)
       
@@ -320,7 +323,7 @@ diameter_models_nlme <- function (sp) {
 
         for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
    
-          parameters_power_2[j,k] <- coefficients(m2_ls)[k]
+          parameters_power_2[j,k] <- coefficients(m3_s)[k]
         }
         
         parameters_power_2[j,paste0("protocol", levels(factor(new_data$protocol))[1])] <- coef(m3_s)[1]

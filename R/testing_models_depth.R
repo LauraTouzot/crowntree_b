@@ -32,6 +32,7 @@ depth_models_nlme <- function (sp) {
   
   data_ok <- allometry_complete_database %>% filter(checked_name %in% species_list) %>% 
     filter(!duplicated(data))
+  
   nrep = 200
   
   ## 1. Preparing storage before running the models
@@ -68,7 +69,7 @@ depth_models_nlme <- function (sp) {
   
   sel_loc <- names(table(data$location))[table(data$location) > 2]
   data_2 <- data[data$location %in% sel_loc, ]
-  sel_proc <- names(table(data_2$protocol))[table(data_2$protocol)>9]
+  sel_proc <- names(table(data_2$protocol))[table(data_2$protocol) > 9]
   data_2 <- data_2[as.character(data_2$protocol) %in% sel_proc, ]
   data_2$location <- factor(data_2$location)  
   
@@ -253,7 +254,7 @@ depth_models_nlme <- function (sp) {
         
         }
       
-      sel_pro <- names(table(new_data$protocol))[table(new_data$protocol)>9]
+      sel_pro <- names(table(new_data$protocol))[table(new_data$protocol) > 9]
       new_data <- new_data[as.character(new_data$protocol) %in% sel_pro,]
       new_data$protocol <- as.factor(new_data$protocol)
       
@@ -324,7 +325,7 @@ depth_models_nlme <- function (sp) {
           
           for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
             
-            parameters_power_2[j,k] <- coefficients(m2_ls)[k]
+            parameters_power_2[j,k] <- coefficients(m3_s)[k] ### has been fixed
           }
           
           parameters_power_2[j,paste0("protocol", levels(factor(new_data$protocol))[1])] <- coef(m3_s)[1]
