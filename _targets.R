@@ -37,8 +37,8 @@ require(nlme)
 lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("R", x)))
 
 # # Installing if needed and loading packages
-packages.in <- c("baad.data", "stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements",
-                 "laselva", "sf", "readxl", "stringi", "stringr", "lubridate", "tidyr", "parzer",
+packages.in <- c("stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements",
+                 "sf", "readxl", "stringi", "stringr", "lubridate", "tidyr", "parzer",
                  "TNRS", "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata")
 
 for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.packages()))) install.packages(packages.in[i])
