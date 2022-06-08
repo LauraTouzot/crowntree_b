@@ -3,7 +3,7 @@ data_evans_crown <- function(){
 
   df <- read.delim(file.path("data", "doi_10.5061_dryad.2c1s7__v1", "Data record 2.txt"))
   df <- df[, 1:10]
-  species <- read.csv(file.path("data", "doi_10.5061_dryad.2c1s7__v1", "species.csv"))
+  species <- read.csv(file.path("data", "doi_10.5061_dryad.2c1s7__v1", "Species.csv"))
   df <- left_join(df, species, by = c("Taxonomic_code" = "Species_code"))
   df <- df %>% rename(sp = Species,
                       HT_m = Height_m)

@@ -69,7 +69,8 @@ height_models_nlme <- function(sp) {
   species_list <- species_list[-1]
   
   data_ok <- allometry_complete_database %>% filter(checked_name %in% species_list) %>% 
-    filter(!duplicated(data))
+    filter(!duplicated(data)) # what is this for?
+  
   nrep = 200
   
   
@@ -257,8 +258,8 @@ height_models_nlme <- function(sp) {
 
       for (k in paste0("protocol", levels(data_2$protocol)[-1])) {
         
-        lines(dbh, 1.3 + (fixed.effects(m8)["b1"] + fixed.effects(m8)[paste0("b1.", k)]) * (1-exp(-(fixed.effects(m8)["b2"])*dbh))^(fixed.effects(m8)["b3"]), type = "l", col ="firebrick4", lwd = 1)
-        parameters_asympt_1[1,k] <- fixed.effects(m8)[1] + fixed.effects(m8)[paste0("b1.", k)]
+        lines(dbh, 1.3 + (fixed.effects(m8)[1] + fixed.effects(m8)[paste0("b1.", k)]) * (1-exp(-(fixed.effects(m8)["b2"])*dbh))^(fixed.effects(m8)["b3"]), type = "l", col ="firebrick4", lwd = 1) # fix issue
+        #parameters_asympt_1[1,k] <- fixed.effects(m8)[1] + fixed.effects(m8)[paste0("b1.", k)]
         
       }
       
@@ -507,3 +508,5 @@ height_models_nlme <- function(sp) {
 }
   
   
+
+
