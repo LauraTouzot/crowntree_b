@@ -30,6 +30,7 @@ require(TNRS)
 require(ggplot2)
 require(lme4)
 require(nlme)
+require(Metrics)
 
 # tar_make_clustermq(outputs_diameter_nlme, workers = 4)
 
@@ -39,7 +40,7 @@ lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("
 # # Installing if needed and loading packages
 packages.in <- c("stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements",
                  "sf", "readxl", "stringi", "stringr", "lubridate", "tidyr", "parzer",
-                 "TNRS", "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata")
+                 "TNRS", "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata", "Metrics")
 
 for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.packages()))) install.packages(packages.in[i])
 
