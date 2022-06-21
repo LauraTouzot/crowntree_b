@@ -171,18 +171,57 @@ list(
   
   tar_target(global_species_list, get_species_list()),
   tar_target(data_allometry, get_data_allometry(global_species_list)),
-  tar_target(height_files, get_species_data_height(data_allometry)),
-  tar_target(diameter_files, get_species_data_diameter(data_allometry)),
-  tar_target(depth_files, get_species_data_depth(data_allometry)),
-  tar_target(heightdepth_files, get_species_data_heightdepth(data_allometry)),
-  
-  
+
+  tar_target(height_data, get_data_height(data_allometry)),
+  tar_target(height_species, get_species_height(height_data)),
+
+  tar_target(diameter_data, get_data_diameter(data_allometry)),
+  tar_target(diameter_species, get_species_diameter(diameter_data)),
+
+  tar_target(depth_data, get_data_depth(data_allometry)),
+  tar_target(depth_species, get_species_depth(depth_data)),
+
+  tar_target(heightdepth_data, get_data_heightdepth(data_allometry)),
+  tar_target(heightdepth_species, get_species_heightdepth(heightdepth_data)),
+
+
   ### 6. Fitting allometric relationships on all data and without competition
-  tar_target(height_alldata_nocomp_output, asymptot_alldata_nocomp(height_files[[1]], height_files[[2]]), pattern = map(height_files[[2]]))
-  
-  
-  # tar_target(outputs_height_nlme, height_models_nlme(species_list), pattern = map(species_list)),
-  # tar_target(outputs_diameter_nlme, diameter_models_nlme(species_list), pattern = map(species_list)),
-  # tar_target(outputs_depth_nlme, depth_models_nlme(species_list), pattern = map(species_list)),
-  # tar_target(outputs_depth_height_nlme, depth_height_models_nlme(species_list), pattern = map(species_list))
+  tar_target(height_alldata_nocomp_output, height_alldata_nocomp(height_data, height_species), pattern = map(height_species)),
+  tar_target(depth_alldata_nocomp_output, depth_alldata_nocomp(depth_data, depth_species), pattern = map(depth_species)),
+  tar_target(diameter_alldata_nocomp_output, diameter_alldata_nocomp(diameter_data, diameter_species), pattern = map(diameter_species)),
+  tar_target(heightdepth_alldata_nocomp_output, heightdepth_alldata_nocomp(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
+
+
+  ### 7. Fitting allometric relationships on resampled data and without competition
+  tar_target(height_resampling_nocomp_output, height_resampling_nocomp(height_data, height_species), pattern = map(height_species)),
+  tar_target(depth_resampling_nocomp_output, depth_resampling_nocomp(depth_data, depth_species), pattern = map(depth_species)),
+  tar_target(diameter_resampling_nocomp_output, diameter_resampling_nocomp(diameter_data, diameter_species), pattern = map(diameter_species)),
+  tar_target(heightdepth_resampling_nocomp_output, heightdepth_resampling_nocomp(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
+
+
+  ### 8. Fitting allometric relationships on resampled data and with competition
+  tar_target(depth_resampling_c1_output, depth_resampling_c1(depth_data, depth_species)),
+  tar_target(diameter_resampling_c1_output, diameter_resampling_c1(diameter_data, diameter_species)),
+  tar_target(heightdepth_resampling_c1_output, heightdepth_resampling_c1(heightdepth_data, heightdepth_species)),
+
+  tar_target(depth_resampling_c2_output, depth_resampling_c2(depth_data, depth_species)),
+  tar_target(diameter_resampling_c2_output, diameter_resampling_c2(diameter_data, diameter_species)),
+  tar_target(heightdepth_resampling_c2_output, heightdepth_resampling_c2(heightdepth_data, heightdepth_species)),
+
+  ### 9. Fitting allometric relationships on resampled data and without competition - log log models
+  tar_target(depth_resampling_nocomp_output_log, depth_resampling_nocomp_log(depth_data, depth_species), pattern = map(depth_species)),
+  tar_target(diameter_resampling_nocomp_output_log, diameter_resampling_nocomp_log(diameter_data, diameter_species), pattern = map(diameter_species)),
+  tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
+
+  ### 10. Fitting allometric relationships on resampled data and with competition - log log models
+  tar_target(depth_resampling_c1_output_log, depth_resampling_c1_log(depth_data, depth_species)),
+  tar_target(diameter_resampling_c1_output_log, diameter_resampling_c1_log(diameter_data, diameter_species)),
+  tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species)),
+
+  tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species)),
+  tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species)),
+  tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species))
+
   )
+
+

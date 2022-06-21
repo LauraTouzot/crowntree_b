@@ -1,92 +1,168 @@
-asymptot_alldata_nocomp <- function(data, sp) {
+height_alldata_nocomp <- function(height_data, height_species) {
   
   ## loading data and species list
-  data_ok <- height_files[[1]]
-  species_list <- height_files[[2]]
+  data_ok <- height_data
+  species_list <- height_species
   
-  ## creating file to store model parameters (1 file per species)
-  asymptot_alldata_nocomp <- as.data.frame(matrix(nrow = 1, ncol = length(unique(data_ok$protocol)) + 5)) 
-  asymptot_alldata_nocomp[,1] <- sp
-  
-  names(asymptot_alldata_nocomp) <- c("species", "b1", paste0("protocol", unique(data_ok$protocol)), "b2", "b3", "AIC")
-  
-  ## running the model for all species in the list
-  i <- (1:length(species_list))[species_list == sp]
+  ## defining i
+  i <- (1:length(species_list))[species_list == height_species]
 
   print(i)
   
-  ## defining tested asymptotic model and selecting data
-  mod_asympt <- y ~ 1.3 + b1 * (1-exp(-b2 * x)) ^ b3
-  data <- data_ok %>% filter(sp == species_list[i]) %>%
+  ## creating file to store model parameters (1 file per species)
+  power_alldata_nocomp <- as.data.frame(matrix(nrow = 2, ncol = length(unique(data_ok$protocol)) + 4)) 
+  power_alldata_nocomp[,1] <- species_list[i]
+  names(power_alldata_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC")
+  
+  power_alldata_nocomp_log <- as.data.frame(matrix(nrow = 2, ncol = length(unique(data_ok$protocol)) + 5)) 
+  power_alldata_nocomp_log[,1] <- species_list[i]
+  names(power_alldata_nocomp_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "sigma", "AIC")
+  
+  
+  asymptot_alldata_nocomp <- as.data.frame(matrix(nrow = 2, ncol = length(unique(data_ok$protocol)) + 5)) 
+  asymptot_alldata_nocomp[,1] <- species_list[i]
+  names(asymptot_alldata_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "b1", "b2", "b3", "AIC")
+
+  
+  ## selecting data
+  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
                       filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
                       select(x, y, location, protocol) %>%
-                      mutate(x = as.numeric(x), y = as.numeric(y), location = as.factor(location), protocol = as.factor(protocol))
+                      mutate(x = as.numeric(x), y = as.numeric(y), 
+                             location = as.factor(droplevels.factor(location)), 
+                             protocol = as.factor(droplevels.factor(protocol)))
+
   
-  rm(data_ok)
-  gc()
+  ## running models (no competition - all data) and computing parameters (i.e. not and weighted)
+  output_power_height_nocomp <- mod_power_alldata_nocomp(data, power_alldata_nocomp)
+  output_power_height_nocomp_log <- mod_power_alldata_nocomp_log(data, power_alldata_nocomp_log)
+  output_asympt_height_nocomp <- mod_asympt_alldata_nocomp(data, asymptot_alldata_nocomp)
+
   
-  tryCatch({
-    
-    vars <- data.frame(var = c("b1", "b2", "b3"), start = c(quantile(data$y, probs = 0.97)*0.8, 0.07, 0.9))
-    
-    m0_a <- nls(mod_asympt,
-              data = data,
-              start = setNames(as.list(vars$start), vars$var),
-              lower = c(0.0001, 0.0001, 0.0001), algorithm = "port",
-              nls.control(maxiter = 800))
-    
-    m1_a <- nlme(mod_asympt,
-               data = data,
-               fixed = list(b1 ~ 1, b2 ~ 1, b3 ~ 1),
-               random = b1 ~ 1|location,
-               start = c(b1 = coefficients(m0_a)["b1"], b2 = coefficients(m0_a)["b2"], b3 = coefficients(m0_a)["b3"]),
-               method = "ML", 
-               weights = varPower(form = ~fitted(.)),
-               control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-    
-    if (length(unique(data$protocol)) > 1) {
-      
-      m2_a <- nlme(mod_asympt,
-                 data = data,
-                 fixed = list(b1 ~ protocol, b2 ~ 1, b3 ~ 1),
-                 random = b1 ~ 1|location,
-                 start = c(b1 = c(rep(fixef(m1_a)["b1"], length(unique(data$protocol))), b2 = fixef(m1_a)["b2"], b3 = fixef(m1_a)["b3"])),
-                 method = "ML", 
-                 weights = varPower(form = ~fitted(.)),
-                 control = nlmeControl(maxIter = 1500, tolerance = 1e-3, pnlsTol = 1e-2))
-      
-      asymptot_alldata_nocomp[1,"b1"] <- fixed.effects(m2_a)[1]
-      asymptot_alldata_nocomp[1,"b2"] <- fixed.effects(m2_a)["b2"]
-      asymptot_alldata_nocomp[1,"b3"] <- fixed.effects(m2_a)["b3"]
-      asymptot_alldata_nocomp[1,"AIC"] <- AIC(m2_a)
-      
-      asymptot_alldata_nocomp[1,paste0("protocol", levels(data$protocol)[1])] <- fixed.effects(m2_a)[1]
-      
-      for (k in paste0("protocol", levels(data$protocol)[-1])) {
-        asymptot_alldata_nocomp[1,k] <- fixed.effects(m2_a)[1] + fixed.effects(m2_a)[paste0("b1.", k)]
-      }
-      
-      
-      
-    } else {
-      
-      asymptot_alldata_nocomp[1,"b1"] <- fixed.effects(m1_a)["b1"]
-      asymptot_alldata_nocomp[1,"b2"] <- fixed.effects(m1_a)["b2"]
-      asymptot_alldata_nocomp[1,"b3"] <- fixed.effects(m1_a)["b3"]
-      asymptot_alldata_nocomp[1,"AIC"] <- AIC(m1_a)
-      asymptot_alldata_nocomp[1,paste0("protocol", unique(data$protocol))] <- fixed.effects(m1_a)[1]
-      
-    }
-    
-  },
-  
-  error = function(e) {
-    print(species_list[i])
-  })
-  
-  write.csv(asymptot_alldata_nocomp, file =  paste0("output/height_alldata_nocomp_", sp, ".csv"))
+  ## exporting results in .csv files
+  write.csv(output_power_height_nocomp, file =  paste0("output/power_height_alldata_nocomp_", height_species, ".csv"))
+  write.csv(output_power_height_nocomp_log, file =  paste0("output/power_height_alldata_nocomp_log_", height_species, ".csv"))
+  write.csv(output_asympt_height_nocomp, file =  paste0("output/asympt_height_alldata_nocomp_", height_species, ".csv"))
   
 }
+
+
+
+
+height_resampling_nocomp <- function(height_data, height_species) {
+  
+  ## loading data and species list
+  data_ok <- height_data
+  species_list <- height_species
+  
+  ## defining number of repetitions
+  n_repetition = 5
+  
+  ## creating file to store model parameters (1 file per species)
+  power_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
+  power_resampling_nocomp[,1] <- rep(depth_species, n_repetition)
+  names(power_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE")
+  
+  power_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
+  power_resampling_nocomp_w[,1] <- rep(depth_species, n_repetition)
+  names(power_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE")
+  
+  asymptot_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+  asymptot_resampling_nocomp[,1] <- rep(height_species, n_repetition)
+  names(asymptot_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "b1", "b2", "b3", "AIC", "RMSE")
+  
+  asymptot_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+  asymptot_resampling_nocomp_w[,1] <- rep(height_species, n_repetition)
+  names(asymptot_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)),"b1", "b2", "b3", "AIC", "RMSE")
+  
+  
+  ## defining i
+  i <- (1:length(species_list))[species_list == height_species]
+  
+  print(i)
+  
+  ## selecting data
+  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
+    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
+    select(x, y, location, protocol, id) %>%
+    mutate(x = as.numeric(x), y = as.numeric(y), 
+           location = as.factor(droplevels.factor(location)), 
+           id = as.numeric(id), protocol = as.factor(droplevels.factor(protocol)))
+
+  
+  ## classifying data based on dbh classes 
+  ranged_data <- data_in_class(data)
+  
+  ## defining sample size for resampling
+  sample_size <- what_sample_size(ranged_data)
+  
+  ## computing nb of datasets in which the species was surveyed
+  nb_datasets_all <- length(unique(ranged_data$protocol))
+  
+  ## sampling data and running the models for each repetition (no competition - resampling)
+  output_power_height_nocomp_rs <- mod_power_resampling_nocomp(ranged_data, nb_datasets_all, sample_size, power_resampling_nocomp, power_resampling_nocomp_w, n_repetition)
+  output_asympt_height_nocomp_rs <- mod_asympt_resampling_nocomp(ranged_data, nb_datasets_all, sample_size, asymptot_resampling_nocomp, asymptot_resampling_nocomp_w, n_repetition)
+
+  ## exporting results in .csv files
+  write.csv(output_power_height_nocomp_rs, file =  paste0("output/power_height_nocomp_rs_", height_species, ".csv"))
+  write.csv(output_asympt_height_nocomp_rs, file =  paste0("output/asympt_height_nocomp_rs_", height_species, ".csv"))
+  
+}
+
+
+
+
+# height_resampling_nocomp_log <- function(height_data, height_species) {
+#   
+#   ## loading data and species list
+#   data_ok <- height_data
+#   species_list <- height_species
+#   
+#   ## defining number of repetitions
+#   n_repetition = 250
+#   
+#   ## creating file to store model parameters (1 file per species)
+#   power_resampling_nocomp_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
+#   power_resampling_nocomp_log[,1] <- rep(height_species, n_repetition)
+#   names(power_resampling_nocomp_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a2", "intercept", "AIC", "RMSE")
+#   
+#   power_resampling_nocomp_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
+#   power_resampling_nocomp_w_log[,1] <- rep(height_species, n_repetition)
+#   names(power_resampling_nocomp_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a2", "intercept", "AIC", "RMSE")
+#   
+#   
+#   
+#   ## defining i
+#   i <- (1:length(species_list))[species_list == height_species]
+#   
+#   print(i)
+#   
+#   ## selecting data
+#   data <- data_ok %>% filter(sp_name == species_list[i]) %>%
+#     filter(!is.na(x) & !is.na(y) & x > 0 & y > 0) %>%
+#     select(x, y, location, protocol, id) %>%
+#     mutate(x = as.numeric(x), y = as.numeric(y), 
+#            location = as.factor(droplevels.factor(location)), 
+#            protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
+
+#   
+#   ## classifying data based on dbh classes 
+#   ranged_data <- data_in_class_bis(data)
+#   
+#   ## defining sample size for resampling
+#   sample_size <- what_sample_size(ranged_data)
+#   
+#   ## computing nb of datasets in which the species was surveyed
+#   nb_datasets_all <- length(unique(ranged_data$protocol))
+#   
+#   ## sampling data and running the models for each repetition (no competition - resampling)
+#   output_power_height_nocomp_rs_log <- mod_power_resampling_nocomp_log(ranged_data, nb_datasets_all, power_resampling_nocomp_log, power_resampling_nocomp_w_log, n_repetition)
+#   
+#   ## exporting results in .csv files
+#   write.csv(output_power_height_nocomp_rs_log, file =  paste0("output/power_height_alldata_nocomp_rs_log_", height_species, ".csv"))
+#   
+# }
+# 
 
 
 

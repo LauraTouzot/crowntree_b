@@ -55,16 +55,16 @@ get_data_allometry <- function(global_species_list) {
 
 
 
-get_species_data_height <- function(data_allometry) {
+get_data_height <- function(data_allometry) {
   
   # selecting data within the global species list and filtering individual observations
-  data_height_a <- data_allometry %>% filter(!is.na(DBH_cm) & !is.na(HT_m) & HT_m > 0) %>%
-                                      select(checked_name, DBH_cm, HT_m, location_ID, data, ba_plot, ba_larger_trees, ba_higher_trees) %>%
-                                      rename(sp = checked_name, x = DBH_cm, y = HT_m, location = location_ID, protocol = data,
-                                             ba_plot = ba_plot, ba_higher = ba_higher_trees, ba_larger = ba_larger_trees) %>% 
-                                      mutate(sp = as.character(sp), x = as.numeric(x), y = as.numeric(y), 
+  data_height_a <- data_allometry %>% filter(!is.na(DBH_cm) & !is.na(HT_m) & HT_m > 1.3) %>%
+                                      select(checked_name, DBH_cm, HT_m, location_ID, data, ba_plot, ba_larger_trees) %>%
+                                      rename(sp_name = checked_name, x = DBH_cm, y = HT_m, location = location_ID, protocol = data,
+                                             ba_plot = ba_plot, ba_larger = ba_larger_trees) %>% 
+                                      mutate(sp_name = as.character(sp_name), x = as.numeric(x), y = as.numeric(y), 
                                              location = as.factor(location), protocol = as.factor(protocol),
-                                             ba_plot = as.numeric(ba_plot), ba_higher = as.numeric(ba_higher), ba_larger = as.numeric(ba_larger))
+                                             ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger), id = as.numeric(1:n())) 
   
   
   # removing all plots with less than 2 observations and protocols with less than 9 observations from the data from the data
@@ -74,36 +74,44 @@ get_species_data_height <- function(data_allometry) {
 
   
   # selecting species with more than 500 observations
-  species_height <- data_height_b %>% group_by(sp) %>% summarise(nobs_HT = sum(!is.na(y))) %>% 
+  species_height <- data_height_b %>% group_by(sp_name) %>% summarise(nobs_HT = sum(!is.na(y))) %>% 
                                                                  filter(nobs_HT >= 500) %>%
                                                                  ungroup()
   
   # extracting height data and height species list
-  species_height_list <- unique(species_height$sp)
-  data_height <- data_height_b[data_height_b$sp %in% species_height_list,]
+  species_height_list <- unique(species_height$sp_name)
+  data_height <- data_height_b[data_height_b$sp_name %in% species_height_list,]
   
   # removing unused files
-  rm(data_height_a, data_height_b, sel_location_height, species_height)
+  rm(data_height_a, data_height_b, sel_location_height, species_height, species_height_list)
   gc()
   
   # returning data and species list
-  return (list(data_height, species_height_list))
+  return (data_height)
+  
+}
+
+
+get_species_height <- function(height_data) {
+  
+  species_height_list <- unique(height_data$sp_name)
+  return(species_height_list)
   
 }
 
 
 
 
-get_species_data_diameter <- function(data_allometry) {
+get_data_diameter <- function(data_allometry) {
   
   # selecting data within the global species list and filtering individual observations
   data_diameter_a <- data_allometry %>% filter(!is.na(DBH_cm) & !is.na(C_diam_m) & C_diam_m > 0) %>%
-                                        select(checked_name, DBH_cm, C_diam_m, location_ID, data, ba_plot, ba_larger_trees, ba_higher_trees) %>%
-                                        rename(sp = checked_name, x = DBH_cm, y = C_diam_m, location = location_ID, protocol = data, 
-                                               ba_plot = ba_plot, ba_higher = ba_higher_trees, ba_larger = ba_larger_trees) %>% 
-                                        mutate(sp = as.character(sp), x = as.numeric(x), y = as.numeric(y), 
-                                               location = as.factor(location), protocol = as.factor(protocol), 
-                                               ba_plot = as.numeric(ba_plot), ba_higher = as.numeric(ba_higher), ba_larger = as.numeric(ba_larger))
+                                        select(checked_name, DBH_cm, C_diam_m, location_ID, data, ba_plot, ba_larger_trees) %>%
+                                        rename(sp_name = checked_name, x = DBH_cm, y = C_diam_m, location = location_ID, protocol = data, 
+                                               ba_plot = ba_plot, ba_larger = ba_larger_trees) %>% 
+                                        mutate(sp_name = as.character(sp_name), x = as.numeric(x), y = as.numeric(y), 
+                                               location = as.factor(location), protocol = as.factor(protocol),
+                                               ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger), id = as.numeric(1:n())) 
   
   
   # removing all plots with less than 2 observations and protocols with less than 9 observations from the data
@@ -112,20 +120,28 @@ get_species_data_diameter <- function(data_allometry) {
   data_diameter_b <- data_diameter_a[data_diameter_a$location %in% sel_location_diameter & data_diameter_a$protocol %in% sel_protocol_diameter, ]
   
   # selecting species with more than 200 observations
-  species_diameter <- data_diameter_b %>% group_by(sp) %>% summarise(nobs_diam = sum(!is.na(y))) %>% 
+  species_diameter <- data_diameter_b %>% group_by(sp_name) %>% summarise(nobs_diam = sum(!is.na(y))) %>% 
                                                            filter(nobs_diam >= 200) %>%
                                                            ungroup()
   
   # extracting diameter data and diameter species list
-  species_diameter_list <- unique(species_diameter$sp)
-  data_diameter <- data_diameter_b[data_diameter_b$sp %in% species_diameter_list,]
+  species_diameter_list <- unique(species_diameter$sp_name)
+  data_diameter <- data_diameter_b[data_diameter_b$sp_name %in% species_diameter_list,]
   
   # removing unused files
-  rm(data_diameter_a, data_diameter_b, sel_location_diameter, species_diameter)
+  rm(data_diameter_a, data_diameter_b, sel_location_diameter, species_diameter, species_diameter_list)
   gc()
   
   # returning data and species list
-  return (list(data_diameter, species_diameter_list))
+  return (data_diameter)
+  
+}
+
+
+get_species_diameter <- function(diameter_data) {
+  
+  species_diameter_list <- unique(diameter_data$sp_name)
+  return(species_diameter_list)
   
 }
 
@@ -133,17 +149,17 @@ get_species_data_diameter <- function(data_allometry) {
 
 
 
-get_species_data_depth <- function(data_allometry) {
+get_data_depth <- function(data_allometry) {
   
   # selecting data within the global species list and filtering individual observations
   data_depth_a <- data_allometry %>% filter(!is.na(DBH_cm) & !is.na(C_depth_m) & C_depth_m > 0) %>%
-                                     select(checked_name, DBH_cm, C_depth_m, location_ID, data, ba_plot, ba_larger_trees, ba_higher_trees) %>%
-                                     rename(sp = checked_name, x = DBH_cm, y = C_depth_m, location = location_ID, protocol = data, 
-                                            ba_plot = ba_plot, ba_higher = ba_higher_trees, ba_larger = ba_larger_trees) %>% 
-                                     mutate(sp = as.character(sp), x = as.numeric(x), y = as.numeric(y), 
-                                            location = as.factor(location), protocol = as.factor(protocol), 
-                                            ba_plot = as.numeric(ba_plot), ba_higher = as.numeric(ba_higher), ba_larger = as.numeric(ba_larger))
-                                  
+                                     select(checked_name, DBH_cm, C_depth_m, location_ID, data, ba_plot, ba_larger_trees) %>%
+                                     rename(sp_name = checked_name, x = DBH_cm, y = C_depth_m, location = location_ID, protocol = data, 
+                                            ba_plot = ba_plot, ba_larger = ba_larger_trees) %>% 
+                                     mutate(sp_name = as.character(sp_name), x = as.numeric(x), y = as.numeric(y), 
+                                            location = as.factor(location), protocol = as.factor(protocol),
+                                            ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger), id = as.numeric(1:n())) 
+  
   
   # removing all plots with less than 2 observations and protocols with less than 9 observations from the data
   sel_location_depth <- names(table(data_depth_a$location))[table(data_depth_a$location) > 2]
@@ -151,37 +167,44 @@ get_species_data_depth <- function(data_allometry) {
   data_depth_b <- data_depth_a[data_depth_a$location %in% sel_location_depth & data_depth_a$protocol %in% sel_protocol_depth, ]  
   
   # selecting species with more than 200 observations
-  species_depth <- data_depth_b %>% group_by(sp) %>% summarise(nobs_depth = sum(!is.na(y))) %>% 
+  species_depth <- data_depth_b %>% group_by(sp_name) %>% summarise(nobs_depth = sum(!is.na(y))) %>% 
                                                      filter(nobs_depth >= 200) %>%
                                                      ungroup()
   
   # extracting depth data and depth species list
-  species_depth_list <- unique(species_depth$sp)
-  data_depth <- data_depth_b[data_depth_b$sp %in% species_depth_list,]
+  species_depth_list <- unique(species_depth$sp_name)
+  data_depth <- data_depth_b[data_depth_b$sp_name %in% species_depth_list,]
   
   # removing unused files
-  rm(data_depth_a, data_depth_b, sel_location_depth, species_depth)
+  rm(data_depth_a, data_depth_b, sel_location_depth, species_depth, species_depth_list)
   gc()
   
   # returning data and species list
-  return (list(data_depth, species_depth_list))
+  return (data_depth)
+  
+}
+
+
+get_species_depth <- function(depth_data) {
+  
+  species_depth_list <- unique(depth_data$sp_name)
+  return(species_depth_list)
   
 }
 
 
 
-get_species_data_heightdepth <- function(data_allometry) {
+get_data_heightdepth <- function(data_allometry) {
   
   # selecting data within the global species list and filtering individual observations
   data_heightdepth_a <- data_allometry %>% filter(!is.na(C_depth_m) & !is.na(HT_m) & C_depth_m > 0 & HT_m > 0) %>%
                                            select(checked_name, C_depth_m, HT_m, location_ID, data, 
-                                                  ba_plot, ba_larger_trees, ba_higher_trees) %>%
-                                           rename(sp = checked_name, x = HT_m, y = C_depth_m, location = location_ID, protocol = data, 
-                                                  ba_plot = ba_plot, ba_higher = ba_higher_trees, ba_larger = ba_larger_trees) %>% 
-                                           mutate(sp = as.character(sp), x = as.numeric(x), y = as.numeric(y), 
-                                                  location = as.factor(location), protocol = as.factor(protocol), 
-                                                  ba_plot = as.numeric(ba_plot), ba_higher = as.numeric(ba_higher), 
-                                                  ba_larger = as.numeric(ba_larger))
+                                                  ba_plot, ba_larger_trees) %>%
+                                           rename(sp_name = checked_name, x = HT_m, y = C_depth_m, location = location_ID, protocol = data, 
+                                                  ba_plot = ba_plot, ba_larger = ba_larger_trees) %>% 
+                                           mutate(sp_name = as.character(sp_name), x = as.numeric(x), y = as.numeric(y), 
+                                                  location = as.factor(location), protocol = as.factor(protocol),
+                                                  ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger), id = as.numeric(1:n())) 
   
   
   # removing all plots with less than 2 observations from the data
@@ -189,20 +212,28 @@ get_species_data_heightdepth <- function(data_allometry) {
   data_heightdepth_b <- data_heightdepth_a[data_heightdepth_a$location %in% sel_location_heightdepth, ]
   
   # selecting species with more than 200 observations
-  species_heightdepth <- data_heightdepth_b %>% group_by(sp) %>% summarise(nobs_depth = sum(!is.na(y))) %>% 
+  species_heightdepth <- data_heightdepth_b %>% group_by(sp_name) %>% summarise(nobs_depth = sum(!is.na(y))) %>% 
                                                                  filter(nobs_depth >= 200) %>%
                                                                  ungroup()
   
   # extracting heightdepth data and heightdepth species list
-  species_heightdepth_list <- unique(species_heightdepth$sp)
-  data_heightdepth <- data_heightdepth_b[data_heightdepth_b$sp %in% species_heightdepth_list,]
+  species_heightdepth_list <- unique(species_heightdepth$sp_name)
+  data_heightdepth <- data_heightdepth_b[data_heightdepth_b$sp_name %in% species_heightdepth_list,]
   
   # removing unused files
-  rm(data_heightdepth_a, data_heightdepth_b, sel_location_heightdepth, species_heightdepth)
+  rm(data_heightdepth_a, data_heightdepth_b, sel_location_heightdepth, species_heightdepth, species_heightdepth_list)
   gc()
   
   # returning data and species list
-  return (list(data_heightdepth, species_heightdepth_list))
+  return (data_heightdepth)
+  
+}
+
+
+get_species_heightdepth <- function(heightdepth_data) {
+  
+  species_heightdepth_list <- unique(heightdepth_data$sp_name)
+  return(species_heightdepth_list)
   
 }
 
