@@ -48,7 +48,8 @@ for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.pac
 # Specifying target options
 options(tidyverse.quiet = TRUE, clustermq.scheduler = "multiprocess")
 tar_option_set(packages = packages.in, 
-               memory = "transient", garbage_collection = TRUE)
+               memory = "transient", garbage_collection = TRUE, 
+               debug = "depth_resampling_c2_output")
 
 
 
