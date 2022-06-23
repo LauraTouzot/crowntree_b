@@ -6,7 +6,6 @@ depth_alldata_nocomp <- function(depth_data, depth_species) {
   
   ## defining i
   i <- (1:length(species_list))[species_list == depth_species]
-  
   print(i)
   
   ## creating file to store model parameters (1 file per species) and protocol counts (i.e. nb of observations per protocol for each species)
@@ -54,32 +53,31 @@ depth_resampling_nocomp <- function(depth_data, depth_species) {
   data_ok <- depth_data
   species_list <- depth_species
   
+  ## defining i
+  i <- (1:length(species_list))[species_list == depth_species]
+  print(i)
+  
   ## defining number of repetitions
   n_repetition = 5
   
   ## creating file to store model parameters (1 file per species)
-  linear_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
+  linear_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
   linear_resampling_nocomp[,1] <- rep(depth_species, n_repetition)
-  names(linear_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "slope", "AIC", "RMSE")
+  names(linear_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "slope", "AIC", "RMSE", "weighted")
   
-  linear_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
+  linear_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
   linear_resampling_nocomp_w[,1] <- rep(depth_species, n_repetition)
-  names(linear_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "slope", "AIC", "RMSE")
+  names(linear_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "slope", "AIC", "RMSE", "weighted")
   
   
-  power_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
+  power_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
   power_resampling_nocomp[,1] <- rep(depth_species, n_repetition)
-  names(power_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE")
+  names(power_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE", "weighted")
   
-  power_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
+  power_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
   power_resampling_nocomp_w[,1] <- rep(depth_species, n_repetition)
-  names(power_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE")
-  
-  
-  ## defining i
-  i <- (1:length(species_list))[species_list == depth_species]
-  
-  print(i)
+  names(power_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE", "weighted")
+
   
   ## selecting data
   data <- data_ok %>% filter(sp_name == species_list[i]) %>%
@@ -118,24 +116,22 @@ depth_resampling_nocomp_log <- function(depth_data, depth_species) {
   data_ok <- depth_data
   species_list <- depth_species
   
+  ## defining i
+  i <- (1:length(species_list))[species_list == depth_species]
+  print(i)
+  
   ## defining number of repetitions
   n_repetition = 5
   
   ## creating file to store model parameters (1 file per species)
-  power_resampling_nocomp_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+  power_resampling_nocomp_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
   power_resampling_nocomp_log[,1] <- rep(depth_species, n_repetition)
-  names(power_resampling_nocomp_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "sigma", "AIC", "RMSE")
+  names(power_resampling_nocomp_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "sigma", "AIC", "RMSE", "weighted")
   
-  power_resampling_nocomp_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+  power_resampling_nocomp_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
   power_resampling_nocomp_w_log[,1] <- rep(depth_species, n_repetition)
-  names(power_resampling_nocomp_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "sigma", "AIC", "RMSE")
+  names(power_resampling_nocomp_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "sigma", "AIC", "RMSE", "weighted")
   
-  
-  
-  ## defining i
-  i <- (1:length(species_list))[species_list == depth_species]
-  
-  print(i)
   
   ## selecting data
   data <- data_ok %>% filter(sp_name == species_list[i]) %>%
@@ -167,45 +163,36 @@ depth_resampling_nocomp_log <- function(depth_data, depth_species) {
 
 
 
-depth_resampling_c1 <- function(depth_data, depth_species) {
+depth_resampling_c1 <- function(depth_data, depth_species_comp) {
   
-  ## loading data and species list
-  data_ok <- depth_data
-  species_list <- depth_species
+    ## loading data and species list
+    data_ok <- depth_data
+    new_sp_list <- depth_species_comp
   
-  summary <- data_ok %>% filter(!is.na(ba_plot) & !is.na(ba_larger)) %>%
-    group_by(sp_name) %>% 
-    summarise(comp_count = n()) %>%
-    filter(comp_count > 200)
-  
-  new_sp_list <- summary$sp_name
-  
-  ## defining i
-  for (i in 1:length(new_sp_list)) {
-    
+    ## defining i
+    i <- (1:length(new_sp_list))[new_sp_list == depth_species_comp]
     print(i)
-    
-    
+
     ## defining number of repetitions
     n_repetition = 5
     
     ## creating file to store model parameters (1 file per species)
-    linear_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    linear_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
     linear_resampling_c1[,1] <- rep(new_sp_list[i], n_repetition)
-    names(linear_resampling_c1) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE")
+    names(linear_resampling_c1) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
     
-    linear_resampling_c1_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    linear_resampling_c1_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
     linear_resampling_c1_w[,1] <- rep(new_sp_list[i], n_repetition)
-    names(linear_resampling_c1_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE")
+    names(linear_resampling_c1_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
     
     
-    power_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    power_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
     power_resampling_c1[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c1) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE")
+    names(power_resampling_c1) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
     
-    power_resampling_c1_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    power_resampling_c1_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
     power_resampling_c1_w[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c1_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE")
+    names(power_resampling_c1_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
     
     
     ## selecting data
@@ -235,26 +222,18 @@ depth_resampling_c1 <- function(depth_data, depth_species) {
     write.csv(output_power_depth_c1_rs, file =  paste0("output/power_depth_c1_rs_", new_sp_list[i], ".csv"))
     
   }
-}
 
 
 
-depth_resampling_c1_log <- function(depth_data, depth_species) {
+
+depth_resampling_c1_log <- function(depth_data, depth_species_comp) {
   
-  ## loading data and species list
-  data_ok <- depth_data
-  species_list <- depth_species
+    ## loading data and species list
+    data_ok <- depth_data
+    new_sp_list <- depth_species_comp
   
-  summary <- data_ok %>% filter(!is.na(ba_plot) & !is.na(ba_larger)) %>%
-    group_by(sp_name) %>% 
-    summarise(comp_count = n()) %>%
-    filter(comp_count > 200)
-  
-  new_sp_list <- summary$sp_name
-  
-  ## defining i
-  for (i in 1:length(new_sp_list)) {
-    
+    ## defining i
+    i <- (1:length(new_sp_list))[new_sp_list == depth_species_comp]
     print(i)
     
     
@@ -262,13 +241,13 @@ depth_resampling_c1_log <- function(depth_data, depth_species) {
     n_repetition = 5
     
     ## creating file to store model parameters (1 file per species)
-    power_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
-    power_resampling_c1[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c1) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE")
+    power_resampling_c1_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
+    power_resampling_c1_log[,1] <- rep(new_sp_list[i], n_repetition)
+    names(power_resampling_c1_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
     
-    power_resampling_c1_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    power_resampling_c1_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
     power_resampling_c1_w_log[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c1_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE")
+    names(power_resampling_c1_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
     
     
     ## selecting data
@@ -296,27 +275,19 @@ depth_resampling_c1_log <- function(depth_data, depth_species) {
     write.csv(output_power_depth_c1_rs_log, file =  paste0("output/power_depth_c1_rs_log_", new_sp_list[i], ".csv"))
     
   }
-}
 
 
 
 
-depth_resampling_c2 <- function(depth_data, depth_species) {
+
+depth_resampling_c2 <- function(depth_data, depth_species_comp) {
   
-  ## loading data and species list
-  data_ok <- depth_data
-  species_list <- depth_species
+    ## loading data and species list
+    data_ok <- depth_data
+    new_sp_list <- depth_species_comp
   
-  summary <- data_ok %>% filter(!is.na(ba_plot) & !is.na(ba_larger)) %>%
-    group_by(sp_name) %>% 
-    summarise(comp_count = n()) %>%
-    filter(comp_count > 200)
-  
-  new_sp_list <- summary$sp_name
-  
-  ## defining i
-  for (i in 1:length(new_sp_list)) {
-    
+    ## defining i
+    i <- (1:length(new_sp_list))[new_sp_list == depth_species_comp]
     print(i)
     
     
@@ -324,22 +295,22 @@ depth_resampling_c2 <- function(depth_data, depth_species) {
     n_repetition = 5
     
     ## creating file to store model parameters (1 file per species)
-    linear_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    linear_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
     linear_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
-    names(linear_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE")
+    names(linear_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
     
-    linear_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    linear_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
     linear_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
-    names(linear_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE")
+    names(linear_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
     
     
-    power_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    power_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
     power_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE")
+    names(power_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
     
-    power_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    power_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
     power_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE")
+    names(power_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
     
     
     
@@ -355,7 +326,7 @@ depth_resampling_c2 <- function(depth_data, depth_species) {
     
     ## classifying data based on dbh classes 
     ranged_data <- data_in_class(data)
-    
+
     ## defining sample size for resampling
     sample_size <- what_sample_size(ranged_data)
     
@@ -371,27 +342,19 @@ depth_resampling_c2 <- function(depth_data, depth_species) {
     write.csv(output_power_depth_c2_rs, file =  paste0("output/power_depth_c2_rs_", new_sp_list[i], ".csv"))
     
   }
-}
 
 
 
 
-depth_resampling_c2_log <- function(depth_data, depth_species) {
+
+depth_resampling_c2_log <- function(depth_data, depth_species_comp) {
   
-  ## loading data and species list
-  data_ok <- depth_data
-  species_list <- depth_species
+    ## loading data and species list
+    data_ok <- depth_data
+    new_sp_list <- depth_species_comp
   
-  summary <- data_ok %>% filter(!is.na(ba_plot) & !is.na(ba_larger)) %>%
-    group_by(sp_name) %>% 
-    summarise(comp_count = n()) %>%
-    filter(comp_count > 200)
-  
-  new_sp_list <- summary$sp_name
-  
-  ## defining i
-  for (i in 1:length(new_sp_list)) {
-    
+    ## defining i
+    i <- (1:length(new_sp_list))[new_sp_list == depth_species_comp]
     print(i)
     
     
@@ -399,13 +362,13 @@ depth_resampling_c2_log <- function(depth_data, depth_species) {
     n_repetition = 5
     
     ## creating file to store model parameters (1 file per species)
-    power_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
-    power_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE")
+    power_resampling_c2_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
+    power_resampling_c2_log[,1] <- rep(new_sp_list[i], n_repetition)
+    names(power_resampling_c2_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
     
-    power_resampling_c2_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+    power_resampling_c2_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
     power_resampling_c2_w_log[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c2_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE")
+    names(power_resampling_c2_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
     
     
     ## selecting data
@@ -434,4 +397,4 @@ depth_resampling_c2_log <- function(depth_data, depth_species) {
     write.csv(output_power_depth_c2_rs_log, file =  paste0("output/power_depth_c2_rs_log_", new_sp_list[i], ".csv"))
     
   }
-}
+

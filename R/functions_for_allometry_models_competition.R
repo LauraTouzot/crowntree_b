@@ -9,15 +9,15 @@ mod_linear_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, 
   nrep = n_repetition
   
   for (f in 1:nrep) {
- 
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
     
     ## running the models
     tryCatch({  
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
       
       m1_l_rs_c1 <- gls(y ~ x + ba_plot,
                      data = new_data,
@@ -65,7 +65,7 @@ mod_linear_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, 
       }
       
       
-      upper_range <- dim(linear_resampling_c1)[2]-5
+      upper_range <- dim(linear_resampling_c1)[2]-6
       linear_resampling_c1[f, "intercept"] <- apply(linear_resampling_c1[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
       linear_resampling_c1_w[f, "intercept"] <- apply(linear_resampling_c1_w[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
       
@@ -81,10 +81,8 @@ mod_linear_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, 
       
       
       ## combining both files into one for a single return
-      linear_resampling_c1 <- linear_resampling_c1 %>% mutate(weighted = "no")
-      linear_resampling_c1_w <- linear_resampling_c1_w %>% mutate(weighted = "yes")
-      
-      linear_resampling_c1 <- bind_rows(linear_resampling_c1, linear_resampling_c1_w)
+      linear_resampling_c1[f, "weighted"] <- "no"
+      linear_resampling_c1_w[f, "weighted"] <- "yes" 
       
     }
     ,
@@ -95,6 +93,7 @@ mod_linear_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, 
     
   }
   
+  linear_resampling_c1 <- bind_rows(linear_resampling_c1, linear_resampling_c1_w)
   return(linear_resampling_c1)
   
 }
@@ -109,15 +108,15 @@ mod_linear_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, 
   nrep = n_repetition
   
   for (f in 1:nrep) {
-
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
     
     ## running the models
     tryCatch({  
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
       
       m1_l_rs_c2 <- gls(y ~ x + ba_larger,
                         data = new_data,
@@ -146,7 +145,7 @@ mod_linear_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, 
         
         linear_resampling_c2[f,"slope"] <- coefficients(m1_l_rs_c2)["x"]
         linear_resampling_c2[f,"comp"] <- coefficients(m1_l_rs_c2)["ba_larger"]
-        linear_resampling_c2[f,"AIC"] <- AIC(m1_l_rs)
+        linear_resampling_c2[f,"AIC"] <- AIC(m1_l_rs_c2)
         linear_resampling_c2[f,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_l_rs_c2)[1]
         
       }
@@ -165,7 +164,7 @@ mod_linear_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, 
       }
       
       
-      upper_range <- dim(linear_resampling_c2)[2]-5
+      upper_range <- dim(linear_resampling_c2)[2]-6
       linear_resampling_c2[f, "intercept"] <- apply(linear_resampling_c2[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
       linear_resampling_c2_w[f, "intercept"] <- apply(linear_resampling_c2_w[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
       
@@ -181,10 +180,8 @@ mod_linear_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, 
       
       
       ## combining both files into one for a single return
-      linear_resampling_c2 <- linear_resampling_c2 %>% mutate(weighted = "no")
-      linear_resampling_c2_w <- linear_resampling_c2_w %>% mutate(weighted = "yes")
-      
-      linear_resampling_c2 <- bind_rows(linear_resampling_c2, linear_resampling_c2_w)
+      linear_resampling_c2[f, "weighted"] <- "no"
+      linear_resampling_c2_w[f, "weighted"] <- "yes" 
       
     }
     ,
@@ -195,6 +192,7 @@ mod_linear_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, 
     
   }
   
+  linear_resampling_c2 <- bind_rows(linear_resampling_c2, linear_resampling_c2_w)
   return(linear_resampling_c2)
   
 }
@@ -221,17 +219,17 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
   
   for (f in 1:nrep) {
     
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
-    
     ## defining the model
     mod_power <- y ~ (a1 + ba_plot) * (x ^ a2)
     
     ## running the models
     tryCatch({  
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
       
       init_rs_c1 <- coefficients(lm(log(y) ~ log(x) + ba_plot, new_data)) # initializing values for power models
       
@@ -286,7 +284,7 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
       }
       
       
-      upper_range <- dim(power_resampling_c1)[2]-5
+      upper_range <- dim(power_resampling_c1)[2]-6
       power_resampling_c1[f, "a1"] <- apply(power_resampling_c1[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
       power_resampling_c1_w[f, "a1"] <- apply(power_resampling_c1_w[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
       
@@ -302,10 +300,8 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
       
       
       ## combining both files into one for a single return
-      power_resampling_c1 <- power_resampling_c1 %>% mutate(weighted = "no")
-      power_resampling_c1_w <- power_resampling_c1_w %>% mutate(weighted = "yes")
-      
-      power_resampling_c1 <- bind_rows(power_resampling_c1, power_resampling_c1_w)
+      power_resampling_c1[f,"weighted"] <- "no"
+      power_resampling_c1_w[f,"weighted"] <- "yes"
       
     }
     ,
@@ -316,6 +312,7 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
     
   }
   
+  power_resampling_c1 <- bind_rows(power_resampling_c1, power_resampling_c1_w)
   return(power_resampling_c1)
   
 }
@@ -331,14 +328,14 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
   
   for (f in 1:nrep) {
     
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
-    
     ## running the models
     tryCatch({  
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
 
       m1_p_rs_c1_log <- lm(log(y) ~ ba_plot + log(x), new_data)
  
@@ -360,7 +357,7 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
         
       } else {
         
-        power_resampling_c1_log[f,"a2"] <- coefficients(m1_p_rs_c1_log)["a2"]
+        power_resampling_c1_log[f,"a2"] <- coefficients(m1_p_rs_c1_log)["log(x)"]
         power_resampling_c1_log[f,"comp"] <- coefficients(m1_p_rs_c1_log)["ba_plot"]
         power_resampling_c1_log[f,"AIC"] <- AIC(m1_p_rs_c1_log)
         power_resampling_c1_log[f,"sigla"] <- sigma(m1_p_rs_c1_log)
@@ -379,18 +376,18 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
       nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
       
       for (g in levels(new_data$protocol)) {
-        power_resampling_c1_w[f,paste0("protocol",g)] <- power_resampling_c1[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
+        power_resampling_c1_w_log[f,paste0("protocol",g)] <- power_resampling_c1_log[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
       }
       
       
-      upper_range <- dim(power_resampling_c1_log)[2]-5
+      upper_range <- dim(power_resampling_c1_log)[2]-7
       power_resampling_c1_log[f, "a1"] <- apply(power_resampling_c1_log[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
       power_resampling_c1_w_log[f, "a1"] <- apply(power_resampling_c1_w_log[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
       
       
       ## predicting y on subsampled data
       test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c1_log[f,"a1"] + (power_resampling_c1_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1[f,"a2"]) *  ((1/2)*(exp(power_resampling_c1_log[f,"sigma"]^2))),
-                                          y_pred_b = exp(power_resampling_c1_w_log[f,"a1"] + (power_resampling_c1_w_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c1_log[f,"sigma"]^2))))
+                                          y_pred_b = exp(power_resampling_c1_w_log[f,"a1"] + (power_resampling_c1_w_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c1_w_log[f,"sigma"]^2))))
       
       
       ## computing RMSE
@@ -399,10 +396,8 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       
       ## combining both files into one for a single return
-      power_resampling_c1_log <- power_resampling_c1_log %>% mutate(weighted = "no")
-      power_resampling_c1_w_log <- power_resampling_c1_w_log %>% mutate(weighted = "yes")
-      
-      power_resampling_c1_log <- bind_rows(power_resampling_c1_log, power_resampling_c1_w_log)
+      power_resampling_c1_log[f,"weighted"] <- "no"
+      power_resampling_c1_w_log[f,"weighted"] <- "yes"
       
     }
     ,
@@ -413,6 +408,7 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
     
   }
   
+  power_resampling_c1_log <- bind_rows(power_resampling_c1_log, power_resampling_c1_w_log)
   return(power_resampling_c1_log)
   
 }
@@ -432,17 +428,17 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
   
   for (f in 1:nrep) {
     
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
-    
     ## defining the model
     mod_power <- y ~ (a1 + ba_larger) * (x ^ a2)
     
     ## running the models
     tryCatch({  
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
       
       init_rs_c2 <- coefficients(lm(log(y) ~ log(x), new_data)) # initializing values for power models
       
@@ -497,7 +493,7 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
       }
       
       
-      upper_range <- dim(power_resampling_c2)[2]-5
+      upper_range <- dim(power_resampling_c2)[2]-6
       power_resampling_c2[f, "a1"] <- apply(power_resampling_c2[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
       power_resampling_c2_w[f, "a1"] <- apply(power_resampling_c2_w[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
       
@@ -513,10 +509,8 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
       
       
       ## combining both files into one for a single return
-      power_resampling_c2 <- power_resampling_c2 %>% mutate(weighted = "no")
-      power_resampling_c2_w <- power_resampling_c2_w %>% mutate(weighted = "yes")
-      
-      power_resampling_c2 <- bind_rows(power_resampling_c2, power_resampling_c2_w)
+      power_resampling_c2[f,"weighted"] <- "no"
+      power_resampling_c2_w[f,"weighted"] <- "yes"
       
     }
     ,
@@ -527,6 +521,7 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
     
   }
   
+  power_resampling_c2 <- bind_rows(power_resampling_c2, power_resampling_c2_w)
   return(power_resampling_c2)
   
 }
@@ -542,14 +537,14 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
   
   for (f in 1:nrep) {
     
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
-    
     ## running the models
     tryCatch({  
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
       
       m1_p_rs_c2_log <- lm(log(y) ~ ba_larger + log(x), new_data)
       
@@ -571,7 +566,7 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
         
       } else {
         
-        power_resampling_c2_log[f,"a2"] <- coefficients(m1_p_rs_c2_log)["a2"]
+        power_resampling_c2_log[f,"a2"] <- coefficients(m1_p_rs_c2_log)["log(x)"]
         power_resampling_c2_log[f,"comp"] <- coefficients(m1_p_rs_c2_log)["ba_larger"]
         power_resampling_c2_log[f,"AIC"] <- AIC(m1_p_rs_c2_log)
         power_resampling_c2_log[f,"sigma"] <- sigma(m1_p_rs_c2_log)
@@ -590,18 +585,18 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
       nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
       
       for (g in levels(new_data$protocol)) {
-        power_resampling_c2_w[f,paste0("protocol",g)] <- power_resampling_c2[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
+        power_resampling_c2_w_log[f,paste0("protocol",g)] <- power_resampling_c2_log[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
       }
       
       
-      upper_range <- dim(power_resampling_c2_log)[2]-5
+      upper_range <- dim(power_resampling_c2_log)[2]-7
       power_resampling_c2_log[f, "a1"] <- apply(power_resampling_c2_log[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
       power_resampling_c2_w_log[f, "a1"] <- apply(power_resampling_c2_w_log[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c2_log[f,"a1"] + (power_resampling_c2_log[f,"comp"]*ba_plot)) * (x^power_resampling_c2[f,"a2"]) *  ((1/2)*(exp(power_resampling_c2_log[f,"sigma"]^2))),
-                                          y_pred_b = exp(power_resampling_c2_w_log[f,"a1"] + (power_resampling_c2_w_log[f,"comp"]*ba_plot)) * (x^power_resampling_c2_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c2_log[f,"sigma"]^2))))
+      test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c2_log[f,"a1"] + (power_resampling_c2_log[f,"comp"]*ba_plot)) * (x^power_resampling_c2_log[f,"a2"]) *  ((1/2)*(exp(power_resampling_c2_log[f,"sigma"]^2))),
+                                          y_pred_b = exp(power_resampling_c2_w_log[f,"a1"] + (power_resampling_c2_w_log[f,"comp"]*ba_plot)) * (x^power_resampling_c2_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c2_w_log[f,"sigma"]^2))))
       
       
       ## computing RMSE
@@ -610,10 +605,8 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       
       ## combining both files into one for a single return
-      power_resampling_c2_log <- power_resampling_c2_log %>% mutate(weighted = "no")
-      power_resampling_c2_w_log <- power_resampling_c2_w_log %>% mutate(weighted = "yes")
-      
-      power_resampling_c2_log <- bind_rows(power_resampling_c2_log, power_resampling_c2_w_log)
+      power_resampling_c2_log[f,"weighted"] <- "no"
+      power_resampling_c2_w_log[f,"weighted"] <- "yes"
       
     }
     ,
@@ -624,6 +617,7 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
     
   }
   
+  power_resampling_c2_log <- bind_rows(power_resampling_c2_log, power_resampling_c2_w_log)
   return(power_resampling_c2_log)
   
 }

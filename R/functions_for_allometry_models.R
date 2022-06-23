@@ -78,15 +78,15 @@ mod_linear_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_si
   nrep = n_repetition
   
   for (f in 1:nrep) {
-    
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
 
     ## running the models
     tryCatch({  
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
       
       m1_l_rs <- gls(y ~ x,
                    data = new_data,
@@ -132,14 +132,13 @@ mod_linear_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_si
       }
       
       
-      upper_range <- dim(linear_resampling_nocomp)[2]-4
+      upper_range <- dim(linear_resampling_nocomp)[2]-5
       linear_resampling_nocomp[f, "intercept"] <- apply(linear_resampling_nocomp[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
       linear_resampling_nocomp_w[f, "intercept"] <- apply(linear_resampling_nocomp_w[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
       
       
       
       ## predicting y on subsampled data
-      upper_range <- dim(linear_resampling_nocomp)[2]-3
       test_data_b <- test_data %>% mutate(y_pred_a = linear_resampling_nocomp[f,"intercept"] + linear_resampling_nocomp[f,"slope"]*x,
                                           y_pred_b = linear_resampling_nocomp_w[f,"intercept"] + linear_resampling_nocomp_w[f,"slope"]*x)
       
@@ -150,10 +149,8 @@ mod_linear_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_si
       
       
       ## combining both files into one for a single return
-      linear_resampling_nocomp <- linear_resampling_nocomp %>% mutate(weighted = "no")
-      linear_resampling_nocomp_w <- linear_resampling_nocomp_w %>% mutate(weighted = "yes")
-      
-      linear_resampling_nocomp <- bind_rows(linear_resampling_nocomp, linear_resampling_nocomp_w)
+      linear_resampling_nocomp[f,"weighted"] <- "no" 
+      linear_resampling_nocomp_w[f,"weighted"] <- "yes"
       
     }
       ,
@@ -164,6 +161,7 @@ mod_linear_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_si
     
   }
     
+    linear_resampling_nocomp <- bind_rows(linear_resampling_nocomp, linear_resampling_nocomp_w)
     return(linear_resampling_nocomp)
   
 }
@@ -328,17 +326,17 @@ mod_power_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_siz
   
   for (f in 1:nrep) {
     
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
-    
     ## defining the model
     mod_power <- y ~ a1 * (x ^ a2)
     
     ## running the models
     tryCatch({
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
       
       # fitting power relationships
       init_rs <- coefficients(lm(log(y) ~ log(x), new_data)) # initializing values for power models
@@ -391,7 +389,7 @@ mod_power_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_siz
       }
       
       
-      upper_range <- dim(power_resampling_nocomp)[2]-4
+      upper_range <- dim(power_resampling_nocomp)[2]-5
       power_resampling_nocomp[f, "a1"] <- apply(power_resampling_nocomp[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
       power_resampling_nocomp_w[f, "a1"] <- apply(power_resampling_nocomp_w[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
       
@@ -408,11 +406,8 @@ mod_power_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_siz
       
       
       ## combining both files into one for a single return
-      power_resampling_nocomp <- power_resampling_nocomp %>% mutate(weighted = "no")
-      power_resampling_nocomp_w <- power_resampling_nocomp_w %>% mutate(weighted = "yes")
-      
-      power_resampling_nocomp <- bind_rows(power_resampling_nocomp, power_resampling_nocomp_w)
-      
+      power_resampling_nocomp[f,"weighted"] <- "no"
+      power_resampling_nocomp_w[f,"weighted"] <- "yes"
       
     },
     
@@ -422,6 +417,7 @@ mod_power_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_siz
     
   }
   
+  power_resampling_nocomp <- bind_rows(power_resampling_nocomp, power_resampling_nocomp_w)
   return(power_resampling_nocomp)
   
 }
@@ -436,15 +432,15 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
   nrep = n_repetition
   
   for (f in 1:nrep) {
-    
-    ## computing new dataset based on defined sampling protocol
-    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-    
-    ## computing test dataset 
-    test_data <- testing_data(ranged_data, new_data, sample_size)
 
     ## running the models
     tryCatch({
+      
+      ## computing new dataset based on defined sampling protocol
+      new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+      
+      ## computing test dataset 
+      test_data <- testing_data(ranged_data, new_data, sample_size)
       
       # fitting power relationships
       m1_p_rs_log <- lm(log(y) ~ log(x), new_data)
@@ -488,7 +484,7 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
         power_resampling_nocomp_w_log[f,paste0("protocol",g)] <- power_resampling_nocomp_log[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
       }
       
-      upper_range <- dim(power_resampling_nocomp_log)[2]-5
+      upper_range <- dim(power_resampling_nocomp_log)[2]-6
       power_alldata_resampling_log[f, "a1"] <- exp(apply(power_resampling_nocomp_log[f,c(2:upper_range)], 1, mean, na.rm = TRUE))
       power_alldata_resampling_log[f, "a1"] <- exp(apply(power_resampling_nocomp_log[f,c(2:upper_range)], 1, sum, na.rm = TRUE))
       
@@ -504,11 +500,8 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
       
       
       ## combining both files into one for a single return
-      power_resampling_nocomp_log <- power_resampling_nocomp_log %>% mutate(weighted = "no")
-      power_resampling_nocomp_w_log <- power_resampling_nocomp_w_log %>% mutate(weighted = "yes")
-      
-      power_resampling_nocomp_log <- bind_rows(power_resampling_nocomp_log, power_resampling_nocomp_w_log)
-      
+      power_resampling_nocomp_log[f,"weighted"] <- "no"
+      power_resampling_nocomp_w_log[f,"weighted"] <- "yes"
       
     },
     
@@ -518,6 +511,7 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
     
   }
   
+  power_resampling_nocomp_log <- bind_rows(power_resampling_nocomp_log, power_resampling_nocomp_w_log)
   return(power_resampling_nocomp_log)
   
 }
@@ -627,18 +621,18 @@ mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all,sample_siz
   nrep = n_repetition
   
   for (f in 1:nrep) {
-    
-  ## computing new dataset based on defined sampling protocol
-  new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
-  
-  ## computing test dataset 
-  test_data <- testing_data(ranged_data, new_data, sample_size)
   
   ## defining the model
   mod_asympt <- y ~ 1.3 + b1 * (1-exp(-b2 * x)) ^ b3
   
   ## running the models
   tryCatch({
+    
+    ## computing new dataset based on defined sampling protocol
+    new_data <- sampling_protocol(ranged_data, nb_datasets_all, sample_size)
+    
+    ## computing test dataset 
+    test_data <- testing_data(ranged_data, new_data, sample_size)
     
     vars_rs <- data.frame(var = c("b1", "b2", "b3"), start = c(quantile(new_data$y, probs = 0.97)*0.8, 0.07, 0.9))
     
@@ -700,7 +694,7 @@ mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all,sample_siz
     }
     
     
-    upper_range <- dim(asymptot_resampling_nocomp)[2]-5
+    upper_range <- dim(asymptot_resampling_nocomp)[2]-6
     asymptot_resampling_nocomp[f, "b1"] <- apply(asymptot_resampling_nocomp[f,"b1"], 1, mean, na.rm = TRUE)
     asymptot_resampling_nocomp_w[f, "b1"] <- apply(asymptot_resampling_nocomp_w[f,"b1"], 1, sum, na.rm = TRUE)
     
@@ -718,11 +712,8 @@ mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all,sample_siz
     
     
     ## combining both files into one for a single return
-    asymptot_resampling_nocomp <- asymptot_resampling_nocomp %>% mutate(weighted = "no")
-    asymptot_resampling_nocomp_w <- asymptot_resampling_nocomp_w %>% mutate(weighted = "yes")
-    
-    asymptot_resampling_nocomp <- bind_rows(asymptot_resampling_nocomp, asymptot_resampling_nocomp_w)
-    
+    asymptot_resampling_nocomp[f,"weighted"] <- "no"
+    asymptot_resampling_nocomp_w[f,"weighted"] <- "yes"
     
   },
   
@@ -732,6 +723,7 @@ mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all,sample_siz
   
   }
   
+  asymptot_resampling_nocomp <- bind_rows(asymptot_resampling_nocomp, asymptot_resampling_nocomp_w)
   return(asymptot_resampling_nocomp)
   
 }

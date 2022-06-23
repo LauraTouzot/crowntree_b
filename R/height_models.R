@@ -6,7 +6,6 @@ height_alldata_nocomp <- function(height_data, height_species) {
   
   ## defining i
   i <- (1:length(species_list))[species_list == height_species]
-
   print(i)
   
   ## creating file to store model parameters (1 file per species)
@@ -55,16 +54,20 @@ height_resampling_nocomp <- function(height_data, height_species) {
   data_ok <- height_data
   species_list <- height_species
   
+  ## defining i
+  i <- (1:length(species_list))[species_list == height_species]
+  print(i)
+  
   ## defining number of repetitions
   n_repetition = 5
   
   ## creating file to store model parameters (1 file per species)
   power_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
-  power_resampling_nocomp[,1] <- rep(depth_species, n_repetition)
+  power_resampling_nocomp[,1] <- rep(height_species, n_repetition)
   names(power_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE")
   
   power_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
-  power_resampling_nocomp_w[,1] <- rep(depth_species, n_repetition)
+  power_resampling_nocomp_w[,1] <- rep(height_species, n_repetition)
   names(power_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE")
   
   asymptot_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
@@ -74,12 +77,7 @@ height_resampling_nocomp <- function(height_data, height_species) {
   asymptot_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
   asymptot_resampling_nocomp_w[,1] <- rep(height_species, n_repetition)
   names(asymptot_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)),"b1", "b2", "b3", "AIC", "RMSE")
-  
-  
-  ## defining i
-  i <- (1:length(species_list))[species_list == height_species]
-  
-  print(i)
+
   
   ## selecting data
   data <- data_ok %>% filter(sp_name == species_list[i]) %>%

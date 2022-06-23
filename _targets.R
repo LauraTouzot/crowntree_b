@@ -12,25 +12,25 @@
 
 # Loading targets
 library(targets)
-require(baad.data)
-require(stringr)
-require(dplyr)
-require(sp)
-require(rworldmap)
-require(rgdal)
-require(measurements)
-require(sf)
-require(readxl)
-require(stringi)
-require(stringr)
-require(lubridate)
-require(tidyr)
-require(parzer)
-require(TNRS)
-require(ggplot2)
-require(lme4)
-require(nlme)
-require(Metrics)
+# require(baad.data)
+# require(stringr)
+# require(dplyr)
+# require(sp)
+# require(rworldmap)
+# require(rgdal)
+# require(measurements)
+# require(sf)
+# require(readxl)
+# require(stringi)
+# require(stringr)
+# require(lubridate)
+# require(tidyr)
+# require(parzer)
+# require(TNRS)
+# require(ggplot2)
+# require(lme4)
+# require(nlme)
+# require(Metrics)
 
 # tar_make_clustermq(outputs_diameter_nlme, workers = 4)
 
@@ -48,11 +48,10 @@ for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.pac
 # Specifying target options
 options(tidyverse.quiet = TRUE, clustermq.scheduler = "multiprocess")
 tar_option_set(packages = packages.in, 
-               memory = "transient", garbage_collection = TRUE, 
-               debug = "depth_resampling_c2_output")
+               memory = "transient", garbage_collection = TRUE)
 
 
-
+#debug = "depth_resampling_c2_output"
 #library(tictoc)
 #tic()
 #tar_make_clustermq( workers = 40)
@@ -179,12 +178,15 @@ list(
 
   tar_target(diameter_data, get_data_diameter(data_allometry)),
   tar_target(diameter_species, get_species_diameter(diameter_data)),
+  tar_target(diameter_species_comp, get_species_diameter_comp(diameter_data)),
 
   tar_target(depth_data, get_data_depth(data_allometry)),
   tar_target(depth_species, get_species_depth(depth_data)),
+  tar_target(depth_species_comp, get_species_depth_comp(depth_data)),
 
   tar_target(heightdepth_data, get_data_heightdepth(data_allometry)),
   tar_target(heightdepth_species, get_species_heightdepth(heightdepth_data)),
+  tar_target(heightdepth_species_comp, get_species_heightdepth_comp(heightdepth_data)),
 
 
   ### 6. Fitting allometric relationships on all data and without competition
@@ -202,13 +204,13 @@ list(
 
 
   ### 8. Fitting allometric relationships on resampled data and with competition
-  tar_target(depth_resampling_c1_output, depth_resampling_c1(depth_data, depth_species)),
-  tar_target(diameter_resampling_c1_output, diameter_resampling_c1(diameter_data, diameter_species)),
-  tar_target(heightdepth_resampling_c1_output, heightdepth_resampling_c1(heightdepth_data, heightdepth_species)),
+  tar_target(depth_resampling_c1_output, depth_resampling_c1(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  tar_target(diameter_resampling_c1_output, diameter_resampling_c1(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  tar_target(heightdepth_resampling_c1_output, heightdepth_resampling_c1(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
 
-  tar_target(depth_resampling_c2_output, depth_resampling_c2(depth_data, depth_species)),
-  tar_target(diameter_resampling_c2_output, diameter_resampling_c2(diameter_data, diameter_species)),
-  tar_target(heightdepth_resampling_c2_output, heightdepth_resampling_c2(heightdepth_data, heightdepth_species)),
+  tar_target(depth_resampling_c2_output, depth_resampling_c2(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  tar_target(diameter_resampling_c2_output, diameter_resampling_c2(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  tar_target(heightdepth_resampling_c2_output, heightdepth_resampling_c2(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
 
   ### 9. Fitting allometric relationships on resampled data and without competition - log log models
   tar_target(depth_resampling_nocomp_output_log, depth_resampling_nocomp_log(depth_data, depth_species), pattern = map(depth_species)),
@@ -216,13 +218,13 @@ list(
   tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
 
   ### 10. Fitting allometric relationships on resampled data and with competition - log log models
-  tar_target(depth_resampling_c1_output_log, depth_resampling_c1_log(depth_data, depth_species)),
-  tar_target(diameter_resampling_c1_output_log, diameter_resampling_c1_log(diameter_data, diameter_species)),
-  tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species)),
+  tar_target(depth_resampling_c1_output_log, depth_resampling_c1_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  tar_target(diameter_resampling_c1_output_log, diameter_resampling_c1_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
 
-  tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species)),
-  tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species)),
-  tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species))
+  tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp))
 
   )
 

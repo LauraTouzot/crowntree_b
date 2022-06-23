@@ -102,6 +102,8 @@ get_species_height <- function(height_data) {
 
 
 
+
+
 get_data_diameter <- function(data_allometry) {
   
   # selecting data within the global species list and filtering individual observations
@@ -142,6 +144,23 @@ get_species_diameter <- function(diameter_data) {
   
   species_diameter_list <- unique(diameter_data$sp_name)
   return(species_diameter_list)
+  
+}
+
+
+get_species_diameter_comp <- function(diameter_data) {
+  
+  data <- diameter_data
+  
+  summary <- data %>% filter(!is.na(ba_plot) & !is.na(ba_larger)) %>%
+    group_by(sp_name) %>% 
+    summarise(comp_count = n()) %>%
+    filter(comp_count > 200)
+  
+  new_sp_list_diameter <- summary$sp_name
+  
+  return(new_sp_list_diameter)
+  
   
 }
 
@@ -193,6 +212,25 @@ get_species_depth <- function(depth_data) {
 }
 
 
+get_species_depth_comp <- function(depth_data) {
+  
+  data <- depth_data
+  
+  summary <- data %>% filter(!is.na(ba_plot) & !is.na(ba_larger)) %>%
+    group_by(sp_name) %>% 
+    summarise(comp_count = n()) %>%
+    filter(comp_count > 200)
+  
+  new_sp_list_depth <- summary$sp_name
+  
+  return(new_sp_list_depth)
+  
+  
+}
+
+
+
+
 
 get_data_heightdepth <- function(data_allometry) {
   
@@ -234,6 +272,24 @@ get_species_heightdepth <- function(heightdepth_data) {
   
   species_heightdepth_list <- unique(heightdepth_data$sp_name)
   return(species_heightdepth_list)
+  
+}
+
+
+
+get_species_heightdepth_comp <- function(heightdepth_data) {
+  
+  data <- heightdepth_data
+  
+  summary <- data %>% filter(!is.na(ba_plot) & !is.na(ba_larger)) %>%
+    group_by(sp_name) %>% 
+    summarise(comp_count = n()) %>%
+    filter(comp_count > 200)
+  
+  new_sp_list_heightdepth <- summary$sp_name
+  
+  return(new_sp_list_heightdepth)
+  
   
 }
 
