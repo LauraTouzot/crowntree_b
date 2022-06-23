@@ -58,7 +58,7 @@ diameter_resampling_nocomp <- function(diameter_data, diameter_species) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 5
+  n_repetition = 300
   
   ## creating file to store model parameters (1 file per species)
   linear_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
@@ -121,7 +121,7 @@ diameter_resampling_nocomp_log <- function(diameter_data, diameter_species) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 5
+  n_repetition = 300
   
   ## creating file to store model parameters (1 file per species)
   power_resampling_nocomp_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
@@ -174,7 +174,7 @@ diameter_resampling_c1 <- function(diameter_data, diameter_species_comp) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 5
+  n_repetition = 300
   
   ## creating file to store model parameters (1 file per species)
   linear_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
@@ -238,7 +238,7 @@ diameter_resampling_c1_log <- function(diameter_data, diameter_species_comp) {
   
   
   ## defining number of repetitions
-  n_repetition = 5
+  n_repetition = 300
   
   ## creating file to store model parameters (1 file per species)
   power_resampling_c1_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
@@ -292,7 +292,7 @@ diameter_resampling_c2 <- function(diameter_data, diameter_species_comp) {
   
   
   ## defining number of repetitions
-  n_repetition = 5
+  n_repetition = 300
   
   ## creating file to store model parameters (1 file per species)
   linear_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
@@ -359,7 +359,7 @@ diameter_resampling_c2_log <- function(diameter_data, diameter_species_comp) {
   
   
   ## defining number of repetitions
-  n_repetition = 5
+  n_repetition = 300
   
   ## creating file to store model parameters (1 file per species)
   power_resampling_c2_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 

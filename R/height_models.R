@@ -59,7 +59,7 @@ height_resampling_nocomp <- function(height_data, height_species) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 5
+  n_repetition = 300
   
   ## creating file to store model parameters (1 file per species)
   power_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 5)) 
