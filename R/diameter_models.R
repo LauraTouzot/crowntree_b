@@ -154,7 +154,7 @@ diameter_resampling_nocomp_log <- function(diameter_data, diameter_species) {
   output_power_diameter_nocomp_rs_log <- mod_power_resampling_nocomp_log(ranged_data, nb_datasets_all, sample_size, power_resampling_nocomp_log, power_resampling_nocomp_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_diameter_nocomp_rs_log, file =  paste0("output/power_diameter_alldata_nocomp_rs_log_", diameter_species, ".csv"))
+  write.csv(output_power_diameter_nocomp_rs_log, file =  paste0("output/power_diameter_nocomp_rs_log_", diameter_species, ".csv"))
   
 }
 

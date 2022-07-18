@@ -616,7 +616,7 @@ mod_asympt_alldata_nocomp <- function(data, asymptot_alldata_nocomp) {
 
 ## Asymptotic model - No competition - Resampling
 
-mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all,sample_size,  asymptot_resampling_nocomp, asymptot_resampling_nocomp_w, n_repetition) {
+mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_size,  asymptot_resampling_nocomp, asymptot_resampling_nocomp_w, n_repetition) {
   
   nrep = n_repetition
   

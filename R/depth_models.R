@@ -154,7 +154,7 @@ depth_resampling_nocomp_log <- function(depth_data, depth_species) {
   output_power_depth_nocomp_rs_log <- mod_power_resampling_nocomp_log(ranged_data, nb_datasets_all, sample_size, power_resampling_nocomp_log, power_resampling_nocomp_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_depth_nocomp_rs_log, file =  paste0("output/power_depth_alldata_nocomp_rs_log_", depth_species, ".csv"))
+  write.csv(output_power_depth_nocomp_rs_log, file =  paste0("output/power_depth_nocomp_rs_log_", depth_species, ".csv"))
   
 }
 
