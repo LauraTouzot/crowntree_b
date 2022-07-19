@@ -463,7 +463,7 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
         
       } else {
         
-        power_resampling_nocomp_log[f,"a2"] <- fixed.effects(m1_p_rs_log)["log(x)"]
+        power_resampling_nocomp_log[f,"a2"] <- coefficients(m1_p_rs_log)["log(x)"]
         power_resampling_nocomp_log[f,"AIC"] <- AIC(m1_p_rs_log)
         power_resampling_nocomp_log[f,"sigma"] <- sigma(m1_p_rs_log)
         power_resampling_nocomp_log[f, paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_p_rs_log)[1] 
@@ -485,8 +485,8 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
       }
       
       upper_range <- dim(power_resampling_nocomp_log)[2]-6
-      power_alldata_resampling_log[f, "a1"] <- exp(apply(power_resampling_nocomp_log[f,c(2:upper_range)], 1, mean, na.rm = TRUE))
-      power_alldata_resampling_log[f, "a1"] <- exp(apply(power_resampling_nocomp_log[f,c(2:upper_range)], 1, sum, na.rm = TRUE))
+      power_resampling_nocomp_log[f, "a1"] <- exp(apply(power_resampling_nocomp_log[f,c(2:upper_range)], 1, mean, na.rm = TRUE))
+      power_resampling_nocomp_w_log[f, "a1"] <- exp(apply(power_resampling_nocomp_log[f,c(2:upper_range)], 1, sum, na.rm = TRUE))
       
     
       ## predicting y on subsampled data

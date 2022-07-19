@@ -70,8 +70,7 @@ data_in_class_bis <- function(data) {
     sample_size <- size
     
   } else {
-    data <- data[data$x <= quantile(data$x, 0.99),] # removing extreme values of dbh if no data in the last dbh class defined
-    range_dbh <- max(data$x)
+    data <- data[data$x <= quantile(data$x, 0.99),] 
     class_dbh <- range_dbh/4
     
     s1 <- class_dbh 
@@ -170,6 +169,8 @@ sampling_protocol <- function(ranged_data, nb_datasets_all, sample_size) {
   new_data <- new_data[as.character(new_data$protocol) %in% sel_pro,]
   new_data$protocol <- as.factor(new_data$protocol)
   
+  new_data$protocol <- droplevels.factor(new_data$protocol)
+  
   return(new_data)
   
 }
@@ -204,6 +205,8 @@ testing_data <- function(ranged_data, new_data, sample_size) {
   class_4b <- loc4b %>% filter(location %in% sampled_loc4b) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
   
   test_data <- bind_rows(class_1b, class_2b, class_3b, class_4b)
+  
+  test_data$protocol <- droplevels.factor(test_data$protocol)
   
   return(test_data)
   

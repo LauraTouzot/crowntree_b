@@ -170,8 +170,8 @@ mod_linear_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, 
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = linear_resampling_c2[f,"intercept"] + linear_resampling_c2[f,"comp"]*ba_plot + linear_resampling_c2[f,"slope"]*x,
-                                          y_pred_b = linear_resampling_c2_w[f,"intercept"] + linear_resampling_c2_w[f,"comp"]*ba_plot + linear_resampling_c2_w[f,"slope"]*x)
+      test_data_b <- test_data %>% mutate(y_pred_a = linear_resampling_c2[f,"intercept"] + linear_resampling_c2[f,"comp"]*ba_larger + linear_resampling_c2[f,"slope"]*x,
+                                          y_pred_b = linear_resampling_c2_w[f,"intercept"] + linear_resampling_c2_w[f,"comp"]*ba_larger + linear_resampling_c2_w[f,"slope"]*x)
       
       
       ## computing RMSE
@@ -360,7 +360,7 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
         power_resampling_c1_log[f,"a2"] <- coefficients(m1_p_rs_c1_log)["log(x)"]
         power_resampling_c1_log[f,"comp"] <- coefficients(m1_p_rs_c1_log)["ba_plot"]
         power_resampling_c1_log[f,"AIC"] <- AIC(m1_p_rs_c1_log)
-        power_resampling_c1_log[f,"sigla"] <- sigma(m1_p_rs_c1_log)
+        power_resampling_c1_log[f,"sigma"] <- sigma(m1_p_rs_c1_log)
         power_resampling_c1_log[f,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_p_rs_c1_log)[1]
         
       }
@@ -386,7 +386,7 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c1_log[f,"a1"] + (power_resampling_c1_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1[f,"a2"]) *  ((1/2)*(exp(power_resampling_c1_log[f,"sigma"]^2))),
+      test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c1_log[f,"a1"] + (power_resampling_c1_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1_log[f,"a2"]) *  ((1/2)*(exp(power_resampling_c1_log[f,"sigma"]^2))),
                                           y_pred_b = exp(power_resampling_c1_w_log[f,"a1"] + (power_resampling_c1_w_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c1_w_log[f,"sigma"]^2))))
       
       
@@ -440,7 +440,7 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
       ## computing test dataset 
       test_data <- testing_data(ranged_data, new_data, sample_size)
       
-      init_rs_c2 <- coefficients(lm(log(y) ~ log(x), new_data)) # initializing values for power models
+      init_rs_c2 <- coefficients(lm(log(y) ~ log(x) + ba_larger, new_data)) # initializing values for power models
       
       m1_p_rs_c2 <- gnls(mod_power,
                          data = new_data,
@@ -499,8 +499,8 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = power_resampling_c2[f,"a1"] + (power_resampling_c2[f,"comp"]*ba_plot) * (x^power_resampling_c2[f,"a2"]),
-                                          y_pred_b = power_resampling_c2_w[f,"a1"] + (power_resampling_c2_w[f,"comp"]*ba_plot) * (x^power_resampling_c2_w[f,"a2"]))
+      test_data_b <- test_data %>% mutate(y_pred_a = power_resampling_c2[f,"a1"] + (power_resampling_c2[f,"comp"]*ba_larger) * (x^power_resampling_c2[f,"a2"]),
+                                          y_pred_b = power_resampling_c2_w[f,"a1"] + (power_resampling_c2_w[f,"comp"]*ba_larger) * (x^power_resampling_c2_w[f,"a2"]))
       
       
       ## computing RMSE
@@ -550,7 +550,7 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       if (length(unique(new_data$protocol)) > 1) {
         
-        m2_p_rs_c2_log <- lm(log(y) ~ protocol + ba_plot + log(x), new_data)
+        m2_p_rs_c2_log <- lm(log(y) ~ protocol + ba_larger + log(x), new_data)
         
         power_resampling_c2_log[f,"a2"] <- coefficients(m2_p_rs_c2_log)["log(x)"]
         power_resampling_c2_log[f,"comp"] <- coefficients(m2_p_rs_c2_log)["ba_larger"]
@@ -595,8 +595,8 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c2_log[f,"a1"] + (power_resampling_c2_log[f,"comp"]*ba_plot)) * (x^power_resampling_c2_log[f,"a2"]) *  ((1/2)*(exp(power_resampling_c2_log[f,"sigma"]^2))),
-                                          y_pred_b = exp(power_resampling_c2_w_log[f,"a1"] + (power_resampling_c2_w_log[f,"comp"]*ba_plot)) * (x^power_resampling_c2_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c2_w_log[f,"sigma"]^2))))
+      test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c2_log[f,"a1"] + (power_resampling_c2_log[f,"comp"]*ba_larger)) * (x^power_resampling_c2_log[f,"a2"]) *  ((1/2)*(exp(power_resampling_c2_log[f,"sigma"]^2))),
+                                          y_pred_b = exp(power_resampling_c2_w_log[f,"a1"] + (power_resampling_c2_w_log[f,"comp"]*ba_larger)) * (x^power_resampling_c2_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c2_w_log[f,"sigma"]^2))))
       
       
       ## computing RMSE
@@ -621,7 +621,6 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
   return(power_resampling_c2_log)
   
 }
-
 
 
 

@@ -290,7 +290,6 @@ diameter_resampling_c2 <- function(diameter_data, diameter_species_comp) {
   i <- (1:length(new_sp_list))[new_sp_list == diameter_species_comp]
   print(i)
   
-  
   ## defining number of repetitions
   n_repetition = 300
   
@@ -313,7 +312,6 @@ diameter_resampling_c2 <- function(diameter_data, diameter_species_comp) {
   names(power_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
   
   
-  
   ## selecting data
   data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
     filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
@@ -322,7 +320,6 @@ diameter_resampling_c2 <- function(diameter_data, diameter_species_comp) {
            location = as.factor(droplevels.factor(location)), 
            protocol = as.factor(droplevels.factor(protocol)), 
            id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
-  
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class(data)
@@ -333,7 +330,7 @@ diameter_resampling_c2 <- function(diameter_data, diameter_species_comp) {
   ## computing nb of datasets in which the species was surveyed
   nb_datasets_all <- length(unique(ranged_data$protocol))
   
-  ## sampling data and running the models for each repetition (competition - ba larger - resampling)
+  ## sampling data and running the models for each repetition (competition - ba plot - resampling)
   output_linear_diameter_c2_rs <- mod_linear_resampling_c2(ranged_data, nb_datasets_all, sample_size, linear_resampling_c2, linear_resampling_c2_w, n_repetition)
   output_power_diameter_c2_rs <- mod_power_resampling_c2(ranged_data, nb_datasets_all, sample_size, power_resampling_c2, power_resampling_c2_w, n_repetition)
   
@@ -342,7 +339,6 @@ diameter_resampling_c2 <- function(diameter_data, diameter_species_comp) {
   write.csv(output_power_diameter_c2_rs, file =  paste0("output/power_diameter_c2_rs_", new_sp_list[i], ".csv"))
   
 }
-
 
 
 
@@ -380,7 +376,6 @@ diameter_resampling_c2_log <- function(diameter_data, diameter_species_comp) {
            protocol = as.factor(droplevels.factor(protocol)), 
            id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
-  
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class(data)
   
@@ -397,4 +392,3 @@ diameter_resampling_c2_log <- function(diameter_data, diameter_species_comp) {
   write.csv(output_power_diameter_c2_rs_log, file =  paste0("output/power_diameter_c2_rs_log_", new_sp_list[i], ".csv"))
   
 }
-

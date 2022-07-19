@@ -77,7 +77,7 @@ heightdepth_resampling_nocomp <- function(heightdepth_data, heightdepth_species)
   power_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
   power_resampling_nocomp_w[,1] <- rep(heightdepth_species, n_repetition)
   names(power_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "AIC", "RMSE", "weighted")
-
+  
   
   ## selecting data
   data <- data_ok %>% filter(sp_name == species_list[i]) %>%
@@ -89,7 +89,7 @@ heightdepth_resampling_nocomp <- function(heightdepth_data, heightdepth_species)
   
   
   ## classifying data based on dbh classes 
-  ranged_data <- data_in_class(data)
+  ranged_data <- data_in_class_bis(data)
   
   ## defining sample size for resampling
   sample_size <- what_sample_size(ranged_data)
@@ -131,7 +131,7 @@ heightdepth_resampling_nocomp_log <- function(heightdepth_data, heightdepth_spec
   power_resampling_nocomp_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
   power_resampling_nocomp_w_log[,1] <- rep(heightdepth_species, n_repetition)
   names(power_resampling_nocomp_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "sigma", "AIC", "RMSE", "weighted")
-
+  
   
   ## selecting data
   data <- data_ok %>% filter(sp_name == species_list[i]) %>%
@@ -142,7 +142,7 @@ heightdepth_resampling_nocomp_log <- function(heightdepth_data, heightdepth_spec
            protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
   
   ## classifying data based on dbh classes 
-  ranged_data <- data_in_class(data)
+  ranged_data <- data_in_class_bis(data)
   
   ## defining sample size for resampling
   sample_size <- what_sample_size(ranged_data)
@@ -154,7 +154,7 @@ heightdepth_resampling_nocomp_log <- function(heightdepth_data, heightdepth_spec
   output_power_heightdepth_nocomp_rs_log <- mod_power_resampling_nocomp_log(ranged_data, nb_datasets_all, sample_size, power_resampling_nocomp_log, power_resampling_nocomp_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_heightdepth_nocomp_rs_log, file =  paste0("output/power_heightdepth_alldata_nocomp_rs_log_", heightdepth_species, ".csv"))
+  write.csv(output_power_heightdepth_nocomp_rs_log, file =  paste0("output/power_heightdepth_nocomp_rs_log_", heightdepth_species, ".csv"))
   
 }
 
@@ -205,7 +205,7 @@ heightdepth_resampling_c1 <- function(heightdepth_data, heightdepth_species_comp
            id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
-  ranged_data <- data_in_class(data)
+  ranged_data <- data_in_class_bis(data)
   
   ## defining sample size for resampling
   sample_size <- what_sample_size(ranged_data)
@@ -260,7 +260,7 @@ heightdepth_resampling_c1_log <- function(heightdepth_data, heightdepth_species_
            id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
-  ranged_data <- data_in_class(data)
+  ranged_data <- data_in_class_bis(data)
   
   ## defining sample size for resampling
   sample_size <- what_sample_size(ranged_data)
@@ -290,7 +290,6 @@ heightdepth_resampling_c2 <- function(heightdepth_data, heightdepth_species_comp
   i <- (1:length(new_sp_list))[new_sp_list == heightdepth_species_comp]
   print(i)
   
-  
   ## defining number of repetitions
   n_repetition = 300
   
@@ -313,7 +312,6 @@ heightdepth_resampling_c2 <- function(heightdepth_data, heightdepth_species_comp
   names(power_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
   
   
-  
   ## selecting data
   data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
     filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
@@ -323,9 +321,8 @@ heightdepth_resampling_c2 <- function(heightdepth_data, heightdepth_species_comp
            protocol = as.factor(droplevels.factor(protocol)), 
            id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
-  
   ## classifying data based on dbh classes 
-  ranged_data <- data_in_class(data)
+  ranged_data <- data_in_class_bis(data)
   
   ## defining sample size for resampling
   sample_size <- what_sample_size(ranged_data)
@@ -333,7 +330,7 @@ heightdepth_resampling_c2 <- function(heightdepth_data, heightdepth_species_comp
   ## computing nb of datasets in which the species was surveyed
   nb_datasets_all <- length(unique(ranged_data$protocol))
   
-  ## sampling data and running the models for each repetition (competition - ba larger - resampling)
+  ## sampling data and running the models for each repetition (competition - ba plot - resampling)
   output_linear_heightdepth_c2_rs <- mod_linear_resampling_c2(ranged_data, nb_datasets_all, sample_size, linear_resampling_c2, linear_resampling_c2_w, n_repetition)
   output_power_heightdepth_c2_rs <- mod_power_resampling_c2(ranged_data, nb_datasets_all, sample_size, power_resampling_c2, power_resampling_c2_w, n_repetition)
   
@@ -342,7 +339,6 @@ heightdepth_resampling_c2 <- function(heightdepth_data, heightdepth_species_comp
   write.csv(output_power_heightdepth_c2_rs, file =  paste0("output/power_heightdepth_c2_rs_", new_sp_list[i], ".csv"))
   
 }
-
 
 
 
@@ -380,9 +376,8 @@ heightdepth_resampling_c2_log <- function(heightdepth_data, heightdepth_species_
            protocol = as.factor(droplevels.factor(protocol)), 
            id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
-  
   ## classifying data based on dbh classes 
-  ranged_data <- data_in_class(data)
+  ranged_data <- data_in_class_bis(data)
   
   ## defining sample size for resampling
   sample_size <- what_sample_size(ranged_data)
@@ -397,4 +392,3 @@ heightdepth_resampling_c2_log <- function(heightdepth_data, heightdepth_species_
   write.csv(output_power_heightdepth_c2_rs_log, file =  paste0("output/power_heightdepth_c2_rs_log_", new_sp_list[i], ".csv"))
   
 }
-

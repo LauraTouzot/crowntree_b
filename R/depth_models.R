@@ -282,119 +282,113 @@ depth_resampling_c1_log <- function(depth_data, depth_species_comp) {
 
 depth_resampling_c2 <- function(depth_data, depth_species_comp) {
   
-    ## loading data and species list
-    data_ok <- depth_data
-    new_sp_list <- depth_species_comp
+  ## loading data and species list
+  data_ok <- depth_data
+  new_sp_list <- depth_species_comp
   
-    ## defining i
-    i <- (1:length(new_sp_list))[new_sp_list == depth_species_comp]
-    print(i)
-    
-    
-    ## defining number of repetitions
-    n_repetition = 300
-    
-    ## creating file to store model parameters (1 file per species)
-    linear_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
-    linear_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
-    names(linear_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
-    
-    linear_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
-    linear_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
-    names(linear_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
-    
-    
-    power_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
-    power_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
-    
-    power_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
-    power_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
-    
-    
-    
-    ## selecting data
-    data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-      filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-      select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-      mutate(x = as.numeric(x), y = as.numeric(y), 
-             location = as.factor(droplevels.factor(location)), 
-             protocol = as.factor(droplevels.factor(protocol)), 
-             id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
-    
-    
-    ## classifying data based on dbh classes 
-    ranged_data <- data_in_class(data)
-
-    ## defining sample size for resampling
-    sample_size <- what_sample_size(ranged_data)
-    
-    ## computing nb of datasets in which the species was surveyed
-    nb_datasets_all <- length(unique(ranged_data$protocol))
-    
-    ## sampling data and running the models for each repetition (competition - ba larger - resampling)
-    output_linear_depth_c2_rs <- mod_linear_resampling_c2(ranged_data, nb_datasets_all, sample_size, linear_resampling_c2, linear_resampling_c2_w, n_repetition)
-    output_power_depth_c2_rs <- mod_power_resampling_c2(ranged_data, nb_datasets_all, sample_size, power_resampling_c2, power_resampling_c2_w, n_repetition)
-    
-    ## exporting results in .csv files
-    write.csv(output_linear_depth_c2_rs, file =  paste0("output/linear_depth_c2_rs_", new_sp_list[i], ".csv"))
-    write.csv(output_power_depth_c2_rs, file =  paste0("output/power_depth_c2_rs_", new_sp_list[i], ".csv"))
-    
-  }
-
+  ## defining i
+  i <- (1:length(new_sp_list))[new_sp_list == depth_species_comp]
+  print(i)
+  
+  ## defining number of repetitions
+  n_repetition = 300
+  
+  ## creating file to store model parameters (1 file per species)
+  linear_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
+  linear_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
+  names(linear_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
+  
+  linear_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
+  linear_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
+  names(linear_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
+  
+  
+  power_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
+  power_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
+  names(power_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
+  
+  power_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
+  power_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
+  names(power_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
+  
+  
+  ## selecting data
+  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
+    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
+    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+    mutate(x = as.numeric(x), y = as.numeric(y), 
+           location = as.factor(droplevels.factor(location)), 
+           protocol = as.factor(droplevels.factor(protocol)), 
+           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  
+  ## classifying data based on dbh classes 
+  ranged_data <- data_in_class(data)
+  
+  ## defining sample size for resampling
+  sample_size <- what_sample_size(ranged_data)
+  
+  ## computing nb of datasets in which the species was surveyed
+  nb_datasets_all <- length(unique(ranged_data$protocol))
+  
+  ## sampling data and running the models for each repetition (competition - ba plot - resampling)
+  output_linear_depth_c2_rs <- mod_linear_resampling_c2(ranged_data, nb_datasets_all, sample_size, linear_resampling_c2, linear_resampling_c2_w, n_repetition)
+  output_power_depth_c2_rs <- mod_power_resampling_c2(ranged_data, nb_datasets_all, sample_size, power_resampling_c2, power_resampling_c2_w, n_repetition)
+  
+  ## exporting results in .csv files
+  write.csv(output_linear_depth_c2_rs, file =  paste0("output/linear_depth_c2_rs_", new_sp_list[i], ".csv"))
+  write.csv(output_power_depth_c2_rs, file =  paste0("output/power_depth_c2_rs_", new_sp_list[i], ".csv"))
+  
+}
 
 
 
 
 depth_resampling_c2_log <- function(depth_data, depth_species_comp) {
   
-    ## loading data and species list
-    data_ok <- depth_data
-    new_sp_list <- depth_species_comp
+  ## loading data and species list
+  data_ok <- depth_data
+  new_sp_list <- depth_species_comp
   
-    ## defining i
-    i <- (1:length(new_sp_list))[new_sp_list == depth_species_comp]
-    print(i)
-    
-    
-    ## defining number of repetitions
-    n_repetition = 300
-    
-    ## creating file to store model parameters (1 file per species)
-    power_resampling_c2_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
-    power_resampling_c2_log[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c2_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
-    
-    power_resampling_c2_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
-    power_resampling_c2_w_log[,1] <- rep(new_sp_list[i], n_repetition)
-    names(power_resampling_c2_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
-    
-    
-    ## selecting data
-    data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-      filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-      select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-      mutate(x = as.numeric(x), y = as.numeric(y), 
-             location = as.factor(droplevels.factor(location)), 
-             protocol = as.factor(droplevels.factor(protocol)), 
-             id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
-
-    
-    ## classifying data based on dbh classes 
-    ranged_data <- data_in_class(data)
-    
-    ## defining sample size for resampling
-    sample_size <- what_sample_size(ranged_data)
-    
-    ## computing nb of datasets in which the species was surveyed
-    nb_datasets_all <- length(unique(ranged_data$protocol))
-    
-    ## sampling data and running the models for each repetition (competition - ba plot - resampling)
-    output_power_depth_c2_rs_log <- mod_power_resampling_c2_log(ranged_data, nb_datasets_all, sample_size, power_resampling_c2_log, power_resampling_c2_w_log, n_repetition)
-    
-    ## exporting results in .csv files
-    write.csv(output_power_depth_c2_rs_log, file =  paste0("output/power_depth_c2_rs_log_", new_sp_list[i], ".csv"))
-    
-  }
-
+  ## defining i
+  i <- (1:length(new_sp_list))[new_sp_list == depth_species_comp]
+  print(i)
+  
+  
+  ## defining number of repetitions
+  n_repetition = 300
+  
+  ## creating file to store model parameters (1 file per species)
+  power_resampling_c2_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
+  power_resampling_c2_log[,1] <- rep(new_sp_list[i], n_repetition)
+  names(power_resampling_c2_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
+  
+  power_resampling_c2_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
+  power_resampling_c2_w_log[,1] <- rep(new_sp_list[i], n_repetition)
+  names(power_resampling_c2_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
+  
+  
+  ## selecting data
+  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
+    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
+    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+    mutate(x = as.numeric(x), y = as.numeric(y), 
+           location = as.factor(droplevels.factor(location)), 
+           protocol = as.factor(droplevels.factor(protocol)), 
+           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  
+  ## classifying data based on dbh classes 
+  ranged_data <- data_in_class(data)
+  
+  ## defining sample size for resampling
+  sample_size <- what_sample_size(ranged_data)
+  
+  ## computing nb of datasets in which the species was surveyed
+  nb_datasets_all <- length(unique(ranged_data$protocol))
+  
+  ## sampling data and running the models for each repetition (competition - ba plot - resampling)
+  output_power_depth_c2_rs_log <- mod_power_resampling_c2_log(ranged_data, nb_datasets_all, sample_size, power_resampling_c2_log, power_resampling_c2_w_log, n_repetition)
+  
+  ## exporting results in .csv files
+  write.csv(output_power_depth_c2_rs_log, file =  paste0("output/power_depth_c2_rs_log_", new_sp_list[i], ".csv"))
+  
+}
