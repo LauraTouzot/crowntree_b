@@ -190,7 +190,7 @@ list(
 
 
   # ### 6. Fitting allometric relationships on all data and without competition
- ,# tar_target(height_alldata_nocomp_output, height_alldata_nocomp(height_data, height_species), pattern = map(height_species)),
+  # tar_target(height_alldata_nocomp_output, height_alldata_nocomp(height_data, height_species), pattern = map(height_species)),
   # tar_target(depth_alldata_nocomp_output, depth_alldata_nocomp(depth_data, depth_species), pattern = map(depth_species)),
   # tar_target(diameter_alldata_nocomp_output, diameter_alldata_nocomp(diameter_data, diameter_species), pattern = map(diameter_species)),
   # tar_target(heightdepth_alldata_nocomp_output, heightdepth_alldata_nocomp(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
@@ -198,13 +198,13 @@ list(
   # 
   # ### 7. Fitting allometric relationships on resampled data and without competition
   # tar_target(height_resampling_nocomp_output, height_resampling_nocomp(height_data, height_species), pattern = map(height_species)),
-  # tar_target(depth_resampling_nocomp_output, depth_resampling_nocomp(depth_data, depth_species), pattern = map(depth_species)),
+  tar_target(depth_resampling_nocomp_output, depth_resampling_nocomp(depth_data, depth_species), pattern = map(depth_species)),
   # tar_target(diameter_resampling_nocomp_output, diameter_resampling_nocomp(diameter_data, diameter_species), pattern = map(diameter_species)),
   # tar_target(heightdepth_resampling_nocomp_output, heightdepth_resampling_nocomp(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
   # 
   # 
   # ### 8. Fitting allometric relationships on resampled data and with competition
-  # tar_target(depth_resampling_c1_output, depth_resampling_c1(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  tar_target(depth_resampling_c1_output, depth_resampling_c1(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
   # tar_target(diameter_resampling_c1_output, diameter_resampling_c1(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
   # tar_target(heightdepth_resampling_c1_output, heightdepth_resampling_c1(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
   # 
@@ -214,15 +214,15 @@ list(
   # 
   ### 9. Fitting allometric relationships on resampled data and without competition - log log models
   tar_target(depth_resampling_nocomp_output_log, depth_resampling_nocomp_log(depth_data, depth_species), pattern = map(depth_species)),
-  tar_target(diameter_resampling_nocomp_output_log, diameter_resampling_nocomp_log(diameter_data, diameter_species), pattern = map(diameter_species)),
-  tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
+  # tar_target(diameter_resampling_nocomp_output_log, diameter_resampling_nocomp_log(diameter_data, diameter_species), pattern = map(diameter_species)),
+  # tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
   # 
   # ### 10. Fitting allometric relationships on resampled data and with competition - log log models
-  # tar_target(depth_resampling_c1_output_log, depth_resampling_c1_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  tar_target(depth_resampling_c1_output_log, depth_resampling_c1_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
   # tar_target(diameter_resampling_c1_output_log, diameter_resampling_c1_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
   # tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
   # 
-  # tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
   # tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
   # tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp))
   # 
