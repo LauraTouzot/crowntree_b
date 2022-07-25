@@ -44,7 +44,6 @@ Usoltsev_data <- function(){
   data <- left_join(data, longitude, by = "ID_unique")
   data <- left_join(data, latitude, by = "ID_unique")
   
-  library(stringr)
   data$sp <- word(data$Species, 1,2, sep=" ")
   names(data) <- gsub(",", ".", gsub(" ", "_", names(data)))
   data$H._m <- as.numeric(data$H._m)

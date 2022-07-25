@@ -64,7 +64,7 @@ data_list <- lapply(paste0("output/", dd), utils::read.table,
 
 depth_resampling_power <- data.table::rbindlist(data_list, use.names = TRUE, fill = TRUE)
 
-dd <- list.files(path = "output/", pattern = "power_depth_nocomp_rs_log_")
+dd <- list.files(path = "output/", pattern = "power_depth_alldata_nocomp_rs_log_")
 data_list <- lapply(paste0("output/", dd), utils::read.table,
                     header = TRUE, sep = ",", dec = ".",
                     encoding = "UTF-8",

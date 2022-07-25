@@ -4,7 +4,7 @@ merge_crown_data <- function(baad_crown_complete, FHM_data, FIA_data, Spain_NFI,
                              MONTANE_data, data_paper_crown, evan_crown_data,
                              dettmann_data, heym_2017, gen_tree_data, legacytree,
                              ICP_data, anderson2015, dalponte2016, FrenchNFI_data, 
-                             Quebec, Canada_data, Usoltsev, Sullivan_data) {
+                             Quebec, Canada_data, Usoltsev, Sullivan_data, tallo_database) {
   
   baad_crown_complete$data <- "baad"
   baad_crown_complete$ref <- baad_crown_complete$studyName
@@ -136,11 +136,16 @@ merge_crown_data <- function(baad_crown_complete, FHM_data, FIA_data, Spain_NFI,
   Sullivan <- Sullivan_data[!is.na(Sullivan_data$DBH_cm), c("sp", "DBH_cm", "C_diam_m", "CR", "C_depth_m", "HT_m", "W", "data", "ref", 
                                                             "latitude_plot", "longitude_plot", "latitude_tree", "longitude_tree", "location_ID", "continent")]
   
+  
+  tallo <- tallo_database[!is.na(tallo_database$DBH_cm), c("sp", "DBH_cm", "C_diam_m", "CR", "C_depth_m", "HT_m", "W", "data", "ref", 
+                                                            "latitude_plot", "longitude_plot", "latitude_tree", "longitude_tree", "location_ID", "continent")]
+  
+  
   df <- bind_rows(baad, FHM, FIA, Spain, FUNDIV, FUNDIV_CROWN,
                   MONTANE, data_paper, evan_crown, 
                   dettmann, heym, gentree, legacytree_data,
                   ICP_data_s, anderson2015, dalponte, 
-                  FrenchNFI, Quebec_data, Canada, Usoltsev_data, Sullivan)
+                  FrenchNFI, Quebec_data, Canada, Usoltsev_data, Sullivan, tallo)
 
   return(df)
 }

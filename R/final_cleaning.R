@@ -3,8 +3,12 @@
 # dbh = NA (or 0 even though it is not supposed to still be in the dataset)
 # total tree height < crown depth
 # total tree height = 0
+# contient different than Europe or North America
 
 last_cleaning <- function(all_crown) {
+  
+  # keeping only data located in Europe and North America
+  all_crown <- all_crown[all_crown$continent %in% c("N_A", "E_U"),]
   
   id <- as.data.frame(c(1:dim(all_crown)[1]))
   colnames(id) <- "id"
