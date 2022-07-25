@@ -38,9 +38,13 @@ library(targets)
 lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("R", x)))
 
 # # Installing if needed and loading packages
-packages.in <- c("baad.data", "stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements",
-                 "sf", "readxl", "stringi", "lubridate", "tidyr", "parzer", 
-                 "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata", "Metrics")
+# packages.in <- c("baad.data", "stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements",
+#                  "sf", "readxl", "stringi", "lubridate", "tidyr", "parzer", 
+#                  "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata", "Metrics")
+
+packages.in <- c("stringr", "dplyr","measurements",
+                 "readxl", "stringi", "lubridate", "tidyr", "parzer", 
+                 "nlme", "lme4", "pals", "gdata", "Metrics")
 
 
 for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.packages()))) install.packages(packages.in[i])
