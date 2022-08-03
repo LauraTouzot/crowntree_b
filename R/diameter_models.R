@@ -40,7 +40,7 @@ diameter_alldata_nocomp <- function(diameter_data, diameter_species) {
   ## exporting results in .csv files
   write.csv(output_linear_diameter_nocomp, file =  paste0("output/linear_diameter_alldata_nocomp_", diameter_species, ".csv"))
   write.csv(output_power_diameter_nocomp, file =  paste0("output/power_diameter_alldata_nocomp_", diameter_species, ".csv"))
-  write.csv(output_power_diameter_nocomp_log, file =  paste0("output/power_diameter_alldata_nocomp_log_", diameter_species, ".csv"))
+  write.csv(output_power_diameter_nocomp_log, file =  paste0("output/power_log_diameter_alldata_nocomp_", diameter_species, ".csv"))
   
 }
 
@@ -154,7 +154,7 @@ diameter_resampling_nocomp_log <- function(diameter_data, diameter_species) {
   output_power_diameter_nocomp_rs_log <- mod_power_resampling_nocomp_log(ranged_data, nb_datasets_all, sample_size, power_resampling_nocomp_log, power_resampling_nocomp_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_diameter_nocomp_rs_log, file =  paste0("output/power_diameter_nocomp_rs_log_", diameter_species, ".csv"))
+  write.csv(output_power_diameter_nocomp_rs_log, file =  paste0("output/power_log_diameter_nocomp_rs_", diameter_species, ".csv"))
   
 }
 
@@ -272,7 +272,7 @@ diameter_resampling_c1_log <- function(diameter_data, diameter_species_comp) {
   output_power_diameter_c1_rs_log <- mod_power_resampling_c1_log(ranged_data, nb_datasets_all, sample_size, power_resampling_c1_log, power_resampling_c1_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_diameter_c1_rs_log, file =  paste0("output/power_diameter_c1_rs_log_", new_sp_list[i], ".csv"))
+  write.csv(output_power_diameter_c1_rs_log, file =  paste0("output/power_log_diameter_c1_rs_", new_sp_list[i], ".csv"))
   
 }
 
@@ -389,6 +389,6 @@ diameter_resampling_c2_log <- function(diameter_data, diameter_species_comp) {
   output_power_diameter_c2_rs_log <- mod_power_resampling_c2_log(ranged_data, nb_datasets_all, sample_size, power_resampling_c2_log, power_resampling_c2_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_diameter_c2_rs_log, file =  paste0("output/power_diameter_c2_rs_log_", new_sp_list[i], ".csv"))
+  write.csv(output_power_diameter_c2_rs_log, file =  paste0("output/power_log_diameter_c2_rs_", new_sp_list[i], ".csv"))
   
 }

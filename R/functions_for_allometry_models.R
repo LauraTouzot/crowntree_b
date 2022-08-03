@@ -454,10 +454,10 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
         power_resampling_nocomp_log[f,"AIC"] <- AIC(m2_p_rs_log)
         power_resampling_nocomp_log[f,"sigma"] <- sigma(m2_p_rs_log)
         
-        power_resampling_nocomp[f, paste0("protocol", levels(new_data$protocol)[1])] <- coefficients(m2_p_rs_log)[1]
+        power_resampling_nocomp[f, paste0("protocol", levels(data$protocol)[1])] <- coefficients(m2_p_rs_log)[1]
         
         for (k in paste0("protocol", levels(new_data$protocol)[-1])) {
-          power_resampling_nocomp_log[f,k] <- coefficients(m2_p_rs)[1] + coefficients(m2_p_rs)[paste0("a1.", k)]
+          power_resampling_nocomp_log[f,k] <- coefficients(m2_p_rs_log)[1] + coefficients(m2_p_rs_log)[k]
         }
 
         

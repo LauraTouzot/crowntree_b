@@ -40,7 +40,7 @@ depth_alldata_nocomp <- function(depth_data, depth_species) {
   ## exporting results in .csv files
   write.csv(output_linear_depth_nocomp, file =  paste0("output/linear_depth_alldata_nocomp_", depth_species, ".csv"))
   write.csv(output_power_depth_nocomp, file =  paste0("output/power_depth_alldata_nocomp_", depth_species, ".csv"))
-  write.csv(output_power_depth_nocomp_log, file =  paste0("output/power_depth_alldata_nocomp_log_", depth_species, ".csv"))
+  write.csv(output_power_depth_nocomp_log, file =  paste0("output/power_log_depth_alldata_nocomp_", depth_species, ".csv"))
   
 }
 
@@ -154,7 +154,7 @@ depth_resampling_nocomp_log <- function(depth_data, depth_species) {
   output_power_depth_nocomp_rs_log <- mod_power_resampling_nocomp_log(ranged_data, nb_datasets_all, sample_size, power_resampling_nocomp_log, power_resampling_nocomp_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_depth_nocomp_rs_log, file =  paste0("output/power_depth_nocomp_rs_log_", depth_species, ".csv"))
+  write.csv(output_power_depth_nocomp_rs_log, file =  paste0("output/power_log_depth_nocomp_rs_", depth_species, ".csv"))
   
 }
 
@@ -272,7 +272,7 @@ depth_resampling_c1_log <- function(depth_data, depth_species_comp) {
     output_power_depth_c1_rs_log <- mod_power_resampling_c1_log(ranged_data, nb_datasets_all, sample_size, power_resampling_c1_log, power_resampling_c1_w_log, n_repetition)
     
     ## exporting results in .csv files
-    write.csv(output_power_depth_c1_rs_log, file =  paste0("output/power_depth_c1_rs_log_", new_sp_list[i], ".csv"))
+    write.csv(output_power_depth_c1_rs_log, file =  paste0("output/power_log_depth_c1_rs_", new_sp_list[i], ".csv"))
     
   }
 
@@ -389,6 +389,6 @@ depth_resampling_c2_log <- function(depth_data, depth_species_comp) {
   output_power_depth_c2_rs_log <- mod_power_resampling_c2_log(ranged_data, nb_datasets_all, sample_size, power_resampling_c2_log, power_resampling_c2_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_depth_c2_rs_log, file =  paste0("output/power_depth_c2_rs_log_", new_sp_list[i], ".csv"))
+  write.csv(output_power_depth_c2_rs_log, file =  paste0("output/power_log_depth_c2_rs_", new_sp_list[i], ".csv"))
   
 }

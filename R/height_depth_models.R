@@ -40,7 +40,7 @@ heightdepth_alldata_nocomp <- function(heightdepth_data, heightdepth_species) {
   ## exporting results in .csv files
   write.csv(output_linear_heightdepth_nocomp, file =  paste0("output/linear_heightdepth_alldata_nocomp_", heightdepth_species, ".csv"))
   write.csv(output_power_heightdepth_nocomp, file =  paste0("output/power_heightdepth_alldata_nocomp_", heightdepth_species, ".csv"))
-  write.csv(output_power_heightdepth_nocomp_log, file =  paste0("output/power_heightdepth_alldata_nocomp_log_", heightdepth_species, ".csv"))
+  write.csv(output_power_heightdepth_nocomp_log, file =  paste0("output/power_log_heightdepth_alldata_nocomp_", heightdepth_species, ".csv"))
   
 }
 
@@ -154,7 +154,7 @@ heightdepth_resampling_nocomp_log <- function(heightdepth_data, heightdepth_spec
   output_power_heightdepth_nocomp_rs_log <- mod_power_resampling_nocomp_log(ranged_data, nb_datasets_all, sample_size, power_resampling_nocomp_log, power_resampling_nocomp_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_heightdepth_nocomp_rs_log, file =  paste0("output/power_heightdepth_nocomp_rs_log_", heightdepth_species, ".csv"))
+  write.csv(output_power_heightdepth_nocomp_rs_log, file =  paste0("output/power_log_heightdepth_nocomp_rs_", heightdepth_species, ".csv"))
   
 }
 
@@ -272,7 +272,7 @@ heightdepth_resampling_c1_log <- function(heightdepth_data, heightdepth_species_
   output_power_heightdepth_c1_rs_log <- mod_power_resampling_c1_log(ranged_data, nb_datasets_all, sample_size, power_resampling_c1_log, power_resampling_c1_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_heightdepth_c1_rs_log, file =  paste0("output/power_heightdepth_c1_rs_log_", new_sp_list[i], ".csv"))
+  write.csv(output_power_heightdepth_c1_rs_log, file =  paste0("output/power_log_heightdepth_c1_rs_", new_sp_list[i], ".csv"))
   
 }
 
@@ -389,6 +389,6 @@ heightdepth_resampling_c2_log <- function(heightdepth_data, heightdepth_species_
   output_power_heightdepth_c2_rs_log <- mod_power_resampling_c2_log(ranged_data, nb_datasets_all, sample_size, power_resampling_c2_log, power_resampling_c2_w_log, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_power_heightdepth_c2_rs_log, file =  paste0("output/power_heightdepth_c2_rs_log_", new_sp_list[i], ".csv"))
+  write.csv(output_power_heightdepth_c2_rs_log, file =  paste0("output/power_log_heightdepth_c2_rs_", new_sp_list[i], ".csv"))
   
 }
