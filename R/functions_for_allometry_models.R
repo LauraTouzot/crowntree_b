@@ -454,7 +454,7 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
         power_resampling_nocomp_log[f,"AIC"] <- AIC(m2_p_rs_log)
         power_resampling_nocomp_log[f,"sigma"] <- sigma(m2_p_rs_log)
         
-        power_resampling_nocomp[f, paste0("protocol", levels(data$protocol)[1])] <- coefficients(m2_p_rs_log)[1]
+        power_resampling_nocomp_log[f, paste0("protocol", levels(data$protocol)[1])] <- coefficients(m2_p_rs_log)[1]
         
         for (k in paste0("protocol", levels(new_data$protocol)[-1])) {
           power_resampling_nocomp_log[f,k] <- coefficients(m2_p_rs_log)[1] + coefficients(m2_p_rs_log)[k]
@@ -695,8 +695,8 @@ mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_si
     
     
     upper_range <- dim(asymptot_resampling_nocomp)[2]-6
-    asymptot_resampling_nocomp[f, "b1"] <- apply(asymptot_resampling_nocomp[f,"b1"], 1, mean, na.rm = TRUE)
-    asymptot_resampling_nocomp_w[f, "b1"] <- apply(asymptot_resampling_nocomp_w[f,"b1"], 1, sum, na.rm = TRUE)
+    asymptot_resampling_nocomp[f, "b1"] <- apply(asymptot_resampling_nocomp[f,c(2:upper_range)], 1, mean, na.rm = TRUE)
+    asymptot_resampling_nocomp_w[f, "b1"] <- apply(asymptot_resampling_nocomp_w[f,c(2:upper_range)], 1, sum, na.rm = TRUE)
     
     
     

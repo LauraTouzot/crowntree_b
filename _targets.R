@@ -2,7 +2,9 @@
 #
 # compile the allometry database
 # extract species that are found in the NFI database based on determined number of plots and observations available
-# run models to explore allometry relationships 
+# run models to explore allometric relationships 
+# extract mean climate for each studied species using Gbif and Chelsa
+# analyze of allometric model outputs
 # compute figures of obtained results
 #
 #####################################################################################################################
@@ -38,14 +40,17 @@ library(targets)
 # Loading functions
 lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("R", x)))
 
-# # Installing if needed and loading packages
+# Installing if needed and loading packages
 # packages.in <- c("baad.data", "stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements",
-#                  "sf", "readxl", "stringi", "lubridate", "tidyr", "parzer", 
-#                  "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata", "Metrics")
+#                  "sf", "readxl", "stringi", "lubridate", "tidyr", "parzer",
+#                  "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata", "Metrics",
+#                  "purrr", "readr", "magrittr", "rgbif",
+#                  "CoordinateCleaner", "RCurl", "httr", "archive", "terra", "cowplot", "R.utils",
+#                  "ggspatial", "rnaturalearth", "rnaturalearthdata", "taxize")
 
-packages.in <- c("stringr", "dplyr","measurements",
-                 "readxl", "stringi", "lubridate", "tidyr", "parzer", 
-                 "nlme", "lme4", "pals", "gdata", "Metrics")
+# packages.in <- c("stringr", "dplyr","measurements",
+#                  "readxl", "stringi", "lubridate", "tidyr", "parzer", 
+#                  "nlme", "lme4", "pals", "gdata", "Metrics")
 
 
 for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.packages()))) install.packages(packages.in[i])
@@ -192,7 +197,7 @@ list(
   tar_target(depth_data, get_data_depth(data_allometry)),
   tar_target(depth_species, get_species_depth(depth_data)),
   tar_target(depth_species_comp, get_species_depth_comp(depth_data)),
-  
+
   tar_target(heightdepth_data, get_data_heightdepth(data_allometry)),
   tar_target(heightdepth_species, get_species_heightdepth(heightdepth_data)),
   tar_target(heightdepth_species_comp, get_species_heightdepth_comp(heightdepth_data)),
@@ -223,31 +228,38 @@ list(
   # ### 9. Fitting allometric relationships on resampled data and without competition - log log models
   # tar_target(depth_resampling_nocomp_output_log, depth_resampling_nocomp_log(depth_data, depth_species), pattern = map(depth_species)),
   # tar_target(diameter_resampling_nocomp_output_log, diameter_resampling_nocomp_log(diameter_data, diameter_species), pattern = map(diameter_species)),
-  # tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
-  
+  # tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)))
+  # 
   ### 10. Fitting allometric relationships on resampled data and with competition - log log models
   tar_target(depth_resampling_c1_output_log, depth_resampling_c1_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
   tar_target(diameter_resampling_c1_output_log, diameter_resampling_c1_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
-  tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
+  tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)))
+  # 
+  # tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  # tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  # tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)))
   
-  tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
-  tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
-  tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)))
-  
-  # ### 11. Extracting mean climate for each studied species 
+  # ### 11. Extracting mean climate for each studied species
   # 
   # ## Getting Gbif species data
   # # Give user and password to access gbif data
-  # tar_target(user, "lauratouzot"), 
-  # tar_target(pwd, "p1620430!INRAE"), 
-  # tar_target(email, "laura.touzot@hotmail.fr"), 
+  # tar_target(user, "lauratouzot"),
+  # tar_target(pwd, "p1620430!INRAE"),
+  # tar_target(email, "laura.touzot@hotmail.fr"),
   # 
   # # Make and send request to download data from GBIF
-  # tar_target(sp_vec, get_species()), 
-  # tar_target(gbif_taxon_keys, get_gbif_taxon_keys(sp_vec)), 
+  # tar_target(gbif_taxon_keys, get_gbif_taxon_keys(global_species_list)),
   # tar_target(data_gbif, get_data_gbif(gbif_taxon_keys, user, pwd, email)),
   # 
+  # # Download CHELSA climatic data
+  # tar_target(chelsa_files, download_CHELSA(bioclim = c(1, 6, 12), path = "data/CHELSA"), format = "file"),
   # 
+  # # Compute optimal climatic conditions for each species
+  # tar_target(meanClimate_species, extract_climate_for_gbif(chelsa_files, data_gbif)),
+  # 
+  # # Export file
+  # tar_target(meanClimate_species_file, write_on_disk(meanClimate_species, "output/sp_gbif_climate.csv"), format = "file"))
+  
   # )
 
 

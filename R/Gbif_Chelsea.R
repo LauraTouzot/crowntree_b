@@ -1,108 +1,21 @@
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#
-#### SCRIPT INTRODUCTION ####
-#
-#' @name functions_data.R  
-#' @description R script containing all functions relative to data
+##############################################################################
+
+# @description R script containing all functions relative to data
 #               importation and formatting
-#' @author Julien BARRERE, Georges KUNSTLER
-#
-#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# @author Julien BARRERE, Georges KUNSTLER
+
+# Get the taxon keys from GBIF
+# @param global_species_list vector of species
+# @author Georges Kunstler
+
+##############################################################################
 
 
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# -- 1. Generic functions ----
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-#' Function to get the path of a file, and create directories if they don't exist
-#' @param file.in character: path of the file, filename included (ex: "plot/plot.png")
-#' @author Julien BARRERE
-create_dir_if_needed <- function(file.in){
+get_gbif_taxon_keys <- function(global_species_list) {
   
-  path.in <- strsplit(file.in, "/")[[1]]
-  if(length(path.in) > 1){
-    for(i in 1:(length(path.in)-1)){
-      if(i == 1) path.in_i <- path.in[i]
-      else path.in_i <- paste(path.in_i, path.in[i], sep = "/")
-      if(!dir.exists(path.in_i)) dir.create(path.in_i)
-    }
-  }
-}
-
-
-
-#' Get file from its url and write it on disk, at a specified location. 
-#' @param dir.name.in Directory where the file should be written (ex: "data/BWI")
-#' @param url.in URL where to download the file.
-#' @author Julien BARRERE
-get_and_write <- function(dir.name.in, url.in){
-  
-  # Write directories if they do not exist
-  path.in <- strsplit(dir.name.in, "/")[[1]]
-  for(i in 1:length(path.in)){
-    if(i == 1) path.in_i <- path.in[i]
-    else path.in_i <- paste(path.in_i, path.in[i], sep = "/")
-    if(!dir.exists(path.in_i)) dir.create(path.in_i)
-  }
-  
-  # Write file on the disk
-  url.in_split <- strsplit(url.in, "/")[[1]]
-  file.in <- paste(dir.name.in, url.in_split[length(url.in_split)], sep = "/")
-  if(!file.exists(file.in)){
-    try(GET(url.in, authenticate('guest', ""), write_disk(file.in, overwrite = TRUE)))
-    # Specific case of zip file: unzip and delete zip file
-    if("zip" %in% strsplit(file.in, split = "\\.")[[1]]){
-      unzip(file.in, exdir = dir.name.in, overwrite = T)
-      print(paste0("---Getting and unzipping ", file.in))
-      unlink(file.in)
-    }else{print(paste0("---Getting ", file.in))}
-  } 
-}
-
-
-#' Write a table on disk
-#' @param table.in dataframe to write on the disk
-#' @param file.in Name (and path) of the file on the disk
-#' @author Julien BARRERE
-write_on_disk <- function(table.in, file.in){
-  create_dir_if_needed(file.in)
-  write.table(table.in, file = file.in, row.names = F)
-  return(file.in)
-}
-
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# -- 2. Functions to get GBIF data ----
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-#' Get the species for which to get GBIF presence data
-#' @return A character vector containing species latin name
-get_species <- function(){
-  c("Abies alba", "Acer campestre", "Acer pseudoplatanus", "Alnus glutinosa", "Betula pendula", 
-    "Carpinus betulus" , "Castanea sativa", "Erica arborea", "Eucalyptus camaldulensis", "Fagus sylvatica", 
-    "Fraxinus angustifolia", "Fraxinus excelsior", "Juniperus thurifera", "Myrica faya", "Olea europaea", 
-    "Picea abies", "Pinus canariensis", "Pinus halepensis", "Pinus nigra", "Pinus pinaster", "Pinus pinea", 
-    "Pinus radiata", "Pinus sylvestris", "Pinus uncinata", "Populus nigra", "Populus tremula", "Prunus avium", 
-    "Pseudotsuga menziesii", "Quercus faginea", "Quercus ilex", "Quercus petraea", "Quercus pubescens", 
-    "Quercus pyrenaica", "Quercus robur", "Quercus suber", "Robinia pseudoacacia", "Salix caprea", "Ulmus minor")
-}
-
-
-
-
-#' Get the taxon keys from GBIF
-#' @param sp_vec vector of species
-#' @author Georges Kunstler
-get_gbif_taxon_keys <- function(sp_vec){
   # add original name back into data.frame
-  gbif_taxon_keys <- get_gbifid_(sp_vec, method="backbone") %>% imap(~ .x %>% mutate(original_sciname = .y)) %>% 
+  gbif_taxon_keys <- get_gbifid_(global_species_list, method="backbone") %>% imap(~ .x %>% mutate(original_sciname = .y)) %>% 
+    
     # combine all data.frames into one
     bind_rows() %T>% 
     # save as side effect for you to inspect if you want
@@ -112,18 +25,20 @@ get_gbif_taxon_keys <- function(sp_vec){
     # remove anything that might have matched to a non-plant
     filter(kingdom == "Plantae") %>% 
     pull(usagekey) 
+  
   return(gbif_taxon_keys)  
 }
 
 
 
-#' Get the requested data from GBIF
-#' @param gbif_taxon_keys List of all taxon keys fo the species for which to get data
-#' @param user gbif username
-#' @param pwd gbif password
-#' @param email email for gbif
-#' @author Georges Kunstler, Julien Barrere
-get_data_gbif <- function(gbif_taxon_keys, user, pwd, email){
+# Get the requested data from GBIF
+# @param gbif_taxon_keys List of all taxon keys fo the species for which to get data
+# @param user gbif username
+# @param pwd gbif password
+# @param email email for gbif
+# @author Georges Kunstler, Julien Barrere
+
+get_data_gbif <- function(gbif_taxon_keys, user, pwd, email) {
   
   # use matched gbif_taxon_keys from above to send request download
   request_download <- occ_download(
@@ -177,84 +92,16 @@ get_data_gbif <- function(gbif_taxon_keys, user, pwd, email){
 }
 
 
+# Download chelsa files
+# @param bioclim numeric vector of the bioclim codes to extract
+# @param path character: directory where the data should be stored
+# @return 
+# @author G. Kunstler, J. Barrere
 
-#' #' Function to send a data request to GBIF
-#' #' @param gbif_taxon_keys List of all taxon keys fo the species for which to get data
-#' #' @param user gbif username
-#' #' @param pwd gbif password
-#' #' @param email email for gbif
-#' #' @author Georges Kunstler
-#' send_data_reqst_gbif <- function(gbif_taxon_keys, user, pwd, email){
-#'   # use matched gbif_taxon_keys from above 
-#'   res <- occ_download(
-#'     pred_in("taxonKey", gbif_taxon_keys),
-#'     pred_in("basisOfRecord", c('HUMAN_OBSERVATION','OBSERVATION','MACHINE_OBSERVATION')),
-#'     pred("hasCoordinate", TRUE),
-#'     pred("hasGeospatialIssue", FALSE),
-#'     pred_or(
-#'       pred_not(pred("establishmentMeans","INTRODUCED")),
-#'       pred_not(pred_notnull("establishmentMeans"))
-#'     ),
-#'     pred_or(
-#'       pred_not(pred("establishmentMeans","INVASIVE")),
-#'       pred_not(pred_notnull("establishmentMeans"))
-#'     ),
-#'     pred_or(
-#'       pred_not(pred("establishmentMeans","NATURALISED")),
-#'       pred_not(pred_notnull("establishmentMeans"))
-#'     ),
-#'     pred_or(
-#'       pred_lt("coordinateUncertaintyInMeters",10000),
-#'       pred_not(pred_notnull("coordinateUncertaintyInMeters"))
-#'     ),
-#'     format = "SIMPLE_CSV",
-#'     user=user,pwd=pwd,email=email
-#'   )
-#'   
-#'   out <- occ_download_get(res[[1]], path = "output", overwrite = TRUE)  %>% occ_download_import
-#'   return(out)
-#' }
-#' 
-#' 
-#' #' Get the requested data from GBIF
-#' #' @param res GBIF request
-#' #' @author Georges Kunstler
-#' get_requested_data <- function(res){
-#'   
-#'   
-#'   out <- res %>%
-#'     setNames(tolower(names(.))) %>% # set lowercase column names to work with CoordinateCleaner
-#'     filter(coordinateprecision < 0.01 | is.na(coordinateprecision)) %>% 
-#'     filter(!coordinateuncertaintyinmeters %in% c(999, 9999)) %>% 
-#'     filter(!decimallatitude == 0 | !decimallongitude == 0) %>%
-#'     cc_cen(buffer = 2000) %>% # remove country centroids within 2km 
-#'     cc_cap(buffer = 2000) %>% # remove capitals centroids within 2km
-#'     cc_inst(buffer = 2000) %>% # remove zoo and herbaria within 2km 
-#'     cc_sea() %>% # remove from ocean 
-#'     distinct(decimallongitude,decimallatitude,specieskey,datasetkey, .keep_all = TRUE) %>%
-#'     glimpse()
-#'   return(dat)
-#' }
-
-
-
-
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# -- 3. Functions to manage CHELSA climatic data ----
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-#' Download chelsa files
-#' @param bioclim numeric vector of the bioclim codes to extract
-#' @param path character: directory where the data should be stored
-#' @return 
-#' @author G. Kunstler, J. Barrere
-download_CHELSA <- function(bioclim, path){
+download_CHELSA <- function(bioclim, path) {
   
   # Loop on all bioclim codes
-  for(b in bioclim){
+  for(b in bioclim) {
     if(! b %in% c(1:19)) stop("Argument bioclim needs to be in range 1:19")
     # Name of the file to extract
     filename.ymv <- paste("CHELSA_bio10", b, "land.7z", sep = "_")
@@ -269,7 +116,7 @@ download_CHELSA <- function(bioclim, path){
   chelsa_files_archived <- paste(path, list.files(path), sep = "/")
   
   # Loop on all chelsa files archived to unzip them
-  for(i in 1:length(chelsa_files_archived)){
+  for(i in 1:length(chelsa_files_archived)) {
     print(paste0("--- Unarchiving file ", chelsa_files_archived[i]))
     # Extract the file(s) from the archive
     archive_extract(chelsa_files_archived[i], dir = path)
@@ -282,13 +129,11 @@ download_CHELSA <- function(bioclim, path){
 }
 
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# -- 4. Functions to get disturbance related climate data ----
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#' Function to download GLOBSNOW and unzip snow cover data
-#' @param dir.in directory where to save the files
-get_GlobSnow <- function(dir.in){
+# Function to download GLOBSNOW and unzip snow cover data
+# @param dir.in directory where to save the files
+
+get_GlobSnow <- function(dir.in) {
   
   # - Dates for which data are available
   dates.in <- (expand.grid(year = as.character(c(1979:2017)), 
@@ -310,9 +155,10 @@ get_GlobSnow <- function(dir.in){
 }
 
 
-#' Function to download wind speed data from the global Wind atlas
-#' @param dir.in directory where to save the file
-get_GlobalWindAtlas <- function(dir.in){
+# Function to download wind speed data from the global Wind atlas
+# @param dir.in directory where to save the file
+
+get_GlobalWindAtlas <- function(dir.in) {
   
   # - URL to download the file
   url.in <- "https://figshare.com/ndownloader/files/17247017"
@@ -331,16 +177,11 @@ get_GlobalWindAtlas <- function(dir.in){
 }
 
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# -- 5. Functions to merge all data together ----
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-#' Extract climate variables for each location 
-#' @param chelsa_files character vector containing all chelsa files
-#' @param data_gbif presence data of gbif with coordinates
-extract_climate_for_gbif <- function(chelsa_files, data_gbif){
+# Extract climate variables for each location 
+# @param chelsa_files character vector containing all chelsa files
+# @param data_gbif presence data of gbif with coordinates
+ 
+extract_climate_for_gbif <- function(chelsa_files, data_gbif) {
   
   out <- data_gbif
   
@@ -385,76 +226,77 @@ extract_climate_for_gbif <- function(chelsa_files, data_gbif){
 
 
 
-#' Extract climate variables for each location 
-#' @param chelsa_files character vector containing all chelsa files
-#' @param data_gbif presence data of gbif with coordinates
-extract_disturbance_index_for_gbif <- function(
-    fireweatherindex_files, globalwindatlas_files, globsnow_files, data_gbif){
-  
-  # - Initialize output
-  out <- data_gbif
-  
-  
-  # - Extract wind data
-  
-  # --- Convert file into raster
-  raster_windspeed <- terra::rast(globalwindatlas_files)
-  # --- Extract data from raster for each gbif point
-  out$windspeed <- as.numeric(
-    terra::extract(raster_windspeed, cbind(out$decimallongitude, out$decimallatitude))[, 1])
-  
-  
-  
-  # - Compute mean fire weather index
-  
-  # --- Initialize with the raster of the first day
-  raster_fire <- terra::rast(fireweatherindex_files[1])
-  # --- Assemble all raster files into one multi-layer raster
-  for(i in 2:length(fireweatherindex_files)) raster_fire <- c(raster_fire, terra::rast(fireweatherindex_files[i]))
-  # --- Average the fire weather index over all layers
-  raster_fire <- app(raster_fire, mean)
-  # --- Extract data from raster for each gbif point
-  out$fwi <- as.numeric(
-    terra::extract(raster_fire, cbind(out$decimallongitude, out$decimallatitude))[, 1])
-  
-  
-  # - Compute mean snow water equivalent
-  
-  # --- Initialize with the raster of the first month
-  raster_snow <- terra::rast(globsnow_files[1])
-  # --- Assemble all raster files into one multi-layer raster
-  for(i in 2:length(globsnow_files)){
-    # Check that the file is large enough (there are empty rasters in the directory)
-    if(file.info(globsnow_files[i])$size > 1000){
-      # Check that the file corresponds to a winter month
-      if(as.numeric(substr(globsnow_files[i], 19, 20)) %in% c(12, 1, 2, 3)){
-        raster_snow <- c(raster_snow, terra::rast(globsnow_files[i]))
-      }
-    }
-  }
-  # --- Average the snow water equivalent over all layers
-  raster_snow <- terra::app(raster_snow, mean)
-  raster_snow <- project(x = raster_snow, y = "EPSG:4326", method = "bilinear")
-  # --- Extract data from raster for each gbif point
-  out$swe <- as.numeric(
-    terra::extract(raster_snow, cbind(out$decimallongitude, out$decimallatitude))[, 1])
-  
-  
-  # - Finish formatting
-  out <- out %>%
-    group_by(species) %>%
-    summarize(windspeed.low = quantile(windspeed, probs = 0.025, na.rm = TRUE), 
-              windspeed.high = quantile(windspeed, probs = 0.975, na.rm = TRUE), 
-              windspeed = mean(windspeed, na.rm = TRUE), 
-              fwi.low = quantile(fwi, probs = 0.025, na.rm = TRUE), 
-              fwi.high = quantile(fwi, probs = 0.975, na.rm = TRUE), 
-              fwi = mean(fwi, na.rm = TRUE), 
-              swe.low = quantile(swe, probs = 0.025, na.rm = TRUE), 
-              swe.high = quantile(swe, probs = 0.975, na.rm = TRUE), 
-              swe = mean(swe, na.rm = TRUE))
-  
-  return(out)
-  
-}
+# # Extract climate variables for each location 
+# # @param chelsa_files character vector containing all chelsa files
+# # @param data_gbif presence data of gbif with coordinates
+# 
+# extract_disturbance_index_for_gbif <- function(
+#     fireweatherindex_files, globalwindatlas_files, globsnow_files, data_gbif){
+#   
+#   # - Initialize output
+#   out <- data_gbif
+#   
+#   
+#   # - Extract wind data
+#   
+#   # --- Convert file into raster
+#   raster_windspeed <- terra::rast(globalwindatlas_files)
+#   # --- Extract data from raster for each gbif point
+#   out$windspeed <- as.numeric(
+#     terra::extract(raster_windspeed, cbind(out$decimallongitude, out$decimallatitude))[, 1])
+#   
+#   
+#   
+#   # - Compute mean fire weather index
+#   
+#   # --- Initialize with the raster of the first day
+#   raster_fire <- terra::rast(fireweatherindex_files[1])
+#   # --- Assemble all raster files into one multi-layer raster
+#   for(i in 2:length(fireweatherindex_files)) raster_fire <- c(raster_fire, terra::rast(fireweatherindex_files[i]))
+#   # --- Average the fire weather index over all layers
+#   raster_fire <- app(raster_fire, mean)
+#   # --- Extract data from raster for each gbif point
+#   out$fwi <- as.numeric(
+#     terra::extract(raster_fire, cbind(out$decimallongitude, out$decimallatitude))[, 1])
+#   
+#   
+#   # - Compute mean snow water equivalent
+#   
+#   # --- Initialize with the raster of the first month
+#   raster_snow <- terra::rast(globsnow_files[1])
+#   # --- Assemble all raster files into one multi-layer raster
+#   for(i in 2:length(globsnow_files)){
+#     # Check that the file is large enough (there are empty rasters in the directory)
+#     if(file.info(globsnow_files[i])$size > 1000){
+#       # Check that the file corresponds to a winter month
+#       if(as.numeric(substr(globsnow_files[i], 19, 20)) %in% c(12, 1, 2, 3)){
+#         raster_snow <- c(raster_snow, terra::rast(globsnow_files[i]))
+#       }
+#     }
+#   }
+#   # --- Average the snow water equivalent over all layers
+#   raster_snow <- terra::app(raster_snow, mean)
+#   raster_snow <- project(x = raster_snow, y = "EPSG:4326", method = "bilinear")
+#   # --- Extract data from raster for each gbif point
+#   out$swe <- as.numeric(
+#     terra::extract(raster_snow, cbind(out$decimallongitude, out$decimallatitude))[, 1])
+#   
+#   
+#   # - Finish formatting
+#   out <- out %>%
+#     group_by(species) %>%
+#     summarize(windspeed.low = quantile(windspeed, probs = 0.025, na.rm = TRUE), 
+#               windspeed.high = quantile(windspeed, probs = 0.975, na.rm = TRUE), 
+#               windspeed = mean(windspeed, na.rm = TRUE), 
+#               fwi.low = quantile(fwi, probs = 0.025, na.rm = TRUE), 
+#               fwi.high = quantile(fwi, probs = 0.975, na.rm = TRUE), 
+#               fwi = mean(fwi, na.rm = TRUE), 
+#               swe.low = quantile(swe, probs = 0.025, na.rm = TRUE), 
+#               swe.high = quantile(swe, probs = 0.975, na.rm = TRUE), 
+#               swe = mean(swe, na.rm = TRUE))
+#   
+#   return(out)
+#   
+# }
 
 
