@@ -48,9 +48,9 @@ lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("
 #                  "CoordinateCleaner", "RCurl", "httr", "archive", "terra", "cowplot", "R.utils",
 #                  "ggspatial", "rnaturalearth", "rnaturalearthdata", "taxize")
 
-# packages.in <- c("stringr", "dplyr","measurements",
-#                  "readxl", "stringi", "lubridate", "tidyr", "parzer", 
-#                  "nlme", "lme4", "pals", "gdata", "Metrics")
+packages.in <- c("stringr", "dplyr","measurements",
+                 "readxl", "stringi", "lubridate", "tidyr", "parzer",
+                 "nlme", "lme4", "pals", "gdata", "Metrics")
 
 
 for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.packages()))) install.packages(packages.in[i])
@@ -225,19 +225,19 @@ list(
   # tar_target(diameter_resampling_c2_output, diameter_resampling_c2(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
   # tar_target(heightdepth_resampling_c2_output, heightdepth_resampling_c2(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
   # 
-  # ### 9. Fitting allometric relationships on resampled data and without competition - log log models
+  # # ### 9. Fitting allometric relationships on resampled data and without competition - log log models
   # tar_target(depth_resampling_nocomp_output_log, depth_resampling_nocomp_log(depth_data, depth_species), pattern = map(depth_species)),
   # tar_target(diameter_resampling_nocomp_output_log, diameter_resampling_nocomp_log(diameter_data, diameter_species), pattern = map(diameter_species)),
-  # tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)))
+  # tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
   # 
-  ### 10. Fitting allometric relationships on resampled data and with competition - log log models
-  tar_target(depth_resampling_c1_output_log, depth_resampling_c1_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
-  tar_target(diameter_resampling_c1_output_log, diameter_resampling_c1_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
-  tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)))
+  # ### 10. Fitting allometric relationships on resampled data and with competition - log log models
+  # tar_target(depth_resampling_c1_output_log, depth_resampling_c1_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  # tar_target(diameter_resampling_c1_output_log, diameter_resampling_c1_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  # tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
   # 
-  # tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
-  # tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
-  # tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)))
+  tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)))
   
   # ### 11. Extracting mean climate for each studied species
   # 
