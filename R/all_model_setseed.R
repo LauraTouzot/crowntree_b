@@ -421,6 +421,7 @@ mod_ratio <- function(ranged_data, nb_datasets_all, sample_size,
                            control = betareg.control(maxit = 1000, fstol = 1e-1))
         
         beta_resampling_nocomp[f, paste0("protocol", levels(factor(new_data$protocol))[1])] <- coefficients(m1_b_rs)["(Intercept)"]
+        beta_resampling_nocomp[f,"comp"] <- NA
         beta_resampling_nocomp[f,"a1"] <- coefficients(m1_b_rs)["(Intercept)"]
         beta_resampling_nocomp[f,"AIC"] <- AIC(m1_b_rs)
         
@@ -433,6 +434,7 @@ mod_ratio <- function(ranged_data, nb_datasets_all, sample_size,
         beta_resampling_c1[f,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_b_c1)["(Intercept)"]
         beta_resampling_c1[f,"a1"] <- coefficients(m1_b_c1)["(Intercept)"]
         beta_resampling_c1[f,"AIC"] <- AIC(m1_b_c1)
+        beta_resampling_c1[f,"comp"] <- coefficients(m1_b_c1)["ba_plot"]
         
         
         m1_b_c2 <- betareg(y ~ ba_larger,
@@ -443,6 +445,7 @@ mod_ratio <- function(ranged_data, nb_datasets_all, sample_size,
         beta_resampling_c2[f,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_b_c2)["(Intercept)"]
         beta_resampling_c2[f,"a1"] <- coefficients(m1_b_c2)["(Intercept)"]
         beta_resampling_c2[f,"AIC"] <- AIC(m1_b_c2)
+        beta_resampling_c2[f,"comp"] <- coefficients(m1_b_c2)["ba_larger"]
         
       }
       

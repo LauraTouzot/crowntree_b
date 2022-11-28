@@ -63,7 +63,7 @@ diameter_models <- function(diameter_data, diameter_species_comp) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 400
+  n_repetition = 500
   
   power_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
   power_resampling_nocomp[,1] <- rep(new_sp_list, n_repetition)
@@ -136,7 +136,7 @@ ratio_models <- function(ratio_data, ratio_species_comp) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 400
+  n_repetition = 500
   
   ## creating file to store model parameters (1 file per species)
   beta_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
