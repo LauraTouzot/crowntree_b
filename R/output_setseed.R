@@ -55,7 +55,7 @@ diameter_parameters <- function() {
   diameter_allmodels <- data.table::rbindlist(data_list, use.names = TRUE, fill = TRUE)
   diameter_allmodels <- diameter_allmodels[,c(1:23)]
   diameter_allmodels <- diameter_allmodels %>% dplyr::select(-X)
-  id <- as.data.frame(rep(x = c(1:400), times = length(unique(diameter_allmodels$species)) * 6))
+  id <- as.data.frame(rep(x = c(1:500), times = length(unique(diameter_allmodels$species)) * 6))
   names(id) <- "id"
   diameter_allmodels <- cbind(id, diameter_allmodels)
   
@@ -81,8 +81,8 @@ diameter_parameters <- function() {
   
   diameter_parameters <- join_all(list(diameter_nocomp, diameter_c1, diameter_c2), by = c("id", "species"))
   diameter_parameters <- diameter_parameters %>% dplyr::group_by(species) %>%
-                                                 dplyr::sample_n(100) %>%
-                                                 dplyr::mutate(id = c(1:100)) %>%
+                                                 dplyr::sample_n(110) %>%
+                                                 dplyr::mutate(id = c(1:110)) %>%
                                                  dplyr::ungroup()
   
   AIC_summary <- diameter_parameters %>% dplyr::group_by(species) %>%
@@ -145,7 +145,7 @@ ratio_parameters <- function() {
   
   ratio_allmodels <- data.table::rbindlist(data_list, use.names = TRUE, fill = TRUE)
   ratio_allmodels <- ratio_allmodels %>% dplyr::select(-X)
-  id <- as.data.frame(rep(x = c(1:700), times = length(unique(ratio_allmodels$species)) * 6))
+  id <- as.data.frame(rep(x = c(1:500), times = length(unique(ratio_allmodels$species)) * 6))
   names(id) <- "id"
   ratio_allmodels <- cbind(id, ratio_allmodels)
   
@@ -180,8 +180,8 @@ ratio_parameters <- function() {
   ratio_parameters <- ratio_parameters[ratio_parameters$species != "Juglans nigra",]
   
   ratio_parameters <- ratio_parameters %>% dplyr::group_by(species) %>%
-                                           dplyr::sample_n(100) %>%
-                                           dplyr::mutate(id = c(1:100)) %>%
+                                           dplyr::sample_n(110) %>%
+                                           dplyr::mutate(id = c(1:110)) %>%
                                            dplyr::ungroup()
   
   AIC_summary <- ratio_parameters %>% dplyr::group_by(species) %>%
