@@ -22,6 +22,7 @@ compute_supplementary_variables <- function(allometry_database) {
     
   }
   
+  
   database <- df_prep %>% 
     mutate(ba_larger_trees = fun_ba_larger_trees(location_ID, DBH_cm, ba_tree, W))
   

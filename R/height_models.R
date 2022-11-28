@@ -24,12 +24,12 @@ height_alldata_nocomp <- function(height_data, height_species) {
 
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
-                      filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
-                      select(x, y, location, protocol) %>%
-                      mutate(x = as.numeric(x), y = as.numeric(y), 
-                             location = as.factor(droplevels.factor(location)), 
-                             protocol = as.factor(droplevels.factor(protocol)))
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+                      dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
+                      dplyr::select(x, y, location, protocol) %>%
+                      dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                                    location = as.factor(droplevels.factor(location)), 
+                                    protocol = as.factor(droplevels.factor(protocol)))
 
   
   ## running models (no competition - all data) and computing parameters (i.e. not and weighted)
@@ -80,12 +80,12 @@ height_resampling_nocomp <- function(height_data, height_species) {
 
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
-    select(x, y, location, protocol, id) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           id = as.numeric(id), protocol = as.factor(droplevels.factor(protocol)))
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
+    dplyr::select(x, y, location, protocol, id) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  id = as.numeric(id), protocol = as.factor(droplevels.factor(protocol)))
 
   
   ## classifying data based on dbh classes 
@@ -106,6 +106,62 @@ height_resampling_nocomp <- function(height_data, height_species) {
   write.csv(output_asympt_height_nocomp_rs, file =  paste0("output/asympt_height_nocomp_rs_", height_species, ".csv"))
   
 }
+
+
+
+
+height_resampling_nocomp_bis <- function(height_data) {
+  
+  ## loading data and species list
+  data_ok <- height_data
+  species_list <- c("Celtis laevitiga", "Cornus florida", "Crataegus monogyna",
+                    "Diospyros virginiana", "Erica arborea", "Eucalyptus camaldulensis",
+                    "Laria kaempferi", "Ostrya virginiana", "Prunus pensylvanina",
+                    "Sorbys aria")
+  
+  ## defining i
+  for (i in 1:length(species_list)) {
+  
+  ## defining number of repetitions
+  n_repetition = 500
+  
+  ## creating file to store model parameters (1 file per species)
+  asymptot_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+  asymptot_resampling_nocomp[,1] <- rep(species_list[i], n_repetition)
+  names(asymptot_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "b1", "b2", "b3", "AIC", "RMSE")
+  
+  asymptot_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+  asymptot_resampling_nocomp_w[,1] <- rep(species_list[i], n_repetition)
+  names(asymptot_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)),"b1", "b2", "b3", "AIC", "RMSE")
+  
+  
+  ## selecting data
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+                      dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
+                      dplyr::select(x, y, location, protocol, id) %>%
+                      dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                                    location = as.factor(droplevels.factor(location)), 
+                                    id = as.numeric(id), protocol = as.factor(droplevels.factor(protocol)))
+  
+  
+  ## classifying data based on dbh classes 
+  ranged_data <- data_in_class(data)
+  
+  ## defining sample size for resampling
+  sample_size <- what_sample_size(ranged_data)
+  
+  ## computing nb of datasets in which the species was surveyed
+  nb_datasets_all <- length(unique(ranged_data$protocol))
+  
+  ## sampling data and running the models for each repetition (no competition - resampling)
+  output_asympt_height_nocomp_rs_b <- mod_asympt_resampling_nocomp(ranged_data, nb_datasets_all, sample_size, asymptot_resampling_nocomp, asymptot_resampling_nocomp_w, n_repetition)
+  
+  ## exporting results in .csv files
+  write.csv(output_asympt_height_nocomp_rs_b, file =  paste0("output/asympt_height_nocomp_rs_", species_list[i], ".csv"))
+  }
+}
+
+
 
 
 

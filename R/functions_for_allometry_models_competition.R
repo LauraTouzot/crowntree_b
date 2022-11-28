@@ -58,10 +58,12 @@ mod_linear_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, 
       
       ## extracting number of observations per protocol to attribute weights
       n_tot <- dim(new_data)[1]
-      nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+      nobs <- new_data %>% dplyr::group_by(protocol) %>% 
+                           dplyr::summarise(n = n()/n_tot) %>% 
+                           dplyr::ungroup()
       
       for (g in levels(new_data$protocol)) {
-        linear_resampling_c1_w[f,paste0("protocol",g)] <- linear_resampling_c1[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
+        linear_resampling_c1_w[f,paste0("protocol",g)] <- linear_resampling_c1[f,paste0("protocol",g)] * (nobs %>% dplyr::filter(protocol == g)) [1,"n"] 
       }
       
       
@@ -71,8 +73,8 @@ mod_linear_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, 
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = linear_resampling_c1[f,"intercept"] + linear_resampling_c1[f,"comp"]*ba_plot + linear_resampling_c1[f,"slope"]*x,
-                                          y_pred_b = linear_resampling_c1_w[f,"intercept"] + linear_resampling_c1_w[f,"comp"]*ba_plot + linear_resampling_c1_w[f,"slope"]*x)
+      test_data_b <- test_data %>% dplyr::mutate(y_pred_a = linear_resampling_c1[f,"intercept"] + linear_resampling_c1[f,"comp"]*ba_plot + linear_resampling_c1[f,"slope"]*x,
+                                                 y_pred_b = linear_resampling_c1_w[f,"intercept"] + linear_resampling_c1_w[f,"comp"]*ba_plot + linear_resampling_c1_w[f,"slope"]*x)
       
       
       ## computing RMSE
@@ -157,10 +159,12 @@ mod_linear_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, 
       
       ## extracting number of observations per protocol to attribute weights
       n_tot <- dim(new_data)[1]
-      nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+      nobs <- new_data %>% dplyr::group_by(protocol) %>% 
+                           dplyr::summarise(n = n()/n_tot) %>% 
+                           dplyr::ungroup()
       
       for (g in levels(new_data$protocol)) {
-        linear_resampling_c2_w[f,paste0("protocol",g)] <- linear_resampling_c2[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
+        linear_resampling_c2_w[f,paste0("protocol",g)] <- linear_resampling_c2[f,paste0("protocol",g)] * (nobs %>% dplyr::filter(protocol == g)) [1,"n"] 
       }
       
       
@@ -170,8 +174,8 @@ mod_linear_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, 
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = linear_resampling_c2[f,"intercept"] + linear_resampling_c2[f,"comp"]*ba_larger + linear_resampling_c2[f,"slope"]*x,
-                                          y_pred_b = linear_resampling_c2_w[f,"intercept"] + linear_resampling_c2_w[f,"comp"]*ba_larger + linear_resampling_c2_w[f,"slope"]*x)
+      test_data_b <- test_data %>% dplyr::mutate(y_pred_a = linear_resampling_c2[f,"intercept"] + linear_resampling_c2[f,"comp"]*ba_larger + linear_resampling_c2[f,"slope"]*x,
+                                                 y_pred_b = linear_resampling_c2_w[f,"intercept"] + linear_resampling_c2_w[f,"comp"]*ba_larger + linear_resampling_c2_w[f,"slope"]*x)
       
       
       ## computing RMSE
@@ -220,7 +224,7 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
   for (f in 1:nrep) {
     
     ## defining the model
-    mod_power <- y ~ (a1 + ba_plot) * (x ^ a2)
+    mod_power <- y ~ (a1 + a3 * ba_plot) * (x ^ a2)
     
     ## running the models
     tryCatch({  
@@ -231,32 +235,32 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
       ## computing test dataset 
       test_data <- testing_data(ranged_data, new_data, sample_size)
       
-      init_rs_c1 <- coefficients(lm(log(y) ~ log(x) + ba_plot, new_data)) # initializing values for power models
+      init_rs_c1 <- coefficients(lm(log(y) ~ log(x) , new_data))  # initializing values for power models
       
       m1_p_rs_c1 <- gnls(mod_power,
                          data = new_data,
-                         params = list(a1 ~ 1, a2 ~ 1, ba_plot ~ 1),
-                         start = c(a1 = exp(init_rs_c1[1]), comp = exp(init_rs_c1[1]), a2 = init_rs_c1[2]),
+                         params = list(a1 ~ 1, a2 ~ 1, a3 ~ 1),
+                         start = c(a1 = exp(init_rs_c1[1]), a3 = -0.01, a2 = init_rs_c1[2]),
                          weights = varPower(form = ~fitted(.)),
-                         control = gnlsControl(maxIter = 1000, tolerance = 1e-2, nlsTol = 1e-1))
+                         control = gnlsControl(maxIter = 1000, tolerance = 0.1, nlsTol = 0.1))
       
       if (length(unique(new_data$protocol)) > 1) {
         
         m2_p_rs_c1 <- gnls(mod_power,
                            data = new_data,
-                           params = list(a1 ~ protocol, a2 ~ 1, ba_plot ~ 1),
-                           start = c(a1 = c(rep(exp(init_rs_c1[1]), length(unique(new_data$protocol)))), comp = exp(init_rs_c1[1]), a2 = init_rs_c1[2]),
+                           params = list(a1 ~ protocol, a2 ~ 1, a3 ~ 1),
+                           start = c(a1 = c(rep(exp(init_rs_c1[1]), length(unique(new_data$protocol)))), a3 = -0.01, a2 = init_rs_c1[2]),
                            weights = varPower(form = ~fitted(.)),
-                           control = gnlsControl(maxIter = 1000, tolerance = 1e-2, nlsTol = 1e-1))
+                           control = gnlsControl(maxIter = 1000, tolerance = 0.1, nlsTol = 0.1))
         
         
         power_resampling_c1[f,"a2"] <- coefficients(m2_p_rs_c1)["a2"]
-        power_resampling_c1[f,"comp"] <- coefficients(m2_p_rs_c1)["ba_plot"]
+        power_resampling_c1[f,"comp"] <- coefficients(m2_p_rs_c1)["a3"]
         power_resampling_c1[f,"AIC"] <- AIC(m2_p_rs_c1)
         
-        power_resampling_c1[f, paste0("protocol", levels(factor(new_data$protocol))[1])] <- coefficients(m2_p_rs_c1)[1]
+        power_resampling_c1[f, paste0("a1.protocol", levels(factor(new_data$protocol))[1])] <- coefficients(m2_p_rs_c1)[1]
         
-        for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
+        for (k in paste0("a1.protocol", levels(factor(new_data$protocol))[-1])) {
           power_resampling_c1[f,k] <- coefficients(m2_p_rs_c1)[1] + coefficients(m2_p_rs_c1)[k]
         }
         
@@ -264,9 +268,9 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
       } else {
         
         power_resampling_c1[f,"a2"] <- coefficients(m1_p_rs_c1)["a2"]
-        power_resampling_c1[f,"comp"] <- coefficients(m1_p_rs_c1)["ba_plot"]
+        power_resampling_c1[f,"comp"] <- coefficients(m1_p_rs_c1)["a3"]
         power_resampling_c1[f,"AIC"] <- AIC(m1_p_rs_c1)
-        power_resampling_c1[f,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_p_rs_c1)[1]
+        power_resampling_c1[f,paste0("a1.protocol", unique(new_data$protocol))] <- coefficients(m1_p_rs_c1)[1]
         
       }
       
@@ -277,10 +281,12 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
       
       ## extracting number of observations per protocol to attribute weights
       n_tot <- dim(new_data)[1]
-      nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+      nobs <- new_data %>% dplyr::group_by(protocol) %>% 
+                           dplyr::summarise(n = n()/n_tot) %>% 
+                           dplyr::ungroup()
       
       for (g in levels(new_data$protocol)) {
-        power_resampling_c1_w[f,paste0("protocol",g)] <- power_resampling_c1[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
+        power_resampling_c1_w[f,paste0("a1.protocol",g)] <- power_resampling_c1[f,paste0("a1.protocol",g)] * (nobs %>% dplyr::filter(protocol == g)) [1,"n"] 
       }
       
       
@@ -290,8 +296,8 @@ mod_power_resampling_c1 <- function(ranged_data, nb_datasets_all, sample_size, p
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = power_resampling_c1[f,"a1"] + (power_resampling_c1[f,"comp"]*ba_plot) * (x^power_resampling_c1[f,"a2"]),
-                                          y_pred_b = power_resampling_c1_w[f,"a1"] + (power_resampling_c1_w[f,"comp"]*ba_plot) * (x^power_resampling_c1_w[f,"a2"]))
+      test_data_b <- test_data %>% dplyr::mutate(y_pred_a = (power_resampling_c1[f,"a1"] + (power_resampling_c1[f,"comp"]*ba_plot)) * (x^power_resampling_c1[f,"a2"]),
+                                                 y_pred_b = (power_resampling_c1_w[f,"a1"] + (power_resampling_c1_w[f,"comp"]*ba_plot)) * (x^power_resampling_c1_w[f,"a2"]))
       
       
       ## computing RMSE
@@ -337,31 +343,31 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
       ## computing test dataset 
       test_data <- testing_data(ranged_data, new_data, sample_size)
 
-      m1_p_rs_c1_log <- lm(log(y) ~ ba_plot + log(x), new_data)
+      m1_p_rs_c1_log <- lm(log(y) ~ log(ba_plot) + log(x), new_data)
  
             if (length(unique(new_data$protocol)) > 1) {
         
-        m2_p_rs_c1_log <- lm(log(y) ~ protocol + ba_plot + log(x), new_data)
+        m2_p_rs_c1_log <- lm(log(y) ~ protocol + log(ba_plot) + log(x), new_data)
         
         power_resampling_c1_log[f,"a2"] <- coefficients(m2_p_rs_c1_log)["log(x)"]
-        power_resampling_c1_log[f,"comp"] <- coefficients(m2_p_rs_c1_log)["ba_plot"]
+        power_resampling_c1_log[f,"comp"] <- exp(coefficients(m2_p_rs_c1_log)["ba_plot"])
         power_resampling_c1_log[f,"sigma"] <- sigma(m2_p_rs_c1_log)
         power_resampling_c1_log[f,"AIC"] <- AIC(m2_p_rs_c1_log)
         
-        power_resampling_c1_log[f, paste0("protocol", levels(factor(new_data$protocol))[1])] <- coefficients(m2_p_rs_c1_log)[1]
+        power_resampling_c1_log[f, paste0("protocol", levels(factor(new_data$protocol))[1])] <- exp(coefficients(m2_p_rs_c1_log)[1])
         
         for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
-          power_resampling_c1_log[f,k] <- coefficients(m2_p_rs_c1_log)[1] + coefficients(m2_p_rs_c1_log)[k]
+          power_resampling_c1_log[f,k] <- exp(coefficients(m2_p_rs_c1_log)[1]) + exp(coefficients(m2_p_rs_c1_log)[k])
         }
         
         
       } else {
         
         power_resampling_c1_log[f,"a2"] <- coefficients(m1_p_rs_c1_log)["log(x)"]
-        power_resampling_c1_log[f,"comp"] <- coefficients(m1_p_rs_c1_log)["ba_plot"]
+        power_resampling_c1_log[f,"comp"] <- exp(coefficients(m1_p_rs_c1_log)["ba_plot"])
         power_resampling_c1_log[f,"AIC"] <- AIC(m1_p_rs_c1_log)
         power_resampling_c1_log[f,"sigma"] <- sigma(m1_p_rs_c1_log)
-        power_resampling_c1_log[f,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_p_rs_c1_log)[1]
+        power_resampling_c1_log[f,paste0("protocol", unique(new_data$protocol))] <- exp(coefficients(m1_p_rs_c1_log)[1])
         
       }
       
@@ -373,10 +379,12 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       ## extracting number of observations per protocol to attribute weights
       n_tot <- dim(new_data)[1]
-      nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+      nobs <- new_data %>% dplyr::group_by(protocol) %>% 
+                           dplyr::summarise(n = n()/n_tot) %>% 
+                           dplyr::ungroup()
       
       for (g in levels(new_data$protocol)) {
-        power_resampling_c1_w_log[f,paste0("protocol",g)] <- power_resampling_c1_log[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
+        power_resampling_c1_w_log[f,paste0("protocol",g)] <- power_resampling_c1_log[f,paste0("protocol",g)] * (nobs %>% dplyr::filter(protocol == g)) [1,"n"] 
       }
       
       
@@ -386,8 +394,8 @@ mod_power_resampling_c1_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c1_log[f,"a1"] + (power_resampling_c1_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1_log[f,"a2"]) *  ((1/2)*(exp(power_resampling_c1_log[f,"sigma"]^2))),
-                                          y_pred_b = exp(power_resampling_c1_w_log[f,"a1"] + (power_resampling_c1_w_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c1_w_log[f,"sigma"]^2))))
+      test_data_b <- test_data %>% dplyr::mutate(y_pred_a = (power_resampling_c1_log[f,"a1"] + (power_resampling_c1_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1_log[f,"a2"]) *  ((1/2)*(exp(power_resampling_c1_log[f,"sigma"]^2))),
+                                                 y_pred_b = (power_resampling_c1_w_log[f,"a1"] + (power_resampling_c1_w_log[f,"comp"]*ba_plot)) * (x^power_resampling_c1_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c1_w_log[f,"sigma"]^2))))
       
       
       ## computing RMSE
@@ -429,7 +437,7 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
   for (f in 1:nrep) {
     
     ## defining the model
-    mod_power <- y ~ (a1 + ba_larger) * (x ^ a2)
+    mod_power <- y ~ (a1 + a3 * ba_larger) * (x ^ a2)
     
     ## running the models
     tryCatch({  
@@ -440,32 +448,32 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
       ## computing test dataset 
       test_data <- testing_data(ranged_data, new_data, sample_size)
       
-      init_rs_c2 <- coefficients(lm(log(y) ~ log(x) + ba_larger, new_data)) # initializing values for power models
+      init_rs_c2 <- coefficients(lm(log(y) ~ log(x) , new_data))  # initializing values for power models
       
       m1_p_rs_c2 <- gnls(mod_power,
                          data = new_data,
-                         params = list(a1 ~ 1, a2 ~ 1, ba_larger ~ 1),
-                         start = c(a1 = exp(init_rs_c2[1]), comp = exp(init_rs_c2[1]), a2 = init_rs_c2[2]),
+                         params = list(a1 ~ 1, a2 ~ 1, a3 ~ 1),
+                         start = c(a1 = exp(init_rs_c2[1]), a3 = -0.01, a2 = init_rs_c2[2]),
                          weights = varPower(form = ~fitted(.)),
-                         control = gnlsControl(maxIter = 1000, tolerance = 1e-2, nlsTol = 1e-1))
+                         control = gnlsControl(maxIter = 1000, tolerance = 0.1, nlsTol = 0.1))
       
       if (length(unique(new_data$protocol)) > 1) {
         
         m2_p_rs_c2 <- gnls(mod_power,
                            data = new_data,
-                           params = list(a1 ~ protocol, a2 ~ 1, ba_larger ~ 1),
-                           start = c(a1 = c(rep(exp(init_rs_c2[1]), length(unique(new_data$protocol)))), comp = exp(init_rs_c2[1]), a2 = init_rs_c2[2]),
+                           params = list(a1 ~ protocol, a2 ~ 1, a3 ~ 1),
+                           start = c(a1 = c(rep(exp(init_rs_c2[1]), length(unique(new_data$protocol)))), a3 = -0.01, a2 = init_rs_c2[2]),
                            weights = varPower(form = ~fitted(.)),
-                           control = gnlsControl(maxIter = 1000, tolerance = 1e-2, nlsTol = 1e-1))
+                           control = gnlsControl(maxIter = 1000, tolerance = 0.1, nlsTol = 0.1))
         
         
         power_resampling_c2[f,"a2"] <- coefficients(m2_p_rs_c2)["a2"]
-        power_resampling_c2[f,"comp"] <- coefficients(m2_p_rs_c2)["ba_larger"]
+        power_resampling_c2[f,"comp"] <- coefficients(m2_p_rs_c2)["a3"]
         power_resampling_c2[f,"AIC"] <- AIC(m2_p_rs_c2)
         
-        power_resampling_c2[f, paste0("protocol", levels(factor(new_data$protocol))[1])] <- coefficients(m2_p_rs_c2)[1]
+        power_resampling_c2[f, paste0("a1.protocol", levels(factor(new_data$protocol))[1])] <- coefficients(m2_p_rs_c2)[1]
         
-        for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
+        for (k in paste0("a1.protocol", levels(factor(new_data$protocol))[-1])) {
           power_resampling_c2[f,k] <- coefficients(m2_p_rs_c2)[1] + coefficients(m2_p_rs_c2)[k]
         }
         
@@ -473,9 +481,9 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
       } else {
         
         power_resampling_c2[f,"a2"] <- coefficients(m1_p_rs_c2)["a2"]
-        power_resampling_c2[f,"comp"] <- coefficients(m1_p_rs_c2)["ba_larger"]
+        power_resampling_c2[f,"comp"] <- coefficients(m1_p_rs_c2)["a3"]
         power_resampling_c2[f,"AIC"] <- AIC(m1_p_rs_c2)
-        power_resampling_c2[f,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_p_rs_c2)[1]
+        power_resampling_c2[f,paste0("a1.protocol", unique(new_data$protocol))] <- coefficients(m1_p_rs_c2)[1]
         
       }
       
@@ -486,10 +494,12 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
       
       ## extracting number of observations per protocol to attribute weights
       n_tot <- dim(new_data)[1]
-      nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+      nobs <- new_data %>% dplyr::group_by(protocol) %>% 
+        dplyr::summarise(n = n()/n_tot) %>% 
+        dplyr::ungroup()
       
       for (g in levels(new_data$protocol)) {
-        power_resampling_c2_w[f,paste0("protocol",g)] <- power_resampling_c2[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
+        power_resampling_c2_w[f,paste0("a1.protocol",g)] <- power_resampling_c2[f,paste0("a1.protocol",g)] * (nobs %>% dplyr::filter(protocol == g)) [1,"n"] 
       }
       
       
@@ -499,8 +509,8 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = power_resampling_c2[f,"a1"] + (power_resampling_c2[f,"comp"]*ba_larger) * (x^power_resampling_c2[f,"a2"]),
-                                          y_pred_b = power_resampling_c2_w[f,"a1"] + (power_resampling_c2_w[f,"comp"]*ba_larger) * (x^power_resampling_c2_w[f,"a2"]))
+      test_data_b <- test_data %>% dplyr::mutate(y_pred_a = (power_resampling_c2[f,"a1"] + (power_resampling_c2[f,"comp"]*ba_larger)) * (x^power_resampling_c2[f,"a2"]),
+                                                 y_pred_b = (power_resampling_c2_w[f,"a1"] + (power_resampling_c2_w[f,"comp"]*ba_larger)) * (x^power_resampling_c2_w[f,"a2"]))
       
       
       ## computing RMSE
@@ -528,7 +538,6 @@ mod_power_resampling_c2 <- function(ranged_data, nb_datasets_all, sample_size, p
 
 
 
-
 ## Power model - Competition : ba_larger - Resampling (log - log version)
 
 mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_size, power_resampling_c2_log, power_resampling_c2_w_log, n_repetition) {
@@ -546,31 +555,31 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
       ## computing test dataset 
       test_data <- testing_data(ranged_data, new_data, sample_size)
       
-      m1_p_rs_c2_log <- lm(log(y) ~ ba_larger + log(x), new_data)
+      m1_p_rs_c2_log <- lm(log(y) ~ log(ba_larger) + log(x), new_data)
       
       if (length(unique(new_data$protocol)) > 1) {
         
-        m2_p_rs_c2_log <- lm(log(y) ~ protocol + ba_larger + log(x), new_data)
+        m2_p_rs_c2_log <- lm(log(y) ~ protocol + log(ba_larger) + log(x), new_data)
         
         power_resampling_c2_log[f,"a2"] <- coefficients(m2_p_rs_c2_log)["log(x)"]
-        power_resampling_c2_log[f,"comp"] <- coefficients(m2_p_rs_c2_log)["ba_larger"]
+        power_resampling_c2_log[f,"comp"] <- exp(coefficients(m2_p_rs_c2_log)["log(ba_larger)"])
         power_resampling_c2_log[f,"sigma"] <- sigma(m2_p_rs_c2_log)
         power_resampling_c2_log[f,"AIC"] <- AIC(m2_p_rs_c2_log)
         
-        power_resampling_c2_log[f, paste0("protocol", levels(factor(new_data$protocol))[1])] <- coefficients(m2_p_rs_c2_log)[1]
+        power_resampling_c2_log[f, paste0("protocol", levels(factor(new_data$protocol))[1])] <- exp(coefficients(m2_p_rs_c2_log)[1])
         
         for (k in paste0("protocol", levels(factor(new_data$protocol))[-1])) {
-          power_resampling_c2_log[f,k] <- coefficients(m2_p_rs_c2_log)[1] + coefficients(m2_p_rs_c2_log)[k]
+          power_resampling_c2_log[f,k] <- exp(coefficients(m2_p_rs_c2_log)[1]) + exp(coefficients(m2_p_rs_c2_log)[k])
         }
         
         
       } else {
         
         power_resampling_c2_log[f,"a2"] <- coefficients(m1_p_rs_c2_log)["log(x)"]
-        power_resampling_c2_log[f,"comp"] <- coefficients(m1_p_rs_c2_log)["ba_larger"]
+        power_resampling_c2_log[f,"comp"] <- exp(coefficients(m1_p_rs_c2_log)["ba_larger"])
         power_resampling_c2_log[f,"AIC"] <- AIC(m1_p_rs_c2_log)
         power_resampling_c2_log[f,"sigma"] <- sigma(m1_p_rs_c2_log)
-        power_resampling_c2_log[f,paste0("protocol", unique(new_data$protocol))] <- coefficients(m1_p_rs_c2_log)[1]
+        power_resampling_c2_log[f,paste0("protocol", unique(new_data$protocol))] <- exp(coefficients(m1_p_rs_c2_log)[1])
         
       }
       
@@ -582,10 +591,12 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       ## extracting number of observations per protocol to attribute weights
       n_tot <- dim(new_data)[1]
-      nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+      nobs <- new_data %>% dplyr::group_by(protocol) %>% 
+        dplyr::summarise(n = n()/n_tot) %>% 
+        dplyr::ungroup()
       
       for (g in levels(new_data$protocol)) {
-        power_resampling_c2_w_log[f,paste0("protocol",g)] <- power_resampling_c2_log[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
+        power_resampling_c2_w_log[f,paste0("protocol",g)] <- power_resampling_c2_log[f,paste0("protocol",g)] * (nobs %>% dplyr::filter(protocol == g)) [1,"n"] 
       }
       
       
@@ -595,8 +606,8 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
       
       
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = exp(power_resampling_c2_log[f,"a1"] + (power_resampling_c2_log[f,"comp"]*ba_larger)) * (x^power_resampling_c2_log[f,"a2"]) *  ((1/2)*(exp(power_resampling_c2_log[f,"sigma"]^2))),
-                                          y_pred_b = exp(power_resampling_c2_w_log[f,"a1"] + (power_resampling_c2_w_log[f,"comp"]*ba_larger)) * (x^power_resampling_c2_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c2_w_log[f,"sigma"]^2))))
+      test_data_b <- test_data %>% dplyr::mutate(y_pred_a = (power_resampling_c2_log[f,"a1"] + (power_resampling_c2_log[f,"comp"]*ba_larger)) * (x^power_resampling_c2_log[f,"a2"]) *  ((1/2)*(exp(power_resampling_c2_log[f,"sigma"]^2))),
+                                                 y_pred_b = (power_resampling_c2_w_log[f,"a1"] + (power_resampling_c2_w_log[f,"comp"]*ba_larger)) * (x^power_resampling_c2_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_c2_w_log[f,"sigma"]^2))))
       
       
       ## computing RMSE
@@ -621,7 +632,6 @@ mod_power_resampling_c2_log <- function(ranged_data, nb_datasets_all, sample_siz
   return(power_resampling_c2_log)
   
 }
-
 
 
 

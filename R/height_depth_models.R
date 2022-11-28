@@ -23,12 +23,12 @@ heightdepth_alldata_nocomp <- function(heightdepth_data, heightdepth_species) {
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
-    select(x, y, location, protocol) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)))
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
+    dplyr::select(x, y, location, protocol) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  protocol = as.factor(droplevels.factor(protocol)))
   
   
   ## running models (no competition - all data) and computing parameters (i.e. not and weighted)
@@ -80,12 +80,12 @@ heightdepth_resampling_nocomp <- function(heightdepth_data, heightdepth_species)
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
-    select(x, y, location, protocol, id) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
+    dplyr::select(x, y, location, protocol, id) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
   
   
   ## classifying data based on dbh classes 
@@ -134,12 +134,12 @@ heightdepth_resampling_nocomp_log <- function(heightdepth_data, heightdepth_spec
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x > 0 & y > 0) %>%
-    select(x, y, location, protocol, id) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x > 0 & y > 0) %>%
+    dplyr::select(x, y, location, protocol, id) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class_bis(data)
@@ -196,13 +196,13 @@ heightdepth_resampling_c1 <- function(heightdepth_data, heightdepth_species_comp
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), 
-           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  data <- data_ok %>% dplyr::filter(sp_name == new_sp_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
+    dplyr::select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  protocol = as.factor(droplevels.factor(protocol)), 
+                  id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class_bis(data)
@@ -251,13 +251,13 @@ heightdepth_resampling_c1_log <- function(heightdepth_data, heightdepth_species_
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), 
-           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  data <- data_ok %>% dplyr::filter(sp_name == new_sp_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
+    dplyr::select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  protocol = as.factor(droplevels.factor(protocol)), 
+                  id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class_bis(data)
@@ -313,13 +313,13 @@ heightdepth_resampling_c2 <- function(heightdepth_data, heightdepth_species_comp
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), 
-           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  data <- data_ok %>% dplyr::filter(sp_name == new_sp_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
+    dplyr::select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  protocol = as.factor(droplevels.factor(protocol)), 
+                  id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class_bis(data)
@@ -368,13 +368,13 @@ heightdepth_resampling_c2_log <- function(heightdepth_data, heightdepth_species_
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), 
-           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  data <- data_ok %>% dplyr::filter(sp_name == new_sp_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
+    dplyr::select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  protocol = as.factor(droplevels.factor(protocol)), 
+                  id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class_bis(data)

@@ -23,12 +23,12 @@ diameter_alldata_nocomp <- function(diameter_data, diameter_species) {
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
-    select(x, y, location, protocol) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)))
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+                      dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
+                      dplyr::select(x, y, location, protocol) %>%
+                      dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                                    location = as.factor(droplevels.factor(location)), 
+                                    protocol = as.factor(droplevels.factor(protocol)))
   
   
   ## running models (no competition - all data) and computing parameters (i.e. not and weighted)
@@ -58,16 +58,16 @@ diameter_resampling_nocomp <- function(diameter_data, diameter_species) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 300
+  n_repetition = 400
   
   ## creating file to store model parameters (1 file per species)
-  linear_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
-  linear_resampling_nocomp[,1] <- rep(diameter_species, n_repetition)
-  names(linear_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "slope", "AIC", "RMSE", "weighted")
-  
-  linear_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
-  linear_resampling_nocomp_w[,1] <- rep(diameter_species, n_repetition)
-  names(linear_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "slope", "AIC", "RMSE", "weighted")
+  # linear_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+  # linear_resampling_nocomp[,1] <- rep(diameter_species, n_repetition)
+  # names(linear_resampling_nocomp) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "slope", "AIC", "RMSE", "weighted")
+  # 
+  # linear_resampling_nocomp_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
+  # linear_resampling_nocomp_w[,1] <- rep(diameter_species, n_repetition)
+  # names(linear_resampling_nocomp_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "slope", "AIC", "RMSE", "weighted")
   
   
   power_resampling_nocomp <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 6)) 
@@ -80,12 +80,12 @@ diameter_resampling_nocomp <- function(diameter_data, diameter_species) {
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
-    select(x, y, location, protocol, id) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+                      dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0) %>%
+                      dplyr::select(x, y, location, protocol, id) %>%
+                      dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                                    location = as.factor(droplevels.factor(location)), 
+                                    protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
   
   
   ## classifying data based on dbh classes 
@@ -98,11 +98,11 @@ diameter_resampling_nocomp <- function(diameter_data, diameter_species) {
   nb_datasets_all <- length(unique(ranged_data$protocol))
   
   ## sampling data and running the models for each repetition (no competition - resampling)
-  output_linear_diameter_nocomp_rs <- mod_linear_resampling_nocomp(ranged_data, nb_datasets_all, sample_size, linear_resampling_nocomp, linear_resampling_nocomp_w, n_repetition)
+  # output_linear_diameter_nocomp_rs <- mod_linear_resampling_nocomp(ranged_data, nb_datasets_all, sample_size, linear_resampling_nocomp, linear_resampling_nocomp_w, n_repetition)
   output_power_diameter_nocomp_rs <- mod_power_resampling_nocomp(ranged_data, nb_datasets_all, sample_size, power_resampling_nocomp, power_resampling_nocomp_w, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_linear_diameter_nocomp_rs, file =  paste0("output/linear_diameter_nocomp_rs_", diameter_species, ".csv"))
+  # write.csv(output_linear_diameter_nocomp_rs, file =  paste0("output/linear_diameter_nocomp_rs_", diameter_species, ".csv"))
   write.csv(output_power_diameter_nocomp_rs, file =  paste0("output/power_diameter_nocomp_rs_", diameter_species, ".csv"))
   
 }
@@ -134,12 +134,12 @@ diameter_resampling_nocomp_log <- function(diameter_data, diameter_species) {
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == species_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x > 0 & y > 0) %>%
-    select(x, y, location, protocol, id) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
+  data <- data_ok %>% dplyr::filter(sp_name == species_list[i]) %>%
+                      dplyr::filter(!is.na(x) & !is.na(y) & x > 0 & y > 0) %>%
+                      dplyr::select(x, y, location, protocol, id) %>%
+                      dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                                    location = as.factor(droplevels.factor(location)), 
+                                    protocol = as.factor(droplevels.factor(protocol)), id = as.numeric(id))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class(data)
@@ -174,35 +174,35 @@ diameter_resampling_c1 <- function(diameter_data, diameter_species_comp) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 300
+  n_repetition = 500
   
   ## creating file to store model parameters (1 file per species)
-  linear_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
-  linear_resampling_c1[,1] <- rep(new_sp_list[i], n_repetition)
-  names(linear_resampling_c1) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
-  
-  linear_resampling_c1_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
-  linear_resampling_c1_w[,1] <- rep(new_sp_list[i], n_repetition)
-  names(linear_resampling_c1_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
+  # linear_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
+  # linear_resampling_c1[,1] <- rep(new_sp_list[i], n_repetition)
+  # names(linear_resampling_c1) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
+  # 
+  # linear_resampling_c1_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
+  # linear_resampling_c1_w[,1] <- rep(new_sp_list[i], n_repetition)
+  # names(linear_resampling_c1_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
   
   
   power_resampling_c1 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
   power_resampling_c1[,1] <- rep(new_sp_list[i], n_repetition)
-  names(power_resampling_c1) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
+  names(power_resampling_c1) <- c("species", paste0("a1.protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
   
   power_resampling_c1_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
   power_resampling_c1_w[,1] <- rep(new_sp_list[i], n_repetition)
-  names(power_resampling_c1_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
+  names(power_resampling_c1_w) <- c("species", paste0("a1.protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), 
-           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  data <- data_ok %>% dplyr::filter(sp_name == new_sp_list[i]) %>%
+                      dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger) & ba_plot > 0 & ba_larger > 0) %>%
+                      dplyr::select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+                      dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                                    location = as.factor(droplevels.factor(location)), 
+                                    protocol = as.factor(droplevels.factor(protocol)), 
+                                    id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class(data)
@@ -214,11 +214,11 @@ diameter_resampling_c1 <- function(diameter_data, diameter_species_comp) {
   nb_datasets_all <- length(unique(ranged_data$protocol))
   
   ## sampling data and running the models for each repetition (competition - ba plot - resampling)
-  output_linear_diameter_c1_rs <- mod_linear_resampling_c1(ranged_data, nb_datasets_all, sample_size, linear_resampling_c1, linear_resampling_c1_w, n_repetition)
+  # output_linear_diameter_c1_rs <- mod_linear_resampling_c1(ranged_data, nb_datasets_all, sample_size, linear_resampling_c1, linear_resampling_c1_w, n_repetition)
   output_power_diameter_c1_rs <- mod_power_resampling_c1(ranged_data, nb_datasets_all, sample_size, power_resampling_c1, power_resampling_c1_w, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_linear_diameter_c1_rs, file =  paste0("output/linear_diameter_c1_rs_", new_sp_list[i], ".csv"))
+  # write.csv(output_linear_diameter_c1_rs, file =  paste0("output/linear_diameter_c1_rs_", new_sp_list[i], ".csv"))
   write.csv(output_power_diameter_c1_rs, file =  paste0("output/power_diameter_c1_rs_", new_sp_list[i], ".csv"))
   
 }
@@ -243,21 +243,21 @@ diameter_resampling_c1_log <- function(diameter_data, diameter_species_comp) {
   ## creating file to store model parameters (1 file per species)
   power_resampling_c1_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
   power_resampling_c1_log[,1] <- rep(new_sp_list[i], n_repetition)
-  names(power_resampling_c1_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
+  names(power_resampling_c1_log) <- c("species", paste0("a1.protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
   
   power_resampling_c1_w_log <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 8)) 
   power_resampling_c1_w_log[,1] <- rep(new_sp_list[i], n_repetition)
-  names(power_resampling_c1_w_log) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
+  names(power_resampling_c1_w_log) <- c("species", paste0("a1.protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "sigma", "AIC", "RMSE", "weighted")
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), 
-           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  data <- data_ok %>% dplyr::filter(sp_name == new_sp_list[i]) %>%
+                      dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
+                      dplyr::select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+                      dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                                    location = as.factor(droplevels.factor(location)), 
+                                    protocol = as.factor(droplevels.factor(protocol)), 
+                                    id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class(data)
@@ -291,35 +291,35 @@ diameter_resampling_c2 <- function(diameter_data, diameter_species_comp) {
   print(i)
   
   ## defining number of repetitions
-  n_repetition = 300
+  n_repetition = 500
   
   ## creating file to store model parameters (1 file per species)
-  linear_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
-  linear_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
-  names(linear_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
-  
-  linear_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
-  linear_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
-  names(linear_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
+  # linear_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
+  # linear_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
+  # names(linear_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
+  # 
+  # linear_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
+  # linear_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
+  # names(linear_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "intercept", "comp", "slope", "AIC", "RMSE", "weighted")
   
   
   power_resampling_c2 <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
   power_resampling_c2[,1] <- rep(new_sp_list[i], n_repetition)
-  names(power_resampling_c2) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
+  names(power_resampling_c2) <- c("species", paste0("a1.protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
   
   power_resampling_c2_w <- as.data.frame(matrix(nrow = n_repetition, ncol = length(unique(data_ok$protocol)) + 7)) 
   power_resampling_c2_w[,1] <- rep(new_sp_list[i], n_repetition)
-  names(power_resampling_c2_w) <- c("species", paste0("protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
+  names(power_resampling_c2_w) <- c("species", paste0("a1.protocol", unique(data_ok$protocol)), "a1", "a2", "comp", "AIC", "RMSE", "weighted")
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), 
-           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  data <- data_ok %>% dplyr::filter(sp_name == new_sp_list[i]) %>%
+                      dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger) & ba_plot > 0 & ba_larger > 0) %>%
+                      dplyr::select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+                      dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                                    location = as.factor(droplevels.factor(location)), 
+                                    protocol = as.factor(droplevels.factor(protocol)), 
+                                    id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class(data)
@@ -331,11 +331,11 @@ diameter_resampling_c2 <- function(diameter_data, diameter_species_comp) {
   nb_datasets_all <- length(unique(ranged_data$protocol))
   
   ## sampling data and running the models for each repetition (competition - ba plot - resampling)
-  output_linear_diameter_c2_rs <- mod_linear_resampling_c2(ranged_data, nb_datasets_all, sample_size, linear_resampling_c2, linear_resampling_c2_w, n_repetition)
+  # output_linear_diameter_c2_rs <- mod_linear_resampling_c2(ranged_data, nb_datasets_all, sample_size, linear_resampling_c2, linear_resampling_c2_w, n_repetition)
   output_power_diameter_c2_rs <- mod_power_resampling_c2(ranged_data, nb_datasets_all, sample_size, power_resampling_c2, power_resampling_c2_w, n_repetition)
   
   ## exporting results in .csv files
-  write.csv(output_linear_diameter_c2_rs, file =  paste0("output/linear_diameter_c2_rs_", new_sp_list[i], ".csv"))
+  # write.csv(output_linear_diameter_c2_rs, file =  paste0("output/linear_diameter_c2_rs_", new_sp_list[i], ".csv"))
   write.csv(output_power_diameter_c2_rs, file =  paste0("output/power_diameter_c2_rs_", new_sp_list[i], ".csv"))
   
 }
@@ -368,13 +368,13 @@ diameter_resampling_c2_log <- function(diameter_data, diameter_species_comp) {
   
   
   ## selecting data
-  data <- data_ok %>% filter(sp_name == new_sp_list[i]) %>%
-    filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
-    select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
-    mutate(x = as.numeric(x), y = as.numeric(y), 
-           location = as.factor(droplevels.factor(location)), 
-           protocol = as.factor(droplevels.factor(protocol)), 
-           id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
+  data <- data_ok %>% dplyr::filter(sp_name == new_sp_list[i]) %>%
+    dplyr::filter(!is.na(x) & !is.na(y) & x >= 10 & y > 0 & !is.na(ba_plot) & !is.na(ba_larger)) %>%
+    dplyr::select(x, y, location, protocol, id, ba_plot, ba_larger) %>%
+    dplyr::mutate(x = as.numeric(x), y = as.numeric(y), 
+                  location = as.factor(droplevels.factor(location)), 
+                  protocol = as.factor(droplevels.factor(protocol)), 
+                  id = as.numeric(id), ba_plot = as.numeric(ba_plot), ba_larger = as.numeric(ba_larger))
   
   ## classifying data based on dbh classes 
   ranged_data <- data_in_class(data)

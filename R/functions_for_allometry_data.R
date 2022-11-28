@@ -35,10 +35,10 @@ data_in_class <- function(data) {
     
   }
   
-  d1 <- d1 %>% mutate(dbh_class = "d1")
-  d2 <- d2 %>% mutate(dbh_class = "d2")
-  d3 <- d3 %>% mutate(dbh_class = "d3")
-  d4 <- d4 %>% mutate(dbh_class = "d4")
+  d1 <- d1 %>% dplyr::mutate(dbh_class = "d1")
+  d2 <- d2 %>% dplyr::mutate(dbh_class = "d2")
+  d3 <- d3 %>% dplyr::mutate(dbh_class = "d3")
+  d4 <- d4 %>% dplyr::mutate(dbh_class = "d4")
   
   ranged_data <- bind_rows(d1, d2, d3, d4)
   
@@ -99,9 +99,11 @@ data_in_class_bis <- function(data) {
 
 what_sample_size <- function(ranged_data) {
   
-  df <- ranged_data %>% select(dbh_class, location) %>%
-                            group_by(dbh_class) %>% summarise(count_distinct = n_distinct(location)) %>%
-                            mutate(size = ceiling(count_distinct * 0.7)) %>% ungroup()
+  df <- ranged_data %>% dplyr::select(dbh_class, location) %>%
+                        dplyr::group_by(dbh_class) %>% 
+                        dplyr::summarise(count_distinct = n_distinct(location)) %>%
+                        dplyr::mutate(size = ceiling(count_distinct * 0.7)) %>% 
+                        dplyr::ungroup()
   
   sample_size <- min(df$size)
   
@@ -115,50 +117,74 @@ what_sample_size <- function(ranged_data) {
 sampling_protocol <- function(ranged_data, nb_datasets_all, sample_size) {
   
   # sampling data within each dbh class
-  loc1 <- ranged_data %>% filter(dbh_class == "d1") 
+  loc1 <- ranged_data %>% dplyr::filter(dbh_class == "d1") 
   sampled_loc1 <- sample(unique(loc1$location), sample_size)
-  class_1 <- loc1 %>% filter(location %in% sampled_loc1) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+  class_1 <- loc1 %>% dplyr::filter(location %in% sampled_loc1) %>% 
+                      dplyr::group_by(location) %>% 
+                      dplyr::slice_sample(n = 1) %>% 
+                      dplyr::ungroup()
 
-  loc2 <- ranged_data %>% filter(dbh_class == "d2") 
+  loc2 <- ranged_data %>% dplyr::filter(dbh_class == "d2") 
   sampled_loc2 <- sample(unique(loc2$location), sample_size)
-  class_2 <- loc2 %>% filter(location %in% sampled_loc2) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+  class_2 <- loc2 %>% dplyr::filter(location %in% sampled_loc2) %>% 
+                      dplyr::group_by(location) %>% 
+                      dplyr::slice_sample(n = 1) %>% 
+                      dplyr::ungroup()
 
-  loc3 <- ranged_data %>% filter(dbh_class == "d3") 
+  loc3 <- ranged_data %>% dplyr::filter(dbh_class == "d3") 
   sampled_loc3 <- sample(unique(loc3$location), sample_size)
-  class_3 <- loc3 %>% filter(location %in% sampled_loc3) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+  class_3 <- loc3 %>% dplyr::filter(location %in% sampled_loc3) %>% 
+                      dplyr::group_by(location) %>% 
+                      dplyr::slice_sample(n = 1) %>% 
+                      dplyr::ungroup()
 
-  loc4 <- ranged_data %>% filter(dbh_class == "d4") 
+  loc4 <- ranged_data %>% dplyr::filter(dbh_class == "d4") 
   sampled_loc4 <- sample(unique(loc4$location), sample_size)
-  class_4 <- loc4 %>% filter(location %in% sampled_loc4) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+  class_4 <- loc4 %>% dplyr::filter(location %in% sampled_loc4) %>% 
+                      dplyr::group_by(location) %>% 
+                      dplyr::slice_sample(n = 1) %>% 
+                      dplyr::ungroup()
 
-  # computing new dataset and extracting nb of protocols presnt within the new dataset
+  # computing new dataset and extracting nb of protocols present within the new dataset
   new_data <- bind_rows(class_1, class_2, class_3, class_4)
-  new_data <- new_data %>% mutate(protocol = droplevels.factor(protocol))
+  new_data <- new_data %>% dplyr::mutate(protocol = droplevels.factor(protocol))
   nb_datasets_sample <- length(unique(new_data$protocol))
   
   maxit <- 0
   while (nb_datasets_sample < ceiling(nb_datasets_all * 0.33) & maxit < 10) { # ceiling
     
     # sampling data within each dbh class
-    loc1 <- ranged_data %>% filter(dbh_class == "d1") 
+    loc1 <- ranged_data %>% dplyr::filter(dbh_class == "d1") 
     sampled_loc1 <- sample(unique(loc1$location), sample_size)
-    class_1 <- loc1 %>% filter(location %in% sampled_loc1) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+    class_1 <- loc1 %>% dplyr::filter(location %in% sampled_loc1) %>% 
+                        dplyr::group_by(location) %>% 
+                        dplyr::slice_sample(n = 1) %>% 
+                        dplyr::ungroup()
     
-    loc2 <- ranged_data %>% filter(dbh_class == "d2") 
+    loc2 <- ranged_data %>% dplyr::filter(dbh_class == "d2") 
     sampled_loc2 <- sample(unique(loc2$location), sample_size)
-    class_2 <- loc2 %>% filter(location %in% sampled_loc2) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+    class_2 <- loc2 %>% dplyr::filter(location %in% sampled_loc2) %>% 
+                        dplyr::group_by(location) %>% 
+                        dplyr::slice_sample(n = 1) %>% 
+                        dplyr::ungroup()
     
-    loc3 <- ranged_data %>% filter(dbh_class == "d3") 
+    loc3 <- ranged_data %>% dplyr::filter(dbh_class == "d3") 
     sampled_loc3 <- sample(unique(loc3$location), sample_size)
-    class_3 <- loc3 %>% filter(location %in% sampled_loc3) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+    class_3 <- loc3 %>% dplyr::filter(location %in% sampled_loc3) %>% 
+                        dplyr::group_by(location) %>% 
+                        dplyr::slice_sample(n = 1) %>% 
+                        dplyr::ungroup()
     
-    loc4 <- ranged_data %>% filter(dbh_class == "d4") 
+    loc4 <- ranged_data %>% dplyr::filter(dbh_class == "d4") 
     sampled_loc4 <- sample(unique(loc4$location), sample_size)
-    class_4 <- loc4 %>% filter(location %in% sampled_loc4) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+    class_4 <- loc4 %>% dplyr::filter(location %in% sampled_loc4) %>% 
+                        dplyr::group_by(location) %>% 
+                        dplyr::slice_sample(n = 1) %>% 
+                        dplyr::ungroup()
     
     # computing new dataset and extracting nb of protocols present within the new dataset
     new_data <- bind_rows(class_1, class_2, class_3, class_4)
-    new_data <- new_data %>% mutate(protocol = droplevels.factor(protocol))
+    new_data <- new_data %>% dplyr::mutate(protocol = droplevels.factor(protocol))
     nb_datasets_sample <- length(unique(new_data$protocol))
     
     maxit <- maxit + 1
@@ -180,29 +206,41 @@ sampling_protocol <- function(ranged_data, nb_datasets_all, sample_size) {
 
 testing_data <- function(ranged_data, new_data, sample_size) {
   
-  loc1 <- ranged_data %>% filter(dbh_class == "d1") 
-  data1 <- new_data %>% filter(dbh_class == "d1")
+  loc1 <- ranged_data %>% dplyr::filter(dbh_class == "d1") 
+  data1 <- new_data %>% dplyr::filter(dbh_class == "d1")
   sampled_loc1b <- sample(unique(loc1$location), ceiling((sample_size*0.3)/0.7))
-  loc1b <- loc1 %>% filter(!(id %in% data1$id))
-  class_1b <- loc1b %>% filter(location %in% sampled_loc1b) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+  loc1b <- loc1 %>% dplyr::filter(!(id %in% data1$id))
+  class_1b <- loc1b %>% dplyr::filter(location %in% sampled_loc1b) %>% 
+                        dplyr::group_by(location) %>% 
+                        dplyr::slice_sample(n = 1) %>% 
+                        dplyr::ungroup()
   
-  loc2 <- ranged_data %>% filter(dbh_class == "d2") 
-  data2 <- new_data %>% filter(dbh_class == "d2")
+  loc2 <- ranged_data %>% dplyr::filter(dbh_class == "d2") 
+  data2 <- new_data %>% dplyr::filter(dbh_class == "d2")
   sampled_loc2b <- sample(unique(loc2$location), ceiling((sample_size*0.3)/0.7))
-  loc2b <- loc2 %>% filter(!(id %in% data2$id))
-  class_2b <- loc2b %>% filter(location %in% sampled_loc2b) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+  loc2b <- loc2 %>% dplyr::filter(!(id %in% data2$id))
+  class_2b <- loc2b %>% dplyr::filter(location %in% sampled_loc2b) %>% 
+                        dplyr::group_by(location) %>% 
+                        dplyr::slice_sample(n = 1) %>% 
+                        dplyr::ungroup()
   
-  loc3 <- ranged_data %>% filter(dbh_class == "d3") 
-  data3 <- new_data %>% filter(dbh_class == "d3")
+  loc3 <- ranged_data %>% dplyr::filter(dbh_class == "d3") 
+  data3 <- new_data %>% dplyr::filter(dbh_class == "d3")
   sampled_loc3b <- sample(unique(loc3$location), ceiling((sample_size*0.3)/0.7))
-  loc3b <- loc3 %>% filter(!(id %in% data3$id))
-  class_3b <- loc3b %>% filter(location %in% sampled_loc3b) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+  loc3b <- loc3 %>% dplyr::filter(!(id %in% data3$id))
+  class_3b <- loc3b %>% dplyr::filter(location %in% sampled_loc3b) %>% 
+                        dplyr::group_by(location) %>% 
+                        dplyr::slice_sample(n = 1) %>% 
+                        dplyr::ungroup()
   
-  loc4 <- ranged_data %>% filter(dbh_class == "d4") 
-  data4 <- new_data %>% filter(dbh_class == "d4")
+  loc4 <- ranged_data %>% dplyr::filter(dbh_class == "d4") 
+  data4 <- new_data %>% dplyr::filter(dbh_class == "d4")
   sampled_loc4b <- sample(unique(loc4$location), ceiling((sample_size*0.3)/0.7))
-  loc4b <- loc4 %>% filter(!(id %in% data4$id))
-  class_4b <- loc4b %>% filter(location %in% sampled_loc4b) %>% group_by(location) %>% slice_sample(n = 1) %>% ungroup()
+  loc4b <- loc4 %>% dplyr::filter(!(id %in% data4$id))
+  class_4b <- loc4b %>% dplyr::filter(location %in% sampled_loc4b) %>% 
+                        dplyr::group_by(location) %>% 
+                        dplyr::slice_sample(n = 1) %>% 
+                        dplyr::ungroup()
   
   test_data <- bind_rows(class_1b, class_2b, class_3b, class_4b)
   

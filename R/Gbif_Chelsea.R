@@ -183,6 +183,8 @@ get_GlobalWindAtlas <- function(dir.in) {
  
 extract_climate_for_gbif <- function(chelsa_files, data_gbif) {
   
+  supp_file <- "data/CHELSA/CHELSA_pet_penman_mean_1981-2010_V.2.1.tif"
+  chelsa_files <- c(chelsa_files, supp_file)
   out <- data_gbif
   
   # Extract mean annual temperature
@@ -206,6 +208,13 @@ extract_climate_for_gbif <- function(chelsa_files, data_gbif) {
                                         cbind(out$decimallongitude,
                                               out$decimallatitude))[, 1])/10
   
+  # Extract mean annual ETP
+  chelsa_file_etp <- grep("pet_penman_mean_1981-2010_V.2.1.tif", chelsa_files, value = TRUE)
+  raster_etp <- terra::rast(chelsa_file_etp)
+  out$etp <- as.numeric(terra::extract(raster_etp,
+                                       cbind(out$decimallongitude,
+                                             out$decimallatitude))[, 1])
+  
   
   # - Finish formatting
   out <- out %>%
@@ -218,7 +227,10 @@ extract_climate_for_gbif <- function(chelsa_files, data_gbif) {
               map = mean(map, na.rm = TRUE), 
               tmin.low = quantile(tmin, probs = 0.025, na.rm = TRUE), 
               tmin.high = quantile(tmin, probs = 0.975, na.rm = TRUE), 
-              tmin = mean(tmin, na.rm = TRUE))
+              tmin = mean(tmin, na.rm = TRUE),
+              etp.low = quantile(etp, probs = 0.025, na.rm = TRUE), 
+              etp.high = quantile(etp, probs = 0.975, na.rm = TRUE), 
+              etp = mean(etp, na.rm = TRUE))
   
   return(out)
   

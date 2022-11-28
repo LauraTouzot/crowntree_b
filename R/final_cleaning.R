@@ -1,9 +1,9 @@
 ### Last cleaning of the database to be extra sure no mistakes have been left behind
 ## remove observations if
 # dbh = NA (or 0 even though it is not supposed to still be in the dataset)
-# total tree height < crown depth
-# total tree height = 0
-# contient different than Europe or North America
+# total tree height > crown depth
+# total tree height > 1.3
+# continent different than Europe or North America
 
 last_cleaning <- function(all_crown) {
   

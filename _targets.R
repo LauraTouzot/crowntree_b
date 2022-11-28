@@ -15,42 +15,18 @@
 # Loading targets
 library(targets)
 
-## Loading all required packages
-# require(baad.data)
-# require(stringr)
-# require(dplyr)
-# require(sp)
-# require(rworldmap)
-# require(rgdal)
-# require(measurements)
-# require(sf)
-# require(readxl)
-# require(stringi)
-# require(stringr)
-# require(lubridate)
-# require(tidyr)
-# require(parzer)
-# require(TNRS)
-# require(ggplot2)
-# require(lme4)
-# require(nlme)
-# require(Metrics)
-
-
 # Loading functions
 lapply(grep("R$", list.files("R"), value = TRUE), function(x) source(file.path("R", x)))
 
 # Installing if needed and loading packages
-# packages.in <- c("baad.data", "stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements",
-#                  "sf", "readxl", "stringi", "lubridate", "tidyr", "parzer",
-#                  "ggplot2", "clustermq", "nlme", "lme4", "pals", "gdata", "Metrics",
-#                  "purrr", "readr", "magrittr", "rgbif",
-#                  "CoordinateCleaner", "RCurl", "httr", "archive", "terra", "cowplot", "R.utils",
-#                  "ggspatial", "rnaturalearth", "rnaturalearthdata", "taxize")
-
-packages.in <- c("stringr", "dplyr","measurements",
-                 "readxl", "stringi", "lubridate", "tidyr", "parzer",
-                 "nlme", "lme4", "pals", "gdata", "Metrics")
+packages.in <- c("baad.data", "stringr", "dplyr", "sp", "rworldmap", "rgdal", "measurements",
+                 "sf", "readxl", "stringi", "lubridate", "tidyr", "parzer", "TNRS",
+                 "ggplot2", "clustermq", "nlme", "lme4", "betareg", "pals", "gdata", "Metrics",
+                 "purrr", "readr", "magrittr", "rgbif", "data.table",
+                 "CoordinateCleaner", "RCurl", "httr", "archive", "terra", "cowplot", "R.utils",
+                 "ggspatial", "rnaturalearth", "rnaturalearthdata", "taxize",
+                 "ggstatsplot", "ade4", "factoextra", "FactoMineR",
+                 "truncnorm")
 
 
 for (i in 1:length(packages.in)) if(!(packages.in[i] %in% rownames(installed.packages()))) install.packages(packages.in[i])
@@ -180,52 +156,64 @@ list(
   # tar_target(species_all_NFI, read.csv("data/species_NFI_all_climate_exo.csv")),
   # tar_target(NFI_data, check_for_taxonomy_NFI(species_all_NFI)),
   # tar_target(data_availability_comparison, binding_databases(NFI_data, summary_species)),
-  
-  
-  ### 5. Extracting data for all explored allometric relationships
-  
+  #
+  #
+  # ### 5. Extracting data for all explored allometric relationships
+  #
   tar_target(global_species_list, get_species_list()),
   tar_target(data_allometry, get_data_allometry(global_species_list)),
+  #
+  # tar_target(height_data, get_data_height(data_allometry)),
+  # tar_target(height_species, get_species_height(height_data)),
+  # 
+  # tar_target(diameter_data, get_data_diameter(data_allometry)),
+  # tar_target(diameter_species, get_species_diameter(diameter_data)),
+  # tar_target(diameter_species_comp, get_species_diameter_comp(diameter_data)),
+  # 
+  # tar_target(depth_data, get_data_depth(data_allometry)),
+  # tar_target(depth_species, get_species_depth(depth_data)),
+  # tar_target(depth_species_comp, get_species_depth_comp(depth_data)),
+  # 
+  # tar_target(heightdepth_data, get_data_heightdepth(data_allometry)),
+  # tar_target(heightdepth_species, get_species_heightdepth(heightdepth_data)),
+  # tar_target(heightdepth_species_comp, get_species_heightdepth_comp(heightdepth_data)),
+  
+  tar_target(ratio_data, get_data_ratio(data_allometry)),
+  # tar_target(ratio_species, get_species_ratio(ratio_data)),
+  tar_target(ratio_species_comp, get_species_ratio_comp(ratio_data)),
 
-  tar_target(height_data, get_data_height(data_allometry)),
-  tar_target(height_species, get_species_height(height_data)),
-
-  tar_target(diameter_data, get_data_diameter(data_allometry)),
-  tar_target(diameter_species, get_species_diameter(diameter_data)),
-  tar_target(diameter_species_comp, get_species_diameter_comp(diameter_data)),
-
-  tar_target(depth_data, get_data_depth(data_allometry)),
-  tar_target(depth_species, get_species_depth(depth_data)),
-  tar_target(depth_species_comp, get_species_depth_comp(depth_data)),
-
-  tar_target(heightdepth_data, get_data_heightdepth(data_allometry)),
-  tar_target(heightdepth_species, get_species_heightdepth(heightdepth_data)),
-  tar_target(heightdepth_species_comp, get_species_heightdepth_comp(heightdepth_data)),
+  # tar_target(complete_list, final_sp_per_relationship(data_allometry)),
 
   # ### 6. Fitting allometric relationships on all data and without competition
   # tar_target(height_alldata_nocomp_output, height_alldata_nocomp(height_data, height_species), pattern = map(height_species)),
   # tar_target(depth_alldata_nocomp_output, depth_alldata_nocomp(depth_data, depth_species), pattern = map(depth_species)),
   # tar_target(diameter_alldata_nocomp_output, diameter_alldata_nocomp(diameter_data, diameter_species), pattern = map(diameter_species)),
   # tar_target(heightdepth_alldata_nocomp_output, heightdepth_alldata_nocomp(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
-  
-  
+  #
+  #
   # ### 7. Fitting allometric relationships on resampled data and without competition
   # tar_target(height_resampling_nocomp_output, height_resampling_nocomp(height_data, height_species), pattern = map(height_species)),
+  # tar_target(height_resampling_nocomp_output_bis, height_resampling_nocomp_bis(height_data)),
   # tar_target(depth_resampling_nocomp_output, depth_resampling_nocomp(depth_data, depth_species), pattern = map(depth_species)),
   # tar_target(diameter_resampling_nocomp_output, diameter_resampling_nocomp(diameter_data, diameter_species), pattern = map(diameter_species)),
   # tar_target(heightdepth_resampling_nocomp_output, heightdepth_resampling_nocomp(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
-  # 
+  # tar_target(ratio_resampling_nocomp_output, ratio_resampling_nocomp(ratio_data, ratio_species), pattern = map(ratio_species)),
+  # tar_target(ratio_resampling_nocomp_output_mean, ratio_resampling_nocomp_mean(ratio_data, ratio_species), pattern = map(ratio_species)),
   # 
   # ### 8. Fitting allometric relationships on resampled data and with competition
   # tar_target(depth_resampling_c1_output, depth_resampling_c1(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
   # tar_target(diameter_resampling_c1_output, diameter_resampling_c1(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
   # tar_target(heightdepth_resampling_c1_output, heightdepth_resampling_c1(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
-  # 
+  # tar_target(ratio_resampling_c1_output, ratio_resampling_c1(ratio_data, ratio_species_comp), pattern = map(ratio_species_comp)),
+  # tar_target(ratio_resampling_c1_output_mean, ratio_resampling_mean_c1(ratio_data, ratio_species_comp), pattern = map(ratio_species_comp)),
+  #
   # tar_target(depth_resampling_c2_output, depth_resampling_c2(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
   # tar_target(diameter_resampling_c2_output, diameter_resampling_c2(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
   # tar_target(heightdepth_resampling_c2_output, heightdepth_resampling_c2(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
-  # 
-  # # ### 9. Fitting allometric relationships on resampled data and without competition - log log models
+  # tar_target(ratio_resampling_c2_output, ratio_resampling_c2(ratio_data, ratio_species_comp), pattern = map(ratio_species_comp)))
+  # tar_target(ratio_resampling_c2_output_mean, ratio_resampling_mean_c2(ratio_data, ratio_species_comp), pattern = map(ratio_species_comp)))
+  #
+  # ### 9. Fitting allometric relationships on resampled data and without competition - log log models
   # tar_target(depth_resampling_nocomp_output_log, depth_resampling_nocomp_log(depth_data, depth_species), pattern = map(depth_species)),
   # tar_target(diameter_resampling_nocomp_output_log, diameter_resampling_nocomp_log(diameter_data, diameter_species), pattern = map(diameter_species)),
   # tar_target(heightdepth_resampling_nocomp_output_log, heightdepth_resampling_nocomp_log(heightdepth_data, heightdepth_species), pattern = map(heightdepth_species)),
@@ -235,9 +223,16 @@ list(
   # tar_target(diameter_resampling_c1_output_log, diameter_resampling_c1_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
   # tar_target(heightdepth_resampling_c1_output_log, heightdepth_resampling_c1_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
   # 
-  tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
-  tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
-  tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)))
+  # tar_target(depth_resampling_c2_output_log, depth_resampling_c2_log(depth_data, depth_species_comp), pattern = map(depth_species_comp)),
+  # tar_target(diameter_resampling_c2_output_log, diameter_resampling_c2_log(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  # tar_target(heightdepth_resampling_c2_output_log, heightdepth_resampling_c2_log(heightdepth_data, heightdepth_species_comp), pattern = map(heightdepth_species_comp)),
+  # 
+  #
+  # ### bis. Fitting the same models, but with seed.sed()
+  # tar_target(height_bis, height_models(height_data, height_species), pattern = map(height_species)),
+  # tar_target(diameter_bis, diameter_models(diameter_data, diameter_species_comp), pattern = map(diameter_species_comp)),
+  tar_target(ratio_bis, ratio_models(ratio_data, ratio_species_comp), pattern = map(ratio_species_comp)))
+  
   
   # ### 11. Extracting mean climate for each studied species
   # 
@@ -258,7 +253,54 @@ list(
   # tar_target(meanClimate_species, extract_climate_for_gbif(chelsa_files, data_gbif)),
   # 
   # # Export file
-  # tar_target(meanClimate_species_file, write_on_disk(meanClimate_species, "output/sp_gbif_climate.csv"), format = "file"))
+  # tar_target(meanClimate_species_file, write_on_disk(meanClimate_species, "output/sp_gbif_climate.csv"), format = "file"),
+  #
+  #
+  # ### 12. Putting together all model outputs to then work on the latter - no competition
+  # tar_target(height_parameters, get_height_parameters()),
+  # tar_target(height_max, get_height_max(height_parameters)),
+  # tar_target(height_estimates, get_height_max(height_parameters)),
+  # tar_target(diameter_parameters, get_diameter_parameters()),
+  # tar_target(diameter_estimates, get_diameter_estimates()),
+  # tar_target(ratio_parameters, get_ratio_parameters()),
+  # tar_target(ratio_estimates, get_ratio_estimates(ratio_parameters)),
+  # tar_target(ratio_mean_estimates, get_mean_ratio_estimates()),
+  #
+  #
+  # tar_target(diameter_c1_parameters, get_diameter_c1_parameters()),
+  # tar_target(diameter_c1_estimates, get_diameter_c1_estimates(diameter_c1_parameters)),
+  # tar_target(ratio_c1_parameters, get_ratio_c1_parameters()),
+  # tar_target(ratio_c1_estimates, get_ratio_c1_estimates(ratio_c1_parameters)),
+  # tar_target(ratio_mean_c1_parameters, get_ratio_c1_mean_parameters()),
+  # tar_target(ratio_mean_c1_estimates, get_ratio_mean_c1_estimates(ratio_mean_c1_parameters)),
+
+  # tar_target(diameter_c2_parameters, get_diameter_c2_parameters()),
+  # tar_target(diameter_c2_estimates, get_diameter_c2_estimates(diameter_c2_parameters)),
+  # tar_target(ratio_c2_parameters, get_ratio_c2_parameters()),
+  # tar_target(ratio_c2_estimates, get_ratio_c2_estimates(ratio_c2_parameters)),
+  # tar_target(ratio_mean_c2_parameters, get_ratio_c2_mean_parameters()),
+  # tar_target(ratio_mean_c2_estimates, get_ratio_mean_c2_estimates(ratio_mean_c2_parameters)))
+  
+  # ### 13. Identifying species list and computing complete files with extra variables (e.g. traits, climate, shade tolerance)
+  # tar_target(sp_list_output, get_mod_sp_list()),
+  # tar_target(sp_climate, add_climate_gbif(sp_list_output)),
+  # tar_target(sp_complete_data, add_traits_funcgroup(sp_climate)),
+
+  # ### 14. Analyzing allometric models' outputs
+  # tar_target(controlling_dimensions, identify_controlling_dimensions())
+  # tar_target(crown_traits) 
+
+
+
+
+
+
+  # 
+  
+
+  # ### 13. Analyzing allometric models' outputs
+  
+  # 
   
   # )
 

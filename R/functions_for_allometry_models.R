@@ -125,7 +125,7 @@ mod_linear_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_si
       
       ## extracting number of observations per protocol to attribute weights
       n_tot <- dim(new_data)[1]
-      nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+      nobs <- new_data %>% dplyr::group_by(protocol) %>% dplyr::summarise(n = n()/n_tot) %>% ungroup()
       
       for (g in levels(new_data$protocol)) {
         linear_resampling_nocomp_w[f,paste0("protocol",g)] <- linear_resampling_nocomp[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
@@ -346,7 +346,7 @@ mod_power_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_siz
                    params = list(a1 ~ 1, a2 ~ 1),
                    start = c(a1 = exp(init_rs[1]), a2 = init_rs[2]),
                    weights = varPower(form = ~fitted(.)),
-                   control = gnlsControl(maxIter = 1000, tolerance = 1e-2, nlsTol = 1e-1))
+                   control = gnlsControl(maxIter = 1000, tolerance = 0.1, nlsTol = 0.1))
       
       if (length(unique(new_data$protocol)) > 1) {
         
@@ -355,7 +355,7 @@ mod_power_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_siz
                      params = list(a1 ~ protocol, a2 ~ 1),
                      start = c(a1 = c(rep(exp(init_rs[1]), length(unique(new_data$protocol)))), a2 = init_rs[2]),
                      weights = varPower(form = ~fitted(.)),
-                     control = gnlsControl(maxIter = 1000, tolerance = 1e-2, nlsTol = 1e-1))
+                     control = gnlsControl(maxIter = 1000, tolerance = 0.1, nlsTol = 0.1))
         
         power_resampling_nocomp[f,"a2"] <- coefficients(m2_p_rs)["a2"]
         power_resampling_nocomp[f,"AIC"] <- AIC(m2_p_rs)
@@ -478,7 +478,7 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
       
       ## extracting number of observations per protocol to attribute weights
       n_tot <- dim(new_data)[1]
-      nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+      nobs <- new_data %>% dplyr::group_by(protocol) %>% dplyr::summarise(n = n()/n_tot) %>% ungroup()
       
       for (g in levels(new_data$protocol)) {
         power_resampling_nocomp_w_log[f,paste0("protocol",g)] <- power_resampling_nocomp_log[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
@@ -490,8 +490,8 @@ mod_power_resampling_nocomp_log <- function(ranged_data, nb_datasets_all, sample
       
     
       ## predicting y on subsampled data
-      test_data_b <- test_data %>% mutate(y_pred_a = power_resampling_nocomp_log[f,"a1"] * (x^power_resampling_nocomp_log[f,"a2"]) * ((1/2)*(exp(power_resampling_nocomp_log[f,"sigma"]^2))),
-                                          y_pred_b = power_resampling_nocomp_w_log[f,"a1"] * (x^power_resampling_nocomp_w_log[f,"a2"]) * ((1/2)*(exp(power_resampling_nocomp_w_log[f,"sigma"]^2))))
+      test_data_b <- test_data %>% mutate(y_pred_a = power_resampling_nocomp_log[f,"a1"] * (x^power_resampling_nocomp_log[f,"a2"]) * (exp((power_resampling_nocomp_log[f,"sigma"]^2)/2)),
+                                          y_pred_b = power_resampling_nocomp_w_log[f,"a1"] * (x^power_resampling_nocomp_w_log[f,"a2"]) * (exp((power_resampling_nocomp_w_log[f,"sigma"]^2)/2)))
       
       
       ## computing RMSE
@@ -640,7 +640,7 @@ mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_si
                    data = new_data,
                    start = setNames(as.list(vars_rs$start), vars_rs$var),
                    lower = c(0.0001, 0.0001, 0.0001), algorithm = "port",
-                   nls.control(maxiter = 1000, tol = 1e-2))
+                   nls.control(maxiter = 1000, tol = 1e-1))
     
     m1_a_rs <- gnls(mod_asympt,
                     data = new_data,
@@ -687,7 +687,7 @@ mod_asympt_resampling_nocomp <- function(ranged_data, nb_datasets_all, sample_si
     
     ## extracting number of observations per protocol to attribute weights
     n_tot <- dim(new_data)[1]
-    nobs <- new_data %>% group_by(protocol) %>% summarise(n = n()/n_tot) %>% ungroup()
+    nobs <- new_data %>% dplyr::group_by(protocol) %>% dplyr::summarise(n = n()/n_tot) %>% ungroup()
     
     for (g in levels(new_data$protocol)) {
       asymptot_resampling_nocomp_w[f,paste0("protocol",g)] <- asymptot_resampling_nocomp[f,paste0("protocol",g)] * (nobs %>% filter(protocol== g)) [1,"n"] 
